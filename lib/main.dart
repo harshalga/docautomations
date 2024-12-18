@@ -1,6 +1,8 @@
 import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/widgets/consumptionpattern.dart';
+import 'package:docautomations/widgets/consumptionperiod.dart';
 import 'package:docautomations/widgets/frequency.dart';
+import 'package:docautomations/widgets/instructions.dart';
 import 'package:docautomations/widgets/medicineswitch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -205,6 +207,10 @@ class AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
                 height: 10,
               ),
               ConsumptionPattern(),
+              const SizedBox(height: 10,),
+              ConsumptionPeriod(),
+               const SizedBox(height: 10,),
+              Instructions(),
               const SizedBox(height: 10,),
               Padding(
                 padding: const EdgeInsets.all(8),

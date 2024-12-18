@@ -101,7 +101,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                   validator: Validator.apply(context, const [RequiredValidation()]),
                   // validator: (value) {
                   //   if (value == null || value.isEmpty) {
-                  //     return 'Please enter $medicinetype name !!';
+                  //         return 'Please enter $medicinetype name !!';
                   //   }
                   //   return null;
                   // },
