@@ -88,6 +88,10 @@ class ConsumptionPeriodState extends State<ConsumptionPeriod> {
         controller: durationController,
         decoration: InputDecoration(border: const OutlineInputBorder(),
         labelText: 'Enter duration in $selectedLabel'),
+        validator : Validator.apply(
+                      context,
+                        [RequiredValidation(),NumericValidation(),
+                       PeriodbasedValidation( selectedlabel:selectedLabel ),])
       )),
     ],
     

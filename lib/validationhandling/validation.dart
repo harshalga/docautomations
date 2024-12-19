@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/widgets.dart';
 //import 'package:flutter_validation/src/models/role.dart';
 
@@ -45,6 +47,42 @@ class RequiredValidation<T> extends Validation<T> {
     return null;
   }
 }
+
+class PeriodbasedValidation extends Validation<String>
+{ String? selectedlabel;
+   PeriodbasedValidation( {required this.selectedlabel});
+  @override
+  String? validate(BuildContext context,String?  value) {
+    if (value == null) return null;
+
+
+    try{
+    print('The value $selectedlabel??' );
+    // TODO: implement validate
+    if (selectedlabel=='days')
+    {
+      if (int.parse(value) >31)
+      {
+        return 'Days cannot be greater than 31 !!!';
+      }
+      else 
+      {return null;}
+    }
+    else
+    {
+      if (int.parse(value)>12)
+      {
+        return 'Months cannot be greater than 12 !!!';
+      }else 
+      {return null;}
+    }
+   }on Exception
+    catch (e)
+    {
+      print(e.toString());
+      throw e.toString();
+    } 
+  }}
 
 /// a validation that checks if the value is a valid email.
 class NumericValidation extends Validation<String> {

@@ -1,4 +1,5 @@
 
+import 'package:docautomations/common/appcolors.dart';
 import 'package:flutter/material.dart';
 import 'package:docautomations/validationhandling/validation.dart';
 import 'package:docautomations/validationhandling/validator.dart';
@@ -59,7 +60,15 @@ class MedicineSwitchState extends State<MedicineSwitch> {
   }
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return 
+    Container(padding: EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      boxShadow: [BoxShadow(color: AppColors.secondary.withOpacity(0.3),blurRadius:10,
+      offset: Offset.zero)],
+    ),
+    child: Column(
       children:[
               Row(
 
@@ -99,12 +108,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                       labelText: 'Enter $medicinetype Name : '),
                   controller: tabNameController,
                   validator: Validator.apply(context, const [RequiredValidation()]),
-                  // validator: (value) {
-                  //   if (value == null || value.isEmpty) {
-                  //         return 'Please enter $medicinetype name !!';
-                  //   }
-                  //   return null;
-                  // },
+                  
                 )),
 
                    Row (children: [
@@ -130,14 +134,14 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                        const [RequiredValidation(),NumericValidation()])
                     
                   )),
-                   //Padding(padding:  EdgeInsets.all(4),
+                  
 
                  Text( overflow: TextOverflow.ellipsis,'  $unitofmeasure', textAlign: TextAlign.left),
                 //),
               ],),
 
       ]
-    );
+    ));
     
    
   }

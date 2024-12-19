@@ -31,7 +31,10 @@ class InstructionsState extends State<Instructions>   {
       boxShadow: [BoxShadow(color: AppColors.secondary.withOpacity(0.3),blurRadius:10,
       offset: Offset.zero)],
     ),
-    child:Expanded(child: TextField(
+    child:
+    Row(
+      children: [
+      Expanded(child: TextField(
             controller: remarksController,
             keyboardType: TextInputType.multiline,
             minLines: 1,
@@ -39,8 +42,8 @@ class InstructionsState extends State<Instructions>   {
             style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
             decoration:
                 InputDecoration(border: const OutlineInputBorder(), labelText: 'Instructions'),
-          ),)
-    );
+          ),)]
+    ));
   }
 }
 
