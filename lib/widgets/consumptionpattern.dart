@@ -1,12 +1,10 @@
 import 'package:docautomations/common/appcolors.dart';
 import 'package:flutter/material.dart';
-import 'package:docautomations/validationhandling/validation.dart';
-import 'package:docautomations/validationhandling/validator.dart';
 
 
 class ConsumptionPattern extends StatefulWidget
 {
-   const ConsumptionPattern({Key? key}) : super(key: key);
+   const ConsumptionPattern({super.key});
 
   @override
   State<ConsumptionPattern> createState() => ConsumptionPatternState();
@@ -19,7 +17,7 @@ class ConsumptionPatternState extends State<ConsumptionPattern>{
   Widget build(BuildContext context) {
     // TODO: implement build
    return Container(
-   padding:EdgeInsets.all(10),
+   padding:const EdgeInsets.all(10),
    decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(10),
@@ -30,7 +28,7 @@ class ConsumptionPatternState extends State<ConsumptionPattern>{
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       
-      Text('Consumption pattern of Medication', textAlign: TextAlign.left,) ,
+      const Text('Consumption pattern of Medication', textAlign: TextAlign.left,) ,
 
      
           ToggleButtons(
@@ -55,7 +53,7 @@ class ConsumptionPatternState extends State<ConsumptionPattern>{
         borderRadius: BorderRadius.circular(10),
         selectedBorderColor: Colors.pink,
         // add widgets for which the users need to toggle
-        children: [ Padding(
+        children: const [ Padding(
     padding: EdgeInsets.symmetric(horizontal: 12),
     child: Text('Before Food', style: TextStyle(fontSize: 18)),
   ),

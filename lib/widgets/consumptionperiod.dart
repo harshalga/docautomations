@@ -6,7 +6,7 @@ import 'package:collection/collection.dart';
 
 class ConsumptionPeriod extends StatefulWidget
 {
-  const ConsumptionPeriod({Key?key}):super(key:key);
+  const ConsumptionPeriod({super.key});
   
   @override
   State<ConsumptionPeriod> createState() => ConsumptionPeriodState();
@@ -62,7 +62,7 @@ class ConsumptionPeriodState extends State<ConsumptionPeriod> {
     selectedLabel= 'days';
   }
     return Container(
-      padding:EdgeInsets.all(10),
+      padding:const EdgeInsets.all(10),
       decoration: BoxDecoration(color: Colors.white,
     borderRadius: BorderRadius.circular(10),
     boxShadow:[ BoxShadow(color: AppColors.secondary.withOpacity(0.3),blurRadius: 10,
@@ -90,7 +90,7 @@ class ConsumptionPeriodState extends State<ConsumptionPeriod> {
         labelText: 'Enter duration in $selectedLabel'),
         validator : Validator.apply(
                       context,
-                        [RequiredValidation(),NumericValidation(),
+                        [const RequiredValidation(),const NumericValidation(),
                        PeriodbasedValidation( selectedlabel:selectedLabel ),])
       )),
     ],

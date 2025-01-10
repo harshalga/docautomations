@@ -16,8 +16,8 @@ class MedicineSwitch extends StatefulWidget {
   
    MedicineSwitch(
     {
-      Key?key
-      }):super(key:key);
+      super.key
+      });
 
   @override
   State<MedicineSwitch> createState() => MedicineSwitchState();
@@ -61,7 +61,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
   @override
   Widget build(BuildContext context) {
     return 
-    Container(padding: EdgeInsets.all(10),
+    Container(padding: const EdgeInsets.all(10),
     decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(10),
@@ -75,11 +75,11 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                 children: [
                   const Padding(
                     padding: EdgeInsets.all(10),
-                    child: Text('Select Medicine (Tablet or Syrup) '),
+                    child: Text('Medicine (Tablet or Syrup) '),
                   ),
                    
                   Padding(
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
 
                   child:  Switch(
                     // This bool value toggles the switch.
@@ -118,7 +118,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                 child: Text('Unit of Measure ', textAlign: TextAlign.left),
                 ),
                 
-              Container(
+              SizedBox(
                 width: 150,
                 child: 
                   TextFormField(

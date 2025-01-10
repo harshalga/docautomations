@@ -5,12 +5,9 @@ import 'package:docautomations/widgets/frequency.dart';
 import 'package:docautomations/widgets/instructions.dart';
 import 'package:docautomations/widgets/medicineswitch.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 // Include the Google Fonts package to provide more text format options
 // https://pub.dev/packages/google_fonts
 import 'package:google_fonts/google_fonts.dart';
-import 'package:docautomations/validationhandling/validation.dart';
-import 'package:docautomations/validationhandling/validator.dart';
 
 
 void main() {
@@ -175,8 +172,8 @@ class AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
 
       child: 
     Container(
-      padding:EdgeInsets.all(20),
-      margin: EdgeInsets.only(left: 20,right: 20,top: 20,bottom: 20),
+      padding:const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(left: 20,right: 20,top: 20,bottom: 20),
       decoration: BoxDecoration(
         color:Colors.white,
         borderRadius: BorderRadius.circular(50),
@@ -199,18 +196,18 @@ class AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
               const SizedBox(
                 height: 10,
               ),
-              FrequencyWidget(),
+              const FrequencyWidget(),
               const SizedBox(
                 height: 10,
               ),
               const SizedBox(
                 height: 10,
               ),
-              ConsumptionPattern(),
+              const ConsumptionPattern(),
               const SizedBox(height: 10,),
-              ConsumptionPeriod(),
+              const ConsumptionPeriod(),
                const SizedBox(height: 10,),
-              Instructions(),
+              const Instructions(),
               const SizedBox(height: 10,),
               Padding(
                 padding: const EdgeInsets.all(8),

@@ -1,13 +1,11 @@
 import 'package:docautomations/common/appcolors.dart';
 import 'package:flutter/material.dart';
-import 'package:docautomations/validationhandling/validation.dart';
-import 'package:docautomations/validationhandling/validator.dart';
 
 
 class FrequencyWidget extends StatefulWidget
 {
   
-  FrequencyWidget({Key?key}):super(key:key);
+  const FrequencyWidget({super.key});
 
   @override
   State<FrequencyWidget> createState() => FrequencyWidgetState();
@@ -26,7 +24,7 @@ class FrequencyWidgetState extends State<FrequencyWidget>
     
     Container
     (
-      padding:EdgeInsets.all(10),
+      padding:const EdgeInsets.all(10),
       //margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 10),
       decoration: BoxDecoration(
         
@@ -43,8 +41,10 @@ class FrequencyWidgetState extends State<FrequencyWidget>
         
         children: [
       
-      Text('Frequency', textAlign: TextAlign.left,),
-
+      const Text('Frequency', textAlign: TextAlign.left,),
+      
+      
+      
       ToggleButtons(
   // list of booleans
   isSelected: isSelected,
@@ -67,8 +67,8 @@ class FrequencyWidgetState extends State<FrequencyWidget>
   borderRadius: BorderRadius.circular(10),
   selectedBorderColor: Colors.pink,
 // add widgets for which the users need to toggle
-   children: [ Padding(
-    padding: EdgeInsets.symmetric(horizontal: 12),
+   children: const [ Padding(
+    padding: EdgeInsets.symmetric(horizontal: 5),
     child: Text('Morning', style: TextStyle(fontSize: 18)),
   ),
   Padding(

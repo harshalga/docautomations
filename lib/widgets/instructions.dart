@@ -1,12 +1,9 @@
 import 'package:docautomations/common/appcolors.dart';
 import 'package:flutter/material.dart';
-import 'package:docautomations/validationhandling/validation.dart';
-import 'package:docautomations/validationhandling/validator.dart';
-import 'package:collection/collection.dart';
 
 class Instructions extends StatefulWidget
 {
-  Instructions({Key?key}):super(key:key);
+  const Instructions({super.key});
   @override
   State<Instructions> createState()=> InstructionsState();
   
@@ -24,7 +21,7 @@ class InstructionsState extends State<Instructions>   {
   }
   @override
   Widget build(Object context) {
-    return Container(padding: EdgeInsets.all(10),
+    return Container(padding: const EdgeInsets.all(10),
     decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(10),
@@ -41,7 +38,7 @@ class InstructionsState extends State<Instructions>   {
             maxLines: 5,
             style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
             decoration:
-                InputDecoration(border: const OutlineInputBorder(), labelText: 'Instructions'),
+                const InputDecoration(border: OutlineInputBorder(), labelText: 'Instructions'),
           ),)]
     ));
   }
