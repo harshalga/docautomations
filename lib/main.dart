@@ -9,10 +9,17 @@ import 'package:flutter/material.dart';
 // Include the Google Fonts package to provide more text format options
 // https://pub.dev/packages/google_fonts
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 
 void main() {
   runApp(const MyApp());
+  // runApp(
+  //   ChangeNotifierProvider(
+  //     create: (context) => UserProvider(),
+  //     child: MyApp(),
+  //   ),
+  // );
 }
 
 class MyApp extends StatelessWidget {
