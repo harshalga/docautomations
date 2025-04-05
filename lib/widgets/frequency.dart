@@ -1,4 +1,5 @@
 import 'package:docautomations/common/appcolors.dart';
+import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:flutter/material.dart';
 
 
@@ -14,8 +15,26 @@ class FrequencyWidget extends StatefulWidget
 
 class FrequencyWidgetState extends State<FrequencyWidget>
 {
-  
-    List<bool> isSelected = [true, false,false,false];
+    Prescriptiondata pescriptiondata=  Prescriptiondata(); // Initialize Model
+    //List<bool> isSelected = [true, false,false,false];
+    late List<bool> isSelected;
+
+    @override
+  void initState() {
+    super.initState();
+    // Convert stored bitField to list of booleans
+    isSelected = pescriptiondata.toBooleanList(4);
+  }
+
+  void _toggleButton(int index) {
+    setState(() {
+      // Toggle state and update the model
+      isSelected[index] = !isSelected[index];
+      pescriptiondata.setToggle(index, isSelected[index]);
+
+      print("Updated BitField: ${pescriptiondata.freqBitField.toRadixString(2)}"); // Debug
+    });
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -83,21 +102,22 @@ class FrequencyWidgetState extends State<FrequencyWidget>
     padding: EdgeInsets.symmetric(horizontal: 12),
     child: Text('Night', style: TextStyle(fontSize: 18)),
   ),],
+  onPressed: _toggleButton,
 // to select or deselect when pressed
-  onPressed: (int newIndex) { 
-    final isOneSelected = isSelected.where((element) => element).length == 1;
-    if (isOneSelected && isSelected[newIndex]) return;
-    setState(() {
-    // looping through the list of booleans values
-    for (int index = 0; index < isSelected.length; index++) {
-      // checking for the index value
-      if (index == newIndex) {
-        // one button is always set to true
-        // toggle between the old index and new index value
-      isSelected[index] = !isSelected[index];
-      }
-    }
-  });}
+  // onPressed: (int newIndex) { 
+  //   final isOneSelected = isSelected.where((element) => element).length == 1;
+  //   if (isOneSelected && isSelected[newIndex]) return;
+  //   setState(() {
+  //   // looping through the list of booleans values
+  //   for (int index = 0; index < isSelected.length; index++) {
+  //     // checking for the index value
+  //     if (index == newIndex) {
+  //       // one button is always set to true
+  //       // toggle between the old index and new index value
+  //     isSelected[index] = !isSelected[index];
+  //     }
+  //   }
+  // });}
 ),
 
 

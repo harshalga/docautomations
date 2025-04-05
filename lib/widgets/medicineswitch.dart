@@ -1,8 +1,10 @@
 
 import 'package:docautomations/common/appcolors.dart';
+import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:flutter/material.dart';
 import 'package:docautomations/validationhandling/validation.dart';
 import 'package:docautomations/validationhandling/validator.dart';
+import 'package:provider/provider.dart';
 
 
 
@@ -40,10 +42,12 @@ class MedicineSwitchState extends State<MedicineSwitch> {
     medicinetype= (istabletType == true ? 'Tablet' : 'Syrup');
   }
 
- void _toggleSwitch(bool value) {
+ void _toggleSwitch(BuildContext context,  bool value) {
     setState(() {
       
       istabletType = value;
+      context.read<Prescriptiondata>().updateIsTablet(value);
+      context.read<Prescriptiondata>().updateIsMeasuredInMg(value);
       unitofmeasure = (istabletType == true ? 'mg' : 'ml');
       medicinetype= (istabletType == true ? 'Tablet' : 'Syrup');
     });
@@ -87,7 +91,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                   value: istabletType,
                     
                     
-                    onChanged:_toggleSwitch,
+                    onChanged:(value) => _toggleSwitch(context, value), // Passing context//_toggleSwitch,
                     activeColor: Colors.blue,
                     inactiveThumbColor: Colors.grey,
                     inactiveTrackColor: Colors.grey.shade300
@@ -107,6 +111,10 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                       border: const OutlineInputBorder(),
                       labelText: 'Enter $medicinetype Name : '),
                   controller: tabNameController,
+                  onChanged: (value)
+                  {
+                    context.read<Prescriptiondata>().updateDrugName(value);
+                  },
                   validator: Validator.apply(context, const [RequiredValidation()]),
                   
                 )),
@@ -128,7 +136,10 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                         hintTextDirection: TextDirection.rtl,
                         errorMaxLines: 2),
                     controller: unitofmeasureController,
-                    
+                    onChanged: (value)
+                  {
+                    context.read<Prescriptiondata>().updateDrugUnit(value as int);
+                  },
                     validator : Validator.apply(
                       context,
                        const [RequiredValidation(),NumericValidation()])

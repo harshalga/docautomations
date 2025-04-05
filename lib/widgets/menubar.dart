@@ -1,4 +1,5 @@
 import 'package:docautomations/main.dart';
+import 'package:docautomations/widgets/AddPrescrip.dart';
 import 'package:flutter/material.dart';
 
 class Menubar extends StatefulWidget {
@@ -29,44 +30,45 @@ class _MenubarState extends State<Menubar> {
                   height: 60,
                   width: 60,
                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(30),color: Colors.lightBlue),
-                  child: Center(child: Text("CC",style:TextStyle(fontSize: 26))),
+                  child: const Center(child: Text("CC",style:TextStyle(fontSize: 26))),
                   ),
-                  SizedBox(height: 20,),
+                  const SizedBox(height: 20,),
                   
-                  Text("Dr. Prescreptor ", style:TextStyle(color: Colors.black,fontSize: 26),)
+                  const Text("Dr. Prescreptor ", style:TextStyle(color: Colors.black,fontSize: 26),)
               ],
             )),
             ListTile(
               onTap: () {Navigator.push(
-                context, MaterialPageRoute(builder: (context)=>MyHomePage(title: "Prescriptor1")),
+                context, MaterialPageRoute(builder: (context)=>const MyHomePage(title: "Prescriptor1")),
                 );
                 },
-              leading: Icon(Icons.home,size:26,color: Colors.black,),
-              title: Text("HomePage",style: TextStyle(fontSize: 20)),
+              leading: const Icon(Icons.home,size:26,color: Colors.black,),
+              title: const Text("HomePage",style: TextStyle(fontSize: 20)),
             ),
             
             ListTile(
-              onTap: () {},
-              leading: Icon(Icons.info,size:26,color: Colors.black,),
-              title: Text("Dr. Info",style: TextStyle(fontSize: 20)),
+              onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context)=>const Addprescrip(title:"PatientInfo"),
+              ));},
+              leading: const Icon(Icons.info,size:26,color: Colors.black,),
+              title: const Text("Dr. Info",style: TextStyle(fontSize: 20)),
             ),
             ListTile(
               onTap: () {},
-              leading: Icon(Icons.logo_dev,size:26,color: Colors.black,),
-              title: Text("Logo",style: TextStyle(fontSize: 20)),
+              leading: const Icon(Icons.logo_dev,size:26,color: Colors.black,),
+              title: const Text("Logo",style: TextStyle(fontSize: 20)),
             ),
 
            
             ListTile(
               onTap: () {},
-              leading: Icon(Icons.settings,size:26,color: Colors.black,),
-              title: Text("Settings",style: TextStyle(fontSize: 20)),
+              leading: const Icon(Icons.settings,size:26,color: Colors.black,),
+              title: const Text("Settings",style: TextStyle(fontSize: 20)),
             ),
-             Divider(color: Colors.black,),
+             const Divider(color: Colors.black,),
             ListTile(
               onTap: () {},
-              leading: Icon(Icons.logout,size:26,color: Colors.black,),
-              title: Text("Logout",style: TextStyle(fontSize: 20)),
+              leading: const Icon(Icons.logout,size:26,color: Colors.black,),
+              title: const Text("Logout",style: TextStyle(fontSize: 20)),
             ),
         ],
       ),),

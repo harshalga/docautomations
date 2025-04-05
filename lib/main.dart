@@ -1,4 +1,5 @@
 import 'package:docautomations/common/appcolors.dart';
+import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:docautomations/widgets/consumptionpattern.dart';
 import 'package:docautomations/widgets/consumptionperiod.dart';
 import 'package:docautomations/widgets/frequency.dart';
@@ -13,13 +14,13 @@ import 'package:provider/provider.dart';
 
 
 void main() {
-  runApp(const MyApp());
-  // runApp(
-  //   ChangeNotifierProvider(
-  //     create: (context) => UserProvider(),
-  //     child: MyApp(),
-  //   ),
-  // );
+  //runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => Prescriptiondata(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
