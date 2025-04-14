@@ -1,8 +1,10 @@
 import 'package:docautomations/common/appcolors.dart';
+import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:flutter/material.dart';
 import 'package:docautomations/validationhandling/validation.dart';
 import 'package:docautomations/validationhandling/validator.dart';
 import 'package:collection/collection.dart';
+import 'package:provider/provider.dart';
 
 class ConsumptionPeriod extends StatefulWidget
 {
@@ -42,7 +44,7 @@ class ConsumptionPeriodState extends State<ConsumptionPeriod> {
    final TextEditingController durationController = TextEditingController();
   PeriodLabel? selectedPeriod;
   String? selectedLabel ;
-  
+  DateTime now  = DateTime.now();  
    @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -61,6 +63,7 @@ class ConsumptionPeriodState extends State<ConsumptionPeriod> {
   else{
     selectedLabel= 'days';
   }
+  context.read<Prescriptiondata>().updateInDays((selectedLabel=='days'?true:false));
     return Container(
       padding:const EdgeInsets.all(10),
       decoration: BoxDecoration(color: Colors.white,
@@ -79,6 +82,7 @@ class ConsumptionPeriodState extends State<ConsumptionPeriod> {
         setState(() {
           selectedPeriod = period;
           selectedLabel=selectedPeriod!.label;
+          context.read<Prescriptiondata>().updateInDays((selectedLabel=='days'?true:false));
         });
       },
       ),
@@ -91,7 +95,26 @@ class ConsumptionPeriodState extends State<ConsumptionPeriod> {
         validator : Validator.apply(
                       context,
                         [const RequiredValidation(),const NumericValidation(),
-                       PeriodbasedValidation( selectedlabel:selectedLabel ),])
+                       PeriodbasedValidation( selectedlabel:selectedLabel ),]),
+        onChanged: (value)
+                  {
+                    
+                    context.read<Prescriptiondata>().updateFollowupDuration(int.parse(value));
+                    if (selectedLabel=='days')
+                    {
+                      context.read<Prescriptiondata>().updateFollowupDate(now.add(Duration(days: int.parse(value))) );
+                    }
+                    else
+                    {
+                      DateTime newDate = DateTime(
+                                    now.year,
+                                    now.month +int.parse(value),
+                                      now.day,
+                                  );
+                      context.read<Prescriptiondata>().updateFollowupDate(newDate);
+                    }
+                    
+                  },                       
       )),
     ],
     

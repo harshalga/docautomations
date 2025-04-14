@@ -1,5 +1,7 @@
 import 'package:docautomations/common/appcolors.dart';
+import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 
 class ConsumptionPattern extends StatefulWidget
@@ -14,7 +16,15 @@ class ConsumptionPattern extends StatefulWidget
 class ConsumptionPatternState extends State<ConsumptionPattern>{
   List<bool> isSelected = [true, false];
   @override
+ void initState()
+  {
+    super.initState();
+    context.read<Prescriptiondata>().updateIsBeforeFood(true);
+  }
+
+  @override
   Widget build(BuildContext context) {
+   
     // TODO: implement build
    return Container(
    padding:const EdgeInsets.all(10),
@@ -75,7 +85,11 @@ class ConsumptionPatternState extends State<ConsumptionPattern>{
         isSelected[index] = false;
       }
     }
-  });})
+
+     bool newValue = (newIndex == 0);
+    context.read<Prescriptiondata>().updateIsBeforeFood(newValue);
+    
+  });}),
     ],
    ),
    );

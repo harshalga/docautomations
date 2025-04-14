@@ -52,7 +52,7 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
             
             children: [
              
-              Patientinfo(),
+              const Patientinfo(),
               const SizedBox(
                 height: 10,
               ),
@@ -76,10 +76,21 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
       final prescDataReturned = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => AddPrescription(
+                      builder: (context) => const AddPrescription(
                             title: "Prescribtion",
                           )),
                 ) as Prescriptiondata;
+            print("Updated freqBitField: ${prescDataReturned.freqBitField.toRadixString(2)}");
+            print("Updated isTablet: ${prescDataReturned.isTablet}");
+            print("Updated drugName: ${prescDataReturned.drugName}");
+            print("Updated isMeasuredinMg: ${prescDataReturned.isMeasuredinMg}");
+            print("Updated drugUnit: ${prescDataReturned.drugUnit}"); 
+
+            print("Updated isBeforeFood: ${prescDataReturned.isBeforeFood}"); 
+            print("Updated inDays: ${prescDataReturned.inDays}"); 
+            print("Updated followupduration: ${prescDataReturned.followupduration}");
+            print("Updated followupdate: ${prescDataReturned.followupdate}");
+            print("Updated remarks: ${prescDataReturned.remarks}");
 
                 _prescriptiondata.isTablet=prescDataReturned.isTablet;
                 _prescriptiondata.drugName=prescDataReturned.drugName;

@@ -45,8 +45,8 @@ class _PatientinfoState extends State<Patientinfo> {
                   Expanded(child: 
                 TextFormField(
                   autofocus: true,
-                  decoration:  InputDecoration(
-                      border: const OutlineInputBorder(),
+                  decoration:  const InputDecoration(
+                      border: OutlineInputBorder(),
                       labelText: 'Enter patient name : '),
                   controller: tabNameController,
                   validator: Validator.apply(context, const [RequiredValidation()])
@@ -64,8 +64,8 @@ Row(
                   Expanded(child: 
                 TextFormField(
                   
-                  decoration:  InputDecoration(
-                      border: const OutlineInputBorder(),
+                  decoration:  const InputDecoration(
+                      border: OutlineInputBorder(),
                       labelText: 'Enter key complaint '),
                   controller: _keyComplaintcontroller,
                   validator: Validator.apply(context, const [RequiredValidation()])
@@ -85,8 +85,8 @@ Row(
                   keyboardType: TextInputType.multiline,
                   minLines: 1,
                    maxLines: 5,
-                  decoration:  InputDecoration(
-                      border: const OutlineInputBorder(),
+                  decoration:  const InputDecoration(
+                      border: OutlineInputBorder(),
                       labelText: 'Enter examination inputs '),
                   controller: _examinationcontroller,
                   validator: Validator.apply(context, const [RequiredValidation()])
@@ -106,8 +106,8 @@ Row(
                   keyboardType: TextInputType.multiline,
                   minLines: 1,
                    maxLines: 5,
-                  decoration:  InputDecoration(
-                      border: const OutlineInputBorder(),
+                  decoration:  const InputDecoration(
+                      border: OutlineInputBorder(),
                       labelText: 'Enter diagnosis inputs '),
                   controller: _diagnoscontroller,
                   validator: Validator.apply(context, const [RequiredValidation()])

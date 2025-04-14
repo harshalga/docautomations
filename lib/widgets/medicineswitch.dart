@@ -40,6 +40,8 @@ class MedicineSwitchState extends State<MedicineSwitch> {
     istabletType= widget.istablet;
     unitofmeasure = (istabletType == true ? 'mg' : 'ml');
     medicinetype= (istabletType == true ? 'Tablet' : 'Syrup');
+    context.read<Prescriptiondata>().updateIsTablet(istabletType);
+    context.read<Prescriptiondata>().updateIsMeasuredInMg(istabletType);
   }
 
  void _toggleSwitch(BuildContext context,  bool value) {
@@ -138,7 +140,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                     controller: unitofmeasureController,
                     onChanged: (value)
                   {
-                    context.read<Prescriptiondata>().updateDrugUnit(value as int);
+                    context.read<Prescriptiondata>().updateDrugUnit(int.parse(value));
                   },
                     validator : Validator.apply(
                       context,

@@ -18,7 +18,7 @@ void main() {
   runApp(
     ChangeNotifierProvider(
       create: (context) => Prescriptiondata(),
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
@@ -225,7 +225,7 @@ class AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
                   onPressed: () {
                     // Validate returns true if the form is valid, or false otherwise.
                     if (_formKey.currentState!.validate()) {
-                      Navigator.pop(context);
+                      Navigator.pop(context,context.read<Prescriptiondata>());
                     }
                   },
                   child: const Text('Go back!'),

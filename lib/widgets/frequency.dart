@@ -1,6 +1,7 @@
 import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 
 class FrequencyWidget extends StatefulWidget
@@ -26,12 +27,12 @@ class FrequencyWidgetState extends State<FrequencyWidget>
     isSelected = pescriptiondata.toBooleanList(4);
   }
 
-  void _toggleButton(int index) {
+  void _toggleButton(int index ){
     setState(() {
       // Toggle state and update the model
       isSelected[index] = !isSelected[index];
       pescriptiondata.setToggle(index, isSelected[index]);
-
+      context.read<Prescriptiondata>().setToggle(index, isSelected[index]);
       print("Updated BitField: ${pescriptiondata.freqBitField.toRadixString(2)}"); // Debug
     });
   }
@@ -85,6 +86,7 @@ class FrequencyWidgetState extends State<FrequencyWidget>
   borderWidth: 1.5,
   borderRadius: BorderRadius.circular(10),
   selectedBorderColor: Colors.pink,
+  onPressed: _toggleButton,
 // add widgets for which the users need to toggle
    children: const [ Padding(
     padding: EdgeInsets.symmetric(horizontal: 5),
@@ -102,7 +104,6 @@ class FrequencyWidgetState extends State<FrequencyWidget>
     padding: EdgeInsets.symmetric(horizontal: 12),
     child: Text('Night', style: TextStyle(fontSize: 18)),
   ),],
-  onPressed: _toggleButton,
 // to select or deselect when pressed
   // onPressed: (int newIndex) { 
   //   final isOneSelected = isSelected.where((element) => element).length == 1;
