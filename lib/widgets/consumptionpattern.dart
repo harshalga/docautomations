@@ -105,9 +105,9 @@ class ConsumptionPattern extends StatefulWidget {
   final Prescriptiondata prescription; // Accept prescription data
 
   const ConsumptionPattern({
-    Key? key,
+    super.key,
     required this.prescription,
-  }) : super(key: key);
+  });
 
   @override
   State<ConsumptionPattern> createState() => ConsumptionPatternState();

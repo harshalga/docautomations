@@ -81,7 +81,7 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
                               child: ListTile(
                                 title: Text(presc.drugName ?? "Unnamed"),
                                 subtitle: Text(
-                                    "${presc.inDays} days | ${presc.isBeforeFood ? "Before Food" : "After Food"}"),
+                                    "For ${presc.followupDuration} ${presc.inDays?"days":"Months"}  | ${presc.isBeforeFood ? "Before Food" : "After Food"} | ${presc.toBitList(4)}"),
                                 trailing: PopupMenuButton<String>(
                                   onSelected: (value) {
                                     if (value == 'edit') {
@@ -119,7 +119,7 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>  AddPrescription(title: "Prescription"),
+        builder: (context) =>  const AddPrescription(title: "Prescription"),
       ),
     );
 

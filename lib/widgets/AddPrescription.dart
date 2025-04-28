@@ -6,7 +6,6 @@ import 'package:docautomations/widgets/frequency.dart';
 import 'package:docautomations/widgets/instructions.dart';
 import 'package:docautomations/widgets/medicineswitch.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class AddPrescription extends StatefulWidget {
   final String title;

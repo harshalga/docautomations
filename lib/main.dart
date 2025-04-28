@@ -1,11 +1,5 @@
-import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:docautomations/widgets/AddPrescription.dart';
-import 'package:docautomations/widgets/consumptionpattern.dart';
-import 'package:docautomations/widgets/consumptionperiod.dart';
-import 'package:docautomations/widgets/frequency.dart';
-import 'package:docautomations/widgets/instructions.dart';
-import 'package:docautomations/widgets/medicineswitch.dart';
 import 'package:docautomations/widgets/menubar.dart';
 import 'package:flutter/material.dart';
 // Include the Google Fonts package to provide more text format options

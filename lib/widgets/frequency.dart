@@ -134,9 +134,9 @@ class FrequencyWidget extends StatefulWidget {
   final Prescriptiondata prescription; // Accept prescription as input
 
   const FrequencyWidget({
-    Key? key,
+    super.key,
     required this.prescription,
-  }) : super(key: key);
+  });
 
   @override
   State<FrequencyWidget> createState() => FrequencyWidgetState();

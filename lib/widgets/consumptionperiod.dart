@@ -176,7 +176,7 @@ class ConsumptionPeriodState extends State<ConsumptionPeriod> {
     // Initialize selectedPeriod based on prescriptionData
     selectedPeriod = widget.prescriptionData.inDays ? PeriodLabel.daysperiod : PeriodLabel.monthsperiod;
     periodController = TextEditingController(text: selectedPeriod!.label);
-    durationController = TextEditingController(text: widget.prescriptionData.followupDuration?.toString() ?? '');
+    durationController = TextEditingController(text: widget.prescriptionData.followupDuration.toString() ?? '');
   }
 
   @override
@@ -186,7 +186,7 @@ class ConsumptionPeriodState extends State<ConsumptionPeriod> {
     setState(() {
       selectedPeriod = widget.prescriptionData.inDays ? PeriodLabel.daysperiod : PeriodLabel.monthsperiod;
       periodController.text = selectedPeriod!.label;
-      durationController.text = widget.prescriptionData.followupDuration?.toString() ?? '';
+      durationController.text = widget.prescriptionData.followupDuration.toString() ?? '';
     });
   }
 

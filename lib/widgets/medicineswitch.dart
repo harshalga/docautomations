@@ -169,9 +169,9 @@ class MedicineSwitch extends StatefulWidget {
   final Prescriptiondata prescription; // Passed prescription
 
   const MedicineSwitch({
-    Key? key,
+    super.key,
     required this.prescription,
-  }) : super(key: key);
+  });
 
   @override
   State<MedicineSwitch> createState() => MedicineSwitchState();
@@ -194,10 +194,8 @@ class MedicineSwitchState extends State<MedicineSwitch> {
 
     // Initialize text controllers if needed
     tabNameController.text = widget.prescription.drugName ?? '';
-    if (widget.prescription.drugUnit != null) {
-      unitofmeasureController.text = widget.prescription.drugUnit.toString();
+    unitofmeasureController.text = widget.prescription.drugUnit.toString();
     }
-  }
 
   void _toggleSwitch(bool value) {
     setState(() {

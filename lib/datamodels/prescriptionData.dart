@@ -24,7 +24,7 @@ class Prescriptiondata extends ChangeNotifier {
     this.followupDuration = 0,
     DateTime? followupdate,
     this.remarks = '',
-  }) : followupdate = followupdate ?? DateTime.now(); 
+  }) : followupdate = followupdate ?? DateTime.now();
 //  late bool isTablet ;
 //  late String drugName;
 //  late bool isMeasuredInMg;
@@ -136,6 +136,12 @@ void updateDrugName(String value) {
       if (list[i]) setToggle(i, true);
     }
   }
+
+  // Convert bit field to a list of 0 and 1
+List<int> toBitList(int length) {
+  return List.generate(length, (index) => isToggleSelected(index) ? 1 : 0);
+}
+
   // Convert bit field to JSON
   Map<String, dynamic> toJson() {
     return {"freqBitField": freqBitField};
