@@ -1,117 +1,7 @@
-// import 'package:docautomations/common/appcolors.dart';
-// import 'package:docautomations/datamodels/prescriptionData.dart';
-// import 'package:docautomations/main.dart';
-// import 'package:docautomations/widgets/PatientInfo.dart';
-// import 'package:flutter/material.dart';
-
-// class Addprescriptionscr  extends StatefulWidget {
-//   const Addprescriptionscr({super.key});
-
-//   @override
-//   State<Addprescriptionscr> createState() => _AddprescriptionscrState();
-// }
-
-// class _AddprescriptionscrState extends State<Addprescriptionscr> {
- 
-//   final _formKey = GlobalKey<FormState>();
-
-//   final    _prescriptiondata =Prescriptiondata();
-//   static const descTextStyle = TextStyle(
-//     color: Colors.black,
-//     fontWeight: FontWeight.w800,
-//     fontFamily: 'Roboto',
-//     letterSpacing: 0.5,
-//     fontSize: 18,
-//     height: 2,
-//   );
-//   @override
-//   Widget build(BuildContext context) {
-//      return 
-//     SizedBox(height: MediaQuery.of(context).size.height,
-//      child:SingleChildScrollView(
-
-//       child: 
-//     Container(
-//       padding:const EdgeInsets.all(20),
-//       margin: const EdgeInsets.only(left: 20,right: 20,top: 20,bottom: 20),
-//       decoration: BoxDecoration(
-//         color:Colors.white,
-//         borderRadius: BorderRadius.circular(50),
-//         boxShadow: [
-//           BoxShadow(color:AppColors.primary.withOpacity(0.3),
-//           blurRadius: 20,
-//           offset: Offset.zero),
-          
-//         ]
-//       ),
-//       child:Form(
-//         key: _formKey,
-//         child: DefaultTextStyle.merge(
-//           style: descTextStyle,
-//           child: Column(
-            
-//             children: [
-             
-//               const Patientinfo(),
-//               const SizedBox(
-//                 height: 10,
-//               ),
-             
-//               Padding(
-//                 padding: const EdgeInsets.all(8),
-//                 child: ElevatedButton(
-//                   onPressed: () {
-//                     _createPrescription(context);
-//                   },
-//                   child: const Text('Add Medicine'),
-//                 ),
-//               ),
-              
-//             ],
-//           ),
-//         )))));
-//   }
-//   Future<void> _createPrescription(BuildContext context)async
-//   {
-//       final prescDataReturned = await Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                       builder: (context) => const AddPrescription(
-//                             title: "Prescription",
-//                           )),
-//                 ) as Prescriptiondata;
-//             print("Updated freqBitField: ${prescDataReturned.freqBitField.toRadixString(2)}");
-//             print("Updated isTablet: ${prescDataReturned.isTablet}");
-//             print("Updated drugName: ${prescDataReturned.drugName}");
-//             print("Updated isMeasuredinMg: ${prescDataReturned.isMeasuredinMg}");
-//             print("Updated drugUnit: ${prescDataReturned.drugUnit}"); 
-
-//             print("Updated isBeforeFood: ${prescDataReturned.isBeforeFood}"); 
-//             print("Updated inDays: ${prescDataReturned.inDays}"); 
-//             print("Updated followupduration: ${prescDataReturned.followupduration}");
-//             print("Updated followupdate: ${prescDataReturned.followupdate}");
-//             print("Updated remarks: ${prescDataReturned.remarks}");
-
-//                 _prescriptiondata.isTablet=prescDataReturned.isTablet;
-//                 _prescriptiondata.drugName=prescDataReturned.drugName;
-//                 _prescriptiondata.isMeasuredinMg = prescDataReturned.isMeasuredinMg;
-//                 _prescriptiondata.drugUnit= prescDataReturned.drugUnit;
-//                 _prescriptiondata.freqBitField=prescDataReturned.freqBitField;
-//                 // _prescriptiondata.morning= prescDataReturned.morning;
-//                 // _prescriptiondata.afternoon=prescDataReturned.afternoon;
-//                 // _prescriptiondata.evening=prescDataReturned.evening;
-//                 // _prescriptiondata.night=prescDataReturned.night;
-//                 _prescriptiondata.isBeforeFood=prescDataReturned.isBeforeFood;
-//                 _prescriptiondata.inDays=prescDataReturned.inDays;
-//                 _prescriptiondata.followupduration= prescDataReturned.followupduration;
-//                 _prescriptiondata.followupdate=prescDataReturned.followupdate;
-//                 _prescriptiondata.remarks=prescDataReturned.remarks;
-//                   }
-  
-// } 
 import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:docautomations/main.dart';
+import 'package:docautomations/widgets/AddPrescription.dart';
 import 'package:docautomations/widgets/PatientInfo.dart';
 import 'package:flutter/material.dart';
 
@@ -229,7 +119,7 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const AddPrescription(title: "Prescription"),
+        builder: (context) =>  AddPrescription(title: "Prescription"),
       ),
     );
 
@@ -246,8 +136,8 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddPrescription(
-          title: "Edit Prescription",
+        builder: (context) =>  AddPrescription(
+          title: "Edit Prescription",existingPrescription: existing
           // You can pass existing data here if your AddPrescription page supports it
         ),
       ),
@@ -261,10 +151,31 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
     }
   }
 
-  void _deletePrescription(int index) {
+  void _deletePrescription(int index) async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Delete Prescription'),
+      content: const Text('Are you sure you want to delete this prescription?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Delete', style: TextStyle(color: Colors.red)),
+        ),
+      ],
+    ),
+  );
+
+  if (confirm == true) {
     setState(() {
       _prescriptions.removeAt(index);
     });
     print("Deleted medicine at index $index");
   }
+}
+
 }

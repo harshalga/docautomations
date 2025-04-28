@@ -1,5 +1,6 @@
 import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
+import 'package:docautomations/widgets/AddPrescription.dart';
 import 'package:docautomations/widgets/consumptionpattern.dart';
 import 'package:docautomations/widgets/consumptionperiod.dart';
 import 'package:docautomations/widgets/frequency.dart';
@@ -108,134 +109,142 @@ class MainListMenu extends StatefulWidget {
   State<MainListMenu> createState() => _MainListMenuState();
 }
 
-class AddPrescription extends StatefulWidget {
-  final String title;
+// class AddPrescription extends StatefulWidget {
+//   final String title;
 
-  const AddPrescription({super.key, required this.title});
+//   const AddPrescription({super.key, required this.title});
 
-  @override
-  State<AddPrescription> createState() => AddPrescriptionState();
-}
+//   @override
+//   State<AddPrescription> createState() => AddPrescriptionState();
+// }
 
-class AddPrescriptionState extends State<AddPrescription> {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
+// class AddPrescriptionState extends State<AddPrescription> {
+//   @override
+//   Widget build(BuildContext context) {
+//     // TODO: implement build
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title,
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  color: Theme.of(context).colorScheme.onSecondary,
-                )),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-      ),
-      body: const Center(
-        child: AddPrescriptionScreen(),
-      ),
-    );
-  }
-}
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text(widget.title,
+//             style: Theme.of(context).textTheme.titleLarge!.copyWith(
+//                   color: Theme.of(context).colorScheme.onSecondary,
+//                 )),
+//         backgroundColor: Theme.of(context).colorScheme.secondary,
+//       ),
+//       body: const Center(
+//         child: AddPrescriptionScreen(),
+//       ),
+//     );
+//   }
+// }
 
-class AddPrescriptionScreen extends StatefulWidget {
-  const AddPrescriptionScreen({super.key});
+// class AddPrescriptionScreen extends StatefulWidget {
+//   const AddPrescriptionScreen({super.key});
 
-  @override
-  State<AddPrescriptionScreen> createState() => AddPrescriptionScreenState();
-}
+//   @override
+//   State<AddPrescriptionScreen> createState() => AddPrescriptionScreenState();
+// }
 
 
-class AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
-  // Create a global key that uniquely identifies the Form widget
-  // and allows validation of the form.
-  //
-  // Note: This is a `GlobalKey<FormState>`,
-  // not a GlobalKey<MyCustomFormState>.
-  final _formKey = GlobalKey<FormState>();
+// class AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
+//   // Create a global key that uniquely identifies the Form widget
+//   // and allows validation of the form.
+//   //
+//   // Note: This is a `GlobalKey<FormState>`,
+//   // not a GlobalKey<MyCustomFormState>.
+//   late Prescriptiondata _prescription;
+
+//   @override
+// void initState() {
+//   super.initState();
+//   _prescription = Prescriptiondata(); // fresh object each time
+// }
+
+//   final _formKey = GlobalKey<FormState>();
   
-  bool istabletSel = true;
-  String unitofmeasure = 'mg';
-  String medicinetype = 'Tablet';
+//   bool istabletSel = true;
+//   String unitofmeasure = 'mg';
+//   String medicinetype = 'Tablet';
 
-  final GlobalKey<MedicineSwitchState> _MedicineSwitchKey = GlobalKey<MedicineSwitchState>();
-
-  
+//   final GlobalKey<MedicineSwitchState> _MedicineSwitchKey = GlobalKey<MedicineSwitchState>();
 
   
 
-  static const descTextStyle = TextStyle(
-    color: Colors.black,
-    fontWeight: FontWeight.w800,
-    fontFamily: 'Roboto',
-    letterSpacing: 0.5,
-    fontSize: 18,
-    height: 2,
-  );
+  
 
-  @override
-  Widget build(BuildContext context) {
-    //ToDO:
+//   static const descTextStyle = TextStyle(
+//     color: Colors.black,
+//     fontWeight: FontWeight.w800,
+//     fontFamily: 'Roboto',
+//     letterSpacing: 0.5,
+//     fontSize: 18,
+//     height: 2,
+//   );
 
-    return 
-    SizedBox(height: MediaQuery.of(context).size.height,
-     child:SingleChildScrollView(
+//   @override
+//   Widget build(BuildContext context) {
+//     //ToDO:
 
-      child: 
-    Container(
-      padding:const EdgeInsets.all(20),
-      margin: const EdgeInsets.only(left: 20,right: 20,top: 20,bottom: 20),
-      decoration: BoxDecoration(
-        color:Colors.white,
-        borderRadius: BorderRadius.circular(50),
-        boxShadow: [
-          BoxShadow(color:AppColors.primary.withOpacity(0.3),
-          blurRadius: 20,
-          offset: Offset.zero),
+//     return 
+//     SizedBox(height: MediaQuery.of(context).size.height,
+//      child:SingleChildScrollView(
+
+//       child: 
+//     Container(
+//       padding:const EdgeInsets.all(20),
+//       margin: const EdgeInsets.only(left: 20,right: 20,top: 20,bottom: 20),
+//       decoration: BoxDecoration(
+//         color:Colors.white,
+//         borderRadius: BorderRadius.circular(50),
+//         boxShadow: [
+//           BoxShadow(color:AppColors.primary.withOpacity(0.3),
+//           blurRadius: 20,
+//           offset: Offset.zero),
           
-        ]
-      ),
-      child:Form(
-        key: _formKey,
-        child: DefaultTextStyle.merge(
-          style: descTextStyle,
-          child: Column(
+//         ]
+//       ),
+//       child:Form(
+//         key: _formKey,
+//         child: DefaultTextStyle.merge(
+//           style: descTextStyle,
+//           child: Column(
             
-            children: [
+//             children: [
              
-              MedicineSwitch(key:_MedicineSwitchKey),
-              const SizedBox(
-                height: 10,
-              ),
-              const FrequencyWidget(),
-              const SizedBox(
-                height: 10,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const ConsumptionPattern(),
-              const SizedBox(height: 10,),
-              const ConsumptionPeriod(),
-               const SizedBox(height: 10,),
-              const Instructions(),
-              const SizedBox(height: 10,),
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Validate returns true if the form is valid, or false otherwise.
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.pop(context,context.read<Prescriptiondata>());
-                    }
-                  },
-                  child: const Text('Go back!'),
-                ),
-              ),
-            ],
-          ),
-        )))));
-  }
-}
+//               MedicineSwitch(key:_MedicineSwitchKey,prescription:_prescription),
+//               const SizedBox(
+//                 height: 10,
+//               ),
+//               FrequencyWidget( prescription:_prescription),
+//               const SizedBox(
+//                 height: 10,
+//               ),
+//               const SizedBox(
+//                 height: 10,
+//               ),
+//                ConsumptionPattern(prescription:_prescription),
+//               const SizedBox(height: 10,),
+//                ConsumptionPeriod(prescriptionData:_prescription),
+//                const SizedBox(height: 10,),
+//                Instructions(prescriptionData:_prescription),
+//               const SizedBox(height: 10,),
+//               Padding(
+//                 padding: const EdgeInsets.all(8),
+//                 child: ElevatedButton(
+//                   onPressed: () {
+//                     // Validate returns true if the form is valid, or false otherwise.
+//                     if (_formKey.currentState!.validate()) {
+//                       Navigator.pop(context,_prescription);
+//                     }
+//                   },
+//                   child: const Text('Save Prescription'),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         )))));
+//   }
+// }
 
 class _MainListMenuState extends State<MainListMenu> {
   final TextEditingController _namecontroller = TextEditingController();

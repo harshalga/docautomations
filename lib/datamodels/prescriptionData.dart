@@ -1,24 +1,48 @@
 import 'package:flutter/foundation.dart';
 
 class Prescriptiondata extends ChangeNotifier {
-late bool isTablet ;
-late String drugName;
-late bool isMeasuredinMg;
-late int drugUnit;
-late int freqBitField;
-// late BitField morning;
-// late BitField afternoon;
-// late BitField evening;
-// late BitField night;
-late bool isBeforeFood;
-late bool inDays;
-late int followupduration;
-late DateTime followupdate;
-late String remarks;
+
+  bool isTablet;
+  String drugName;
+  bool isMeasuredInMg;
+  int drugUnit;
+  int freqBitField;
+  bool isBeforeFood;
+  bool inDays;
+  int followupDuration;
+  DateTime followupdate;
+  String remarks;
+
+  Prescriptiondata({
+    this.isTablet = true,
+    this.drugName = '',
+    this.isMeasuredInMg = true,
+    this.drugUnit = 0,
+    this.freqBitField = 0,
+    this.isBeforeFood = true,
+    this.inDays = true,
+    this.followupDuration = 0,
+    DateTime? followupdate,
+    this.remarks = '',
+  }) : followupdate = followupdate ?? DateTime.now(); 
+//  late bool isTablet ;
+//  late String drugName;
+//  late bool isMeasuredInMg;
+//  late int drugUnit;
+//  late int freqBitField;
+// // late BitField morning;
+// // late BitField afternoon;
+// // late BitField evening;
+// // late BitField night;
+//  late bool isBeforeFood;
+//  late bool inDays;
+//  late int  followupDuration;//followupduration;
+//  late DateTime followupdate;
+//  late String remarks;
 
 
 
-Prescriptiondata({this.freqBitField =0}); // Default: no toggles selected
+// Prescriptiondata({this.freqBitField =0}); // Default: no toggles selected
 
 void updateIsTablet(bool isTabletVal)
 {
@@ -32,7 +56,7 @@ void updateDrugName(String value) {
 
   void updateIsMeasuredInMg(bool value) {
     
-    isMeasuredinMg = value;
+    isMeasuredInMg = value;
     notifyListeners();
   }
 
@@ -72,7 +96,7 @@ void updateDrugName(String value) {
   }
 
   void updateFollowupDuration(int value) {
-    followupduration = value;
+    followupDuration = value;
     notifyListeners();
   }
 
