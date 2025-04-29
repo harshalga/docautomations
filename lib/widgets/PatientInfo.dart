@@ -4,41 +4,41 @@ import 'package:docautomations/validationhandling/validator.dart';
 import 'package:flutter/material.dart';
 
 class Patientinfo extends StatefulWidget {
-  final void Function(String name, String age, String gender, String keycomplaint,
-  String examination,String diagnostics )? onChanged;
-  const Patientinfo({super.key, this.onChanged});
-
+  // final void Function(String name, String age, String gender, String keycomplaint,
+  // String examination,String diagnostics )? onChanged;
+  // const Patientinfo({super.key, this.onChanged});
+  const Patientinfo({super.key});
   @override
-  State<Patientinfo> createState() => _PatientinfoState();
+  State<Patientinfo> createState() => PatientinfoState();
 }
 
-class _PatientinfoState extends State<Patientinfo> {
+class PatientinfoState extends State<Patientinfo> {
   final TextEditingController tabNameController = TextEditingController();
-   final TextEditingController _keyComplaintcontroller = TextEditingController();
-   final TextEditingController _examinationcontroller = TextEditingController();
-   final TextEditingController _diagnoscontroller = TextEditingController();
-   final _ageController = TextEditingController();
-  String _selectedGender = "Male";
+   final TextEditingController keyComplaintcontroller = TextEditingController();
+   final TextEditingController examinationcontroller = TextEditingController();
+   final TextEditingController diagnoscontroller = TextEditingController();
+   final ageController = TextEditingController();
+  String selectedGender = "Male";
 
-void _notifyParent() {
-    widget.onChanged?.call(
-      tabNameController.text,
-      _ageController.text,
-      _selectedGender,
-      _keyComplaintcontroller.text,
-      _examinationcontroller.text,
-      _diagnoscontroller.text,
-    );
-  }
+// void _notifyParent() {
+//     widget.onChanged?.call(
+//       tabNameController.text,
+//       _ageController.text,
+//       _selectedGender,
+//       _keyComplaintcontroller.text,
+//       _examinationcontroller.text,
+//       _diagnoscontroller.text,
+//     );
+//   }
 
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
-    _ageController.dispose();
+    ageController.dispose();
     tabNameController.dispose();
-    _keyComplaintcontroller.dispose();
-    _examinationcontroller.dispose();
-    _diagnoscontroller.dispose();
+    keyComplaintcontroller.dispose();
+    examinationcontroller.dispose();
+    diagnoscontroller.dispose();
     super.dispose();
   }
   @override
@@ -67,7 +67,7 @@ void _notifyParent() {
                       border: OutlineInputBorder(),
                       labelText: 'Enter patient name  '),
                   controller: tabNameController,
-                  onChanged: (_) => _notifyParent(),
+                  //onChanged: (_) => _notifyParent(),
                   validator: Validator.apply(context, const [RequiredValidation()])
                 )   )
                 ],
@@ -86,8 +86,8 @@ void _notifyParent() {
                   decoration:  const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Enter patient Age  '),
-                  controller: _ageController,
-                  onChanged: (_) => _notifyParent(),
+                  controller: ageController,
+                  //onChanged: (_) => _notifyParent(),
                   validator: Validator.apply(context, const [RequiredValidation()])
                 )   )
                 ],
@@ -102,12 +102,12 @@ void _notifyParent() {
                   ),
                   Expanded(child: 
                   DropdownButtonFormField<String>(
-          value: _selectedGender,
+          value: selectedGender,
           decoration: const InputDecoration(labelText: "Gender"),
           onChanged: (value) {
             setState(() {
-              _selectedGender = value!;
-              _notifyParent();
+              selectedGender = value!;
+             // _notifyParent();
             });
           },
           items: const [
@@ -132,8 +132,8 @@ Row(
                   decoration:  const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Enter key complaint '),
-                       onChanged: (_) => _notifyParent(),
-                  controller: _keyComplaintcontroller,
+                       //onChanged: (_) => _notifyParent(),
+                  controller: keyComplaintcontroller,
                   validator: Validator.apply(context, const [RequiredValidation()])
                 )   )
                 ],
@@ -154,8 +154,8 @@ Row(
                   decoration:  const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Enter examination inputs '),
-                       onChanged: (_) => _notifyParent(),
-                  controller: _examinationcontroller,
+                       //onChanged: (_) => _notifyParent(),
+                  controller: examinationcontroller,
                   validator: Validator.apply(context, const [RequiredValidation()])
                 )   )
                 ],
@@ -176,8 +176,8 @@ Row(
                   decoration:  const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Enter diagnosis inputs '),
-                  controller: _diagnoscontroller,
-                   onChanged: (_) => _notifyParent(),
+                  controller: diagnoscontroller,
+                  // onChanged: (_) => _notifyParent(),
                   validator: Validator.apply(context, const [RequiredValidation()])
                 )   )
                 ],

@@ -128,8 +128,6 @@
 // }
 import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
-import 'package:docautomations/validationhandling/validation.dart';
-import 'package:docautomations/validationhandling/validator.dart';
 import 'package:flutter/material.dart';
 
 class FrequencyWidget extends StatefulWidget {

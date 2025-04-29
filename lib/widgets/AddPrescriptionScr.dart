@@ -4,6 +4,14 @@ import 'package:docautomations/main.dart';
 import 'package:docautomations/widgets/AddPrescription.dart';
 import 'package:docautomations/widgets/PatientInfo.dart';
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'dart:io';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:printing/printing.dart';
+
 
 class Addprescriptionscr extends StatefulWidget {
   const Addprescriptionscr({super.key});
@@ -15,13 +23,15 @@ class Addprescriptionscr extends StatefulWidget {
 class _AddprescriptionscrState extends State<Addprescriptionscr> {
   final _formKey = GlobalKey<FormState>();
 
+final GlobalKey<PatientinfoState> _patientInfoKey = GlobalKey<PatientinfoState>();
 
-  String _patientName = '';
-  String _patientAge = '';
-  String _patientGender = '';
-  String _keycomplaint='';
-  String _examination='';
-  String _diagnosis='';
+
+  final String _patientName = '';
+  final String _patientAge = '';
+  final String _patientGender = '';
+  final String _keycomplaint='';
+  final String _examination='';
+  final String _diagnosis='';
 
   // Instead of a single prescription, maintain a list
   final List<Prescriptiondata> _prescriptions = [];
@@ -34,6 +44,99 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
     fontSize: 18,
     height: 2,
   );
+void generatePrescriptionPdf() async {
+  final pdf = pw.Document();
+  final imageLogo = await imageFromAssetBundle('images/DrLogo.png');
+  final name = _patientInfoKey.currentState?.tabNameController.text ?? '';
+  final age =  _patientInfoKey.currentState?.ageController.text ?? '';
+  final complaints = _patientInfoKey.currentState?.keyComplaintcontroller.text ?? '';
+  final examination = _patientInfoKey.currentState?.examinationcontroller.text ?? '';
+  final diagnosis = _patientInfoKey.currentState?.diagnoscontroller.text ?? '';
+  final selectedGenderval = _patientInfoKey.currentState?.selectedGender.toString()??'';
+
+  pdf.addPage(
+    pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      build: (context) {
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            // Header section
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                //pw.Text("Clinic Name", style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold)),
+                pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text("Dr. Sameer Kulkarni", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.Text("MBBS, MD - General Medicine"),
+                pw.Text("DocAutomations Clinic, Pune"),
+                pw.Text("Contact: +91 9876543210"),
+              ],
+            ),
+                pw.Container(
+                  width: 60,
+                  height: 60,
+                  color: PdfColors.grey300, // Placeholder for logo
+                  child: pw.Center(child: pw.Image(imageLogo)),//Text("Logo")),
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 10),
+            pw.Divider(),
+
+            // Patient Info
+            pw.Text("Patient Information", style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+            pw.Text("Patient Name: $name", style: pw.TextStyle(fontSize: 16)),
+            pw.Text("Age: $age", style: pw.TextStyle(fontSize: 16)),
+            pw.Text("Gender: $selectedGenderval", style: pw.TextStyle(fontSize: 16)),
+            pw.SizedBox(height: 5),
+            pw.Text("Key Complaints: $complaints", style: pw.TextStyle(fontSize: 14)),
+            pw.Text("Examination: $examination", style: pw.TextStyle(fontSize: 14)),
+            pw.Text("Diagnostics: $diagnosis", style: pw.TextStyle(fontSize: 14)),
+            pw.SizedBox(height: 10),
+
+            // Medicines
+            pw.Text("Prescribed Medicines:", style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 5),
+            if (_prescriptions.isEmpty)
+              pw.Text("No medicines added."),
+            ..._prescriptions.map((med) {
+              final time = med.toBitList(4);
+              return pw.Bullet(
+                  text: "${med.drugName ?? ''} - $time  - ${med.isBeforeFood ? 'Before Food' : 'After Food'} - ${med.followupDuration} ${med.inDays ? 'Days' : 'Months'} - ${med.remarks ?? ''}");
+            }),
+
+            pw.Spacer(),
+
+            // Footer
+            pw.Align(
+              alignment: pw.Alignment.centerRight,
+              child: pw.Text("Signature", style: pw.TextStyle(fontSize: 14)),
+            ),
+            pw.Divider(),
+          ],
+        );
+      },
+    ),
+  );
+
+  //await Printing.layoutPdf(onLayout: (format) async => pdf.save());
+try
+{
+  // final output = await getTemporaryDirectory();
+  // final file = File('${output.path}/prescription.pdf');
+  // await file.writeAsBytes(await pdf.save());
+
+  // OpenFile.open(file.path);
+  await Printing.layoutPdf(
+  onLayout: (PdfPageFormat format) async => pdf.save(),
+);
+}
+catch(e)
+{print("Error generating or opening PDF: $e");}
+}
 
   @override
   Widget build(BuildContext context) {
@@ -60,18 +163,19 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   Patientinfo(onChanged: (name, age, gender,keycomplaint,
-                    examination, diagnostics) 
-                    {
-                       setState(() {
-                            _patientName = name;
-                            _patientAge = age;
-                            _patientGender = gender;
-                            _keycomplaint=keycomplaint;
-                            _examination=examination;
-                            _diagnosis=diagnostics;
-                    });
-                    },),
+                  Patientinfo(key: _patientInfoKey),
+                  //  Patientinfo(onChanged: (name, age, gender,keycomplaint,
+                  //   examination, diagnostics) 
+                  //   {
+                  //      setState(() {
+                  //           _patientName = name;
+                  //           _patientAge = age;
+                  //           _patientGender = gender;
+                  //           _keycomplaint=keycomplaint;
+                  //           _examination=examination;
+                  //           _diagnosis=diagnostics;
+                  //   });
+                  //   },),
                   const SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.all(8),
@@ -125,6 +229,15 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
                           },
                         )
                       : const Text('No medicines added yet.'),
+
+                      Padding(
+  padding: const EdgeInsets.only(top: 20),
+  child: ElevatedButton.icon(
+    onPressed: generatePrescriptionPdf,
+    icon: const Icon(Icons.picture_as_pdf),
+    label: const Text("Generate PDF Prescription"),
+  ),
+),
                 ],
               ),
             ),
