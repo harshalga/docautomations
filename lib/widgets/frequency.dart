@@ -128,6 +128,8 @@
 // }
 import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
+import 'package:docautomations/validationhandling/validation.dart';
+import 'package:docautomations/validationhandling/validator.dart';
 import 'package:flutter/material.dart';
 
 class FrequencyWidget extends StatefulWidget {
@@ -144,7 +146,7 @@ class FrequencyWidget extends StatefulWidget {
 
 class FrequencyWidgetState extends State<FrequencyWidget> {
   late List<bool> isSelected;
-
+  String? _errorText;
   @override
   void initState() {
     super.initState();
@@ -160,6 +162,27 @@ class FrequencyWidgetState extends State<FrequencyWidget> {
       //   widget.prescription.freqBitField.toRadixString(2):''}"); // Debug
     });
   }
+
+  bool validateFrequencySelection() {
+
+    final isValid = isSelected.contains(true);
+  setState(() {
+    _errorText = isValid ? null : 'Please select at least one frequency.';
+  });
+  return isValid;
+  // if (isSelected.contains(true)) {
+  //   // At least one selected -> valid
+  //   return true;
+  // } else {
+  //   // None selected -> show warning
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     const SnackBar(
+  //       content: Text('Please select at least one frequency (Morning/Afternoon/Evening/Night).'),
+  //     ),
+  //   );
+  //   return false;
+  // }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +215,7 @@ class FrequencyWidgetState extends State<FrequencyWidget> {
             borderColor: Colors.black,
             borderWidth: 1.5,
             borderRadius: BorderRadius.circular(10),
-            selectedBorderColor: Colors.pink,
+            selectedBorderColor: Colors.pink,            
             onPressed: _toggleButton,
             children: const [
               Padding(
@@ -213,6 +236,14 @@ class FrequencyWidgetState extends State<FrequencyWidget> {
               ),
             ],
           ),
+          if (_errorText != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                _errorText!,
+                style: const TextStyle(color: Colors.red, fontSize: 14),
+              ),
+            ),
         ],
       ),
     );

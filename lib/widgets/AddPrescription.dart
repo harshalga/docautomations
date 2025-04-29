@@ -60,6 +60,7 @@ class AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
   String medicinetype = 'Tablet';
 
   final GlobalKey<MedicineSwitchState> _MedicineSwitchKey = GlobalKey<MedicineSwitchState>();
+  final GlobalKey<FrequencyWidgetState> _frequencyKey = GlobalKey<FrequencyWidgetState>();
 
   static const descTextStyle = TextStyle(
     color: Colors.black,
@@ -97,7 +98,7 @@ class AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
                 children: [
                   MedicineSwitch(key: _MedicineSwitchKey, prescription: _prescription),
                   const SizedBox(height: 10),
-                  FrequencyWidget(prescription: _prescription),
+                  FrequencyWidget(key: _frequencyKey, prescription: _prescription),
                   const SizedBox(height: 10),
                   ConsumptionPattern(prescription: _prescription),
                   const SizedBox(height: 10),
@@ -109,8 +110,13 @@ class AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
                     padding: const EdgeInsets.all(8),
                     child: ElevatedButton(
                       onPressed: () {
-                        // Validate returns true if the form is valid, or false otherwise.
-                        if (_formKey.currentState!.validate()) {
+                        // Step 1: Validate form fields
+                        final isFormValid = _formKey.currentState!.validate();
+  
+                        // Step 2: Validate frequency selection
+                        final isFrequencyValid = _frequencyKey.currentState?.validateFrequencySelection() ?? false;
+
+                        if (isFormValid && isFrequencyValid) {
                           Navigator.pop(context, _prescription);
                         }
                       },
