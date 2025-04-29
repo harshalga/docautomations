@@ -15,6 +15,14 @@ class Addprescriptionscr extends StatefulWidget {
 class _AddprescriptionscrState extends State<Addprescriptionscr> {
   final _formKey = GlobalKey<FormState>();
 
+
+  String _patientName = '';
+  String _patientAge = '';
+  String _patientGender = '';
+  String _keycomplaint='';
+  String _examination='';
+  String _diagnosis='';
+
   // Instead of a single prescription, maintain a list
   final List<Prescriptiondata> _prescriptions = [];
 
@@ -52,7 +60,18 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Patientinfo(),
+                   Patientinfo(onChanged: (name, age, gender,keycomplaint,
+                    examination, diagnostics) 
+                    {
+                       setState(() {
+                            _patientName = name;
+                            _patientAge = age;
+                            _patientGender = gender;
+                            _keycomplaint=keycomplaint;
+                            _examination=examination;
+                            _diagnosis=diagnostics;
+                    });
+                    },),
                   const SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.all(8),
