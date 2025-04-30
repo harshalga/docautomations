@@ -11,7 +11,7 @@ import 'dart:io';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
-
+import 'package:intl/intl.dart';
 
 class Addprescriptionscr extends StatefulWidget {
   const Addprescriptionscr({super.key});
@@ -53,7 +53,10 @@ void generatePrescriptionPdf() async {
   final examination = _patientInfoKey.currentState?.examinationcontroller.text ?? '';
   final diagnosis = _patientInfoKey.currentState?.diagnoscontroller.text ?? '';
   final selectedGenderval = _patientInfoKey.currentState?.selectedGender.toString()??'';
-
+  
+  late DateTime now;
+  now = DateTime.now();
+  String formattedDate = DateFormat('dd/MM/yyyy').format(now);
   pdf.addPage(
     pw.Page(
       pageFormat: PdfPageFormat.a4,
@@ -85,16 +88,26 @@ void generatePrescriptionPdf() async {
             ),
             pw.SizedBox(height: 10),
             pw.Divider(),
-
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.end,
+              children: [
+              pw.Text("Date: $formattedDate", style: pw.TextStyle(fontSize: 14)),
+              ]
+            ),
             // Patient Info
             pw.Text("Patient Information", style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
             pw.Text("Patient Name: $name", style: pw.TextStyle(fontSize: 16)),
             pw.Text("Age: $age", style: pw.TextStyle(fontSize: 16)),
             pw.Text("Gender: $selectedGenderval", style: pw.TextStyle(fontSize: 16)),
             pw.SizedBox(height: 5),
-            pw.Text("Key Complaints: $complaints", style: pw.TextStyle(fontSize: 14)),
-            pw.Text("Examination: $examination", style: pw.TextStyle(fontSize: 14)),
-            pw.Text("Diagnostics: $diagnosis", style: pw.TextStyle(fontSize: 14)),
+            pw.Text("Key Complaints:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            pw.Text(" $complaints", style: pw.TextStyle(fontSize: 14)),
+            pw.SizedBox(height: 10),
+            pw.Text("Examination:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            pw.Text(" $examination", style: pw.TextStyle(fontSize: 14)),
+            pw.SizedBox(height: 10),
+            pw.Text("Diagnostics:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            pw.Text(" $diagnosis", style: pw.TextStyle(fontSize: 14)),
             pw.SizedBox(height: 10),
 
             // Medicines
