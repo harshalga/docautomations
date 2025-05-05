@@ -2,6 +2,7 @@ import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/validationhandling/validation.dart';
 import 'package:docautomations/validationhandling/validator.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Patientinfo extends StatefulWidget {
   // final void Function(String name, String age, String gender, String keycomplaint,
@@ -32,6 +33,23 @@ class PatientinfoState extends State<Patientinfo> {
 //       _diagnoscontroller.text,
 //     );
 //   }
+
+Future<void> _selectNextFollowupDate () async
+{
+  DateTime? _picked=  await showDatePicker(context: context, firstDate: DateTime(2000),
+   lastDate: DateTime(2100)         
+   ,initialDate: DateTime.now());
+
+   if (_picked != null)
+   {
+    setState(() {
+       String formattedDate = DateFormat('dd/MM/yyyy').format(_picked);
+      followupDatecontroller.text = formattedDate;
+    });
+          
+   }
+
+}
 
   @override
   void dispose() {
@@ -83,15 +101,19 @@ class PatientinfoState extends State<Patientinfo> {
                     child: Text('Age: '),
                   ),
                   Expanded(child: 
-                TextFormField(
+                  SizedBox(
+                    width: 50,
+                    child:TextFormField(                  
                   keyboardType:TextInputType.number ,
                   decoration:  const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Enter patient Age  '),
                   controller: ageController,
                   //onChanged: (_) => _notifyParent(),
-                  validator: Validator.apply(context, const [RequiredValidation()])
-                )   )
+                  validator: Validator.apply(context, const [RequiredValidation(),NumericValidation(),ageValidation()])
+                )  ,
+                  )
+                  )
                 ],
               ),
               //Gender
@@ -136,7 +158,7 @@ Row(
                       labelText: 'Enter key complaint '),
                        //onChanged: (_) => _notifyParent(),
                   controller: keyComplaintcontroller,
-                  validator: Validator.apply(context, const [RequiredValidation()])
+                  //validator: Validator.apply(context, const [RequiredValidation()])
                 )   )
                 ],
               ),
@@ -158,7 +180,7 @@ Row(
                       labelText: 'Enter examination inputs '),
                        //onChanged: (_) => _notifyParent(),
                   controller: examinationcontroller,
-                  validator: Validator.apply(context, const [RequiredValidation()])
+                  //validator: Validator.apply(context, const [RequiredValidation()])
                 )   )
                 ],
               ),
@@ -180,7 +202,7 @@ Row(
                       labelText: 'Enter diagnosis inputs '),
                   controller: diagnoscontroller,
                   // onChanged: (_) => _notifyParent(),
-                  validator: Validator.apply(context, const [RequiredValidation()])
+                  //validator: Validator.apply(context, const [RequiredValidation()])
                 )   )
                 ],
               ),
@@ -196,10 +218,18 @@ Row(
                   keyboardType:TextInputType.number ,
                   decoration:  const InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'Next Follow up date  '),
+                      labelText: 'Next Follow up date  ',
+                      filled: true,
+                      prefixIcon: Icon(Icons.calendar_today),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue),
+                      )
+                      ),
+                      readOnly: true  ,
+                      onTap: (){_selectNextFollowupDate();},
                   controller: followupDatecontroller,
                   //onChanged: (_) => _notifyParent(),
-                  validator: Validator.apply(context, const [RequiredValidation()])
+                  //validator: Validator.apply(context, const [RequiredValidation()])
                 )   )
                 ],
               ),
@@ -218,7 +248,7 @@ Row(
                       labelText: 'Remarks  '),
                   controller: remarkscontroller,
                   //onChanged: (_) => _notifyParent(),
-                  validator: Validator.apply(context, const [RequiredValidation()])
+                 // validator: Validator.apply(context, const [RequiredValidation()])
                 )   )
                 ],
               ),

@@ -54,6 +54,8 @@ void generatePrescriptionPdf() async {
   final examination = _patientInfoKey.currentState?.examinationcontroller.text ?? '';
   final diagnosis = _patientInfoKey.currentState?.diagnoscontroller.text ?? '';
   final selectedGenderval = _patientInfoKey.currentState?.selectedGender.toString()??'';
+  final nextfollowupdate = _patientInfoKey.currentState?.followupDatecontroller.text ?? '';
+  final remarks = _patientInfoKey.currentState?.remarkscontroller.text ?? '';
   
   late DateTime now;
   now = DateTime.now();
@@ -109,6 +111,12 @@ void generatePrescriptionPdf() async {
             pw.SizedBox(height: 10),
             pw.Text("Diagnostics:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
             pw.Text(" $diagnosis", style: pw.TextStyle(fontSize: 14)),
+            pw.SizedBox(height: 10),
+            pw.Text("Remarks:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            pw.Text(" $remarks", style: pw.TextStyle(fontSize: 14)),
+            pw.SizedBox(height: 10),
+            pw.Text("Next Follow Up Date :", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            pw.Text(" $nextfollowupdate", style: pw.TextStyle(fontSize: 14)),
             pw.SizedBox(height: 10),
 
             // Medicines
@@ -265,7 +273,15 @@ catch(e)
                       Padding(
   padding: const EdgeInsets.only(top: 20),
   child: ElevatedButton.icon(
-    onPressed: generatePrescriptionPdf,
+    onPressed: (){
+      final isFormValid = _formKey.currentState!.validate();
+      if (isFormValid)
+       {
+          generatePrescriptionPdf();           
+       }
+
+    }
+    ,
     icon: const Icon(Icons.picture_as_pdf),
     label: const Text("Generate PDF Prescription"),
   ),

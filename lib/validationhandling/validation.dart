@@ -1,4 +1,6 @@
 
+
+
 import 'package:flutter/widgets.dart';
 //import 'package:flutter_validation/src/models/role.dart';
 
@@ -83,6 +85,21 @@ class PeriodbasedValidation extends Validation<String>
     } 
   }}
 
+class ageValidation extends Validation<String> {
+  const ageValidation();
+
+  @override
+  String? validate(BuildContext context, String? value) {
+    
+
+    if ( value == null) return null;
+    final int age = int.parse(value);
+    if (  age >=110) {
+      return 'Enter a valid age etween 0 and 100 years !!!';
+    }
+    return null;
+  }
+}
 /// a validation that checks if the value is a valid email.
 class NumericValidation extends Validation<String> {
   const NumericValidation();
