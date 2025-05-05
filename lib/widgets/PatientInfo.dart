@@ -17,7 +17,9 @@ class PatientinfoState extends State<Patientinfo> {
    final TextEditingController keyComplaintcontroller = TextEditingController();
    final TextEditingController examinationcontroller = TextEditingController();
    final TextEditingController diagnoscontroller = TextEditingController();
-   final ageController = TextEditingController();
+   final TextEditingController ageController = TextEditingController();
+   final TextEditingController remarkscontroller =TextEditingController();
+   final TextEditingController followupDatecontroller = TextEditingController();
   String selectedGender = "Male";
 
 // void _notifyParent() {
@@ -178,6 +180,44 @@ Row(
                       labelText: 'Enter diagnosis inputs '),
                   controller: diagnoscontroller,
                   // onChanged: (_) => _notifyParent(),
+                  validator: Validator.apply(context, const [RequiredValidation()])
+                )   )
+                ],
+              ),
+Row(
+
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Text('Next Followup Date: '),
+                  ),
+                  Expanded(child: 
+                TextFormField(
+                  keyboardType:TextInputType.number ,
+                  decoration:  const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Next Follow up date  '),
+                  controller: followupDatecontroller,
+                  //onChanged: (_) => _notifyParent(),
+                  validator: Validator.apply(context, const [RequiredValidation()])
+                )   )
+                ],
+              ),
+              Row(
+
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Text('Remarks: '),
+                  ),
+                  Expanded(child: 
+                TextFormField(
+                  keyboardType:TextInputType.number ,
+                  decoration:  const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Remarks  '),
+                  controller: remarkscontroller,
+                  //onChanged: (_) => _notifyParent(),
                   validator: Validator.apply(context, const [RequiredValidation()])
                 )   )
                 ],

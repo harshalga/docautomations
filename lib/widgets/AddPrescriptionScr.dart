@@ -7,11 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'dart:io';
+import 'dart:io' as io; // Needed for File IO;
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 
 class Addprescriptionscr extends StatefulWidget {
   const Addprescriptionscr({super.key});
@@ -143,9 +144,27 @@ try
   // await file.writeAsBytes(await pdf.save());
 
   // OpenFile.open(file.path);
-  await Printing.layoutPdf(
-  onLayout: (PdfPageFormat format) async => pdf.save(),
-);
+  // await Printing.layoutPdf(
+  // onLayout: (PdfPageFormat format) async => pdf.save(),
+
+  final pdfBytes = await pdf.save();
+
+    if (kIsWeb) {
+      // Web: Show print dialog or download
+      await Printing.layoutPdf(onLayout: (format) async => pdfBytes);
+      // OR use sharePdf to offer download
+      // await Printing.sharePdf(bytes: pdfBytes, filename: 'prescription.pdf');
+    } else {
+      // Android/iOS/Desktop
+      final dir = await getTemporaryDirectory();
+      final file = io.File('${dir.path}/prescription.pdf');
+      await file.writeAsBytes(pdfBytes);
+      await OpenFile.open(file.path);
+    }
+
+
+
+
 }
 catch(e)
 {print("Error generating or opening PDF: $e");}
