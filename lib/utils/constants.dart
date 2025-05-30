@@ -1,0 +1,1 @@
+const String validLicenseKey = "DOC123-2024-LICENSE"; // Replace with your actual license key
