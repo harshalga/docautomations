@@ -8,6 +8,7 @@ import 'package:docautomations/widgets/doctorinfo.dart';
 //import 'package:path_provider/path_provider.dart';
 import 'package:docautomations/common/common_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:docautomations/services/license_api_service.dart';
 
 class DoctorRegisterScreen extends StatefulWidget {
   final void Function(DoctorInfo) onRegistered;
@@ -51,19 +52,30 @@ class _DoctorRegisterScreenState extends State<DoctorRegisterScreen> {
         specialization: _specController.text,
         clinicName: _clinicNameController.text,
         clinicAddress: _clinicAddressController.text,
-        contact: _contactController.text,
-        //logoPath: _logoPath ?? 'No logo',
+        contact: _contactController.text,      
         logoBase64: _logoBase64,
       );
 
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString('doctor_info', jsonEncode(info.toJson()));
+      //final prefs = await SharedPreferences.getInstance();
+      //prefs.setString('doctor_info', jsonEncode(info.toJson()));
+      print("Registered: ${info.name}");
+      print("Registered: ${info.specialization}");
+      print("Registered: ${info.clinicName}");
+      print("Registered: ${info.clinicAddress}");
+      print("Registered: ${info.contact}");
+      print("Registered: ${info.logoBase64}");
 
-      // final dir = await getApplicationDocumentsDirectory();
-      // final file = io.File('${dir.path}/doctor_info.json');
-      // await file.writeAsString(jsonEncode(info.toJson()));
+      final success = await LicenseApiService.registerDoctorOnServer(info);
 
+    if (success) {
       widget.onRegistered(info);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Error saving doctor info")),
+      );
+    }
+
+      //widget.onRegistered(info);
     }
   }
 

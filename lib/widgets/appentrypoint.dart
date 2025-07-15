@@ -73,6 +73,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:docautomations/widgets/doctorregisterscreen.dart';
 import 'package:docautomations/widgets/doctorwelcomescreen.dart';
 import 'package:docautomations/widgets/menubar.dart';
+import 'package:docautomations/services/license_api_service.dart';
 
 class AppEntryPoint extends StatefulWidget {
   const AppEntryPoint({super.key});
@@ -82,15 +83,27 @@ class AppEntryPoint extends StatefulWidget {
 }
 
 class _AppEntryPointState extends State<AppEntryPoint> {
-  Future<bool> _doctorInfoExists() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.containsKey('doctor_info');
+  // Future<bool> _doctorInfoExists() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   return prefs.containsKey('doctor_info');
+  // }
+  late Future<bool> _doctorFuture;
+
+   @override
+  void initState() {
+    super.initState();
+    _doctorFuture = _doctorExistsOnServer();
+  }
+
+  Future<bool> _doctorExistsOnServer() async {
+    final info = await LicenseApiService.fetchRegisteredDoctor();
+    return info != null;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-      future: _doctorInfoExists(),
+      future: _doctorFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -107,7 +120,10 @@ class _AppEntryPointState extends State<AppEntryPoint> {
             onRegistered: (info) {
               print("Registered: ${info.name}");
               // Rebuild to show welcome screen after registration
-              setState(() {});
+              setState(() {
+
+                _doctorFuture = _doctorExistsOnServer();
+              });
               // Navigator.pushReplacement(
               //   context,
               //   MaterialPageRoute(
