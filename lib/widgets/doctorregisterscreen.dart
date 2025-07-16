@@ -25,9 +25,14 @@ class _DoctorRegisterScreenState extends State<DoctorRegisterScreen> {
   final _clinicNameController = TextEditingController();
   final _clinicAddressController = TextEditingController();
   final _contactController = TextEditingController();
+  final _loginEmailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   String? _logoPath;
   String? _logoBase64;
+
+  
+
 
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -53,17 +58,14 @@ class _DoctorRegisterScreenState extends State<DoctorRegisterScreen> {
         clinicName: _clinicNameController.text,
         clinicAddress: _clinicAddressController.text,
         contact: _contactController.text,      
+        loginEmail: _loginEmailController.text,
+        password: _passwordController.text,
         logoBase64: _logoBase64,
       );
 
-      //final prefs = await SharedPreferences.getInstance();
-      //prefs.setString('doctor_info', jsonEncode(info.toJson()));
-      print("Registered: ${info.name}");
-      print("Registered: ${info.specialization}");
-      print("Registered: ${info.clinicName}");
-      print("Registered: ${info.clinicAddress}");
-      print("Registered: ${info.contact}");
-      print("Registered: ${info.logoBase64}");
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('doctor_info', jsonEncode(info.toJson()));
+     
 
       final success = await LicenseApiService.registerDoctorOnServer(info);
 
@@ -94,6 +96,9 @@ class _DoctorRegisterScreenState extends State<DoctorRegisterScreen> {
               TextFormField(controller: _clinicNameController, decoration: const InputDecoration(labelText: 'Clinic Name'), validator: (v) => v!.isEmpty ? 'Required' : null),
               TextFormField(controller: _clinicAddressController, decoration: const InputDecoration(labelText: 'Clinic Address'), validator: (v) => v!.isEmpty ? 'Required' : null),
               TextFormField(controller: _contactController, decoration: const InputDecoration(labelText: 'Contact Details'), validator: (v) => v!.isEmpty ? 'Required' : null),
+              TextFormField(controller: _loginEmailController, decoration: const InputDecoration(labelText: 'Login Email'), validator: (v) => v!.isEmpty ? 'Required' : null),
+              TextFormField(controller: _passwordController, decoration: const InputDecoration(labelText: 'Password'), validator: (v) => v!.isEmpty ? 'Required' : null),
+              
               const SizedBox(height: 12),
               ElevatedButton(onPressed: _pickImage, child: const Text("Select Logo")),
               const SizedBox(height: 10),

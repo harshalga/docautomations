@@ -15,6 +15,7 @@ class DoctorWelcomeScreen extends StatelessWidget {
 
     final prefs = await SharedPreferences.getInstance();
     final jsonStr = prefs.getString('doctor_info');
+    
 
     if (jsonStr != null && jsonStr.isNotEmpty) {
       print("Inside jsonstr exist");
@@ -35,7 +36,9 @@ class DoctorWelcomeScreen extends StatelessWidget {
         specialization: 'General Physician',
         clinicName: 'Web Clinic',
         clinicAddress: '123 Internet Ave',
-        contact: 'web@example.com',
+        contact: '54545454',
+        loginEmail:'web@example.com' ,
+        password: '4jqexfd',
         logoBase64: '',
       );
     }
@@ -80,7 +83,7 @@ class DoctorWelcomeScreen extends StatelessWidget {
               children: [
                 displayDoctorImage(info.logoBase64),
                 const SizedBox(height: 20),
-                Text("Dr. ${info.name}", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                Text(" ${info.name}", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 Text(info.specialization),
                 Text(info.clinicName),
                 Text(info.clinicAddress),
