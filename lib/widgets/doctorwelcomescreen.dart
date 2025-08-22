@@ -1,8 +1,8 @@
-import 'package:docautomations/widgets/menubar.dart';
-import 'package:image_picker/image_picker.dart';
+
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:docautomations/widgets/doctorinfo.dart';
 import 'package:docautomations/common/common_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';

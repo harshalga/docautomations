@@ -24,36 +24,7 @@ class LicenseApiService {
     }
   }
 
-//  static Future<bool> loginDoctor(String loginEmail, String password) async {
-  
-//   final url = Uri.parse('$baseUrl/api/doctor/login');
-  
-//   final response = await http.post(
-//     url,
-//     headers: { 'Content-Type': 'application/json' },
-//     body: jsonEncode({
-//       'loginEmail': loginEmail,
-//       'password': password
-//     }),
-//   );
 
-//   if (response.statusCode == 200) {
-//     final data = jsonDecode(response.body);
-//     print("Doctor logged in: ${data['doctor']['name']}");
-
-       
-//     // Save to SharedPreferences
-//     final prefs = await SharedPreferences.getInstance();
-//     await prefs.setString('jwt_token', data['token']);
-//     await prefs.setString('doctor_loginEmail', loginEmail);
-//     await prefs.setString('doctor_name', data['doctor']['name']);
-//     print("Login successful. Token saved.");
-//     return  true;
-//   } else {
-//     print("Login failed: ${response.body}");
-//     return false;
-//   }
-// }
 
 static Future<bool> verifyToken(String token) async {
   try {
