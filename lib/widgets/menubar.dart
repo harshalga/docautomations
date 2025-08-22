@@ -1,6 +1,7 @@
 
 import 'package:docautomations/widgets/AddPrescrip.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 
@@ -15,7 +16,30 @@ class Menubar extends StatefulWidget {
 }
 
 class _MenubarState extends State<Menubar> {
-  
+String doctorName = ""; // store doctor name here
+ String doctorInitials = "";
+  @override
+  void initState() {
+    super.initState();
+    _loadDoctorInfo(); // load on widget creation
+  }
+  Future<void> _loadDoctorInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString('doctor_name') ?? "Dr. Prescriptor";
+    setState(() {
+      doctorName ="Dr. $name" ;
+      doctorInitials = _getInitials(name);
+    });
+  }
+  String _getInitials(String name) {
+    final parts = name.trim().split(" ");
+    if (parts.length == 1) {
+      return parts.first[0].toUpperCase();
+    } else {
+      return (parts[0][0] + parts.last[0]).toUpperCase();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,10 +64,10 @@ class _MenubarState extends State<Menubar> {
                       borderRadius: BorderRadius.circular(30),
                       color: Colors.lightBlue,
                     ),
-                    child: const Center(child: Text("CC", style: TextStyle(fontSize: 26))),
+                    child:  Center(child: Text(doctorInitials, style: TextStyle(fontSize: 26))),
                   ),
                   const SizedBox(height: 20),
-                  const Text("Dr. Prescriptor ", style: TextStyle(color: Colors.black, fontSize: 26)),
+                   Text(doctorName, style: TextStyle(color: Colors.black, fontSize: 26)),
                 ],
               ),
             ),

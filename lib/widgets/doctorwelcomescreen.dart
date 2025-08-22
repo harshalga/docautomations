@@ -22,7 +22,7 @@ class DoctorWelcomeScreen extends StatelessWidget {
       try {
         final decoded = jsonDecode(jsonStr);
         print("Decoded JSON: $decoded");
-        final info = DoctorInfo.fromJson(decoded);
+        final info = DoctorInfo.fromJson(decoded['doctor']);
         print("DoctorInfo loaded: ${info.name}");
         return info;
       } catch (e) {

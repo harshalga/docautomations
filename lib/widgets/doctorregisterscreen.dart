@@ -63,8 +63,8 @@ class _DoctorRegisterScreenState extends State<DoctorRegisterScreen> {
         logoBase64: _logoBase64,
       );
 
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString('doctor_info', jsonEncode(info.toJson()));
+      //final prefs = await SharedPreferences.getInstance();
+      //prefs.setString('doctor_info', jsonEncode(info.toJson()));
      
 
       final success = await LicenseApiService.registerDoctorOnServer(info);

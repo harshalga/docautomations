@@ -31,7 +31,7 @@ class DoctorInfo {
         'clinicAddress': clinicAddress,
         'contact': contact,
         'loginEmail':loginEmail,
-        'password': password,
+       'password': password,
         //'logoPath': logoPath,
         'logoBase64': logoBase64,
       };
