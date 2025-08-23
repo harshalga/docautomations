@@ -28,14 +28,18 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
 
     
 
-    bool success = await LicenseApiService.loginDoctor(
+    final tokens  = await LicenseApiService.loginDoctor(
       _usernameController.text.trim(),
       _passwordController.text.trim(),
     );
 
     setState(() => _loading = false);
 
-    if (success) {
+    if (tokens != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString("access_token", tokens["accessToken"]);
+      await prefs.setString("refresh_token", tokens["refreshToken"]);
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login successful ✅')),
       );
@@ -58,16 +62,28 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
 
   Future<void> _checkExistingLogin() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('jwt_token');
-    if (token != null) {
-      bool valid = await LicenseApiService.isTokenValid(token);
+    final accessToken = prefs.getString('access_token');
+    final refreshToken = prefs.getString('refresh_token');
+
+    if (accessToken != null) {
+      bool valid = await LicenseApiService.verifyToken(accessToken);
       if (valid) {
         widget.onLoginSuccess();
-      } else {
-        await LicenseApiService.logoutDoctor();
+        return;
+      } else if (refreshToken != null) {
+        /// try refreshing if access token expired
+        final newAccessToken =
+            await LicenseApiService.refreshAccessToken(refreshToken);
+        if (newAccessToken != null) {
+          widget.onLoginSuccess();
+          return;
+        }
       }
+      /// if still not valid → logout
+      await LicenseApiService.logoutDoctor();
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

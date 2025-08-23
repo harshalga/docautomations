@@ -1,5 +1,6 @@
 
 import 'package:docautomations/widgets/AddPrescrip.dart';
+import 'package:docautomations/widgets/doctorwelcomescreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,8 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Menubar extends StatefulWidget {
   final Widget body; // 👈 new
+  final VoidCallback onLogout; // 👈 new
 
-  const Menubar({super.key, required this.body});
+  const Menubar({super.key, required this.body,required this.onLogout});
 
   @override
   State<Menubar> createState() => _MenubarState();
@@ -18,10 +20,12 @@ class Menubar extends StatefulWidget {
 class _MenubarState extends State<Menubar> {
 String doctorName = ""; // store doctor name here
  String doctorInitials = "";
+  late Widget currentBody; // 👈 this will hold the page shown in the body
   @override
   void initState() {
     super.initState();
     _loadDoctorInfo(); // load on widget creation
+     currentBody = widget.body; // 👈 start with the body passed from AppEntryPoint
   }
   Future<void> _loadDoctorInfo() async {
     final prefs = await SharedPreferences.getInstance();
@@ -72,24 +76,39 @@ String doctorName = ""; // store doctor name here
               ),
             ),
             ListTile(
-              onTap: () {},
+               onTap: (){
+               setState(() {
+      currentBody = const DoctorWelcomeScreen();
+    });
+    Navigator.pop(context); // close drawer
+  },
+    // { Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => const DoctorWelcomeScreen()),
+    // );},
               leading: const Icon(Icons.home, size: 26, color: Colors.black),
               title: const Text("HomePage", style: TextStyle(fontSize: 20)),
             ),
             ListTile(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Addprescrip(title: "PatientInfo")),
-                );
-              },
+              // onTap: () {
+              //   Navigator.push(
+              //     context,
+              //     MaterialPageRoute(builder: (context) => const Addprescrip(title: "PatientInfo")),
+              //   );
+              // },
+               onTap: (){
+               setState(() {
+      currentBody = const Addprescrip(title: "PatientInfo");
+    });
+    Navigator.pop(context); // close drawer
+  },
               leading: const Icon(Icons.info, size: 26, color: Colors.black),
-              title: const Text("Dr. Info", style: TextStyle(fontSize: 20)),
+              title: const Text("Patient Diagnosis", style: TextStyle(fontSize: 20)),
             ),
             ListTile(
               onTap: () {},
               leading: const Icon(Icons.logo_dev, size: 26, color: Colors.black),
-              title: const Text("Logo", style: TextStyle(fontSize: 20)),
+              title: const Text("Dr. Info", style: TextStyle(fontSize: 20)),
             ),
             ListTile(
               onTap: () {},
@@ -98,14 +117,18 @@ String doctorName = ""; // store doctor name here
             ),
             const Divider(color: Colors.black),
             ListTile(
-              onTap: () {},
+              onTap: () {
+
+                Navigator.pop(context); // close drawer
+                 widget.onLogout();      // 👈 call parent logout
+              },
               leading: const Icon(Icons.logout, size: 26, color: Colors.black),
               title: const Text("Logout", style: TextStyle(fontSize: 20)),
             ),
           ],
         ),
       ),
-      body: SafeArea(child: widget.body), //widget.body, // 👈 load dynamic body here
+      body: SafeArea(child:currentBody), //widget.body, // 👈 load dynamic body here
       resizeToAvoidBottomInset: false,
     );
   }

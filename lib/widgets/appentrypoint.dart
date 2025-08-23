@@ -1,6 +1,7 @@
 
 
 import 'dart:async';
+import 'package:docautomations/widgets/AddPrescrip.dart';
 import 'package:docautomations/widgets/DoctorLoginScreen.dart';
 import 'package:docautomations/widgets/doctorinfo.dart';
 import 'package:flutter/material.dart';
@@ -36,17 +37,35 @@ class _AppEntryPointState extends State<AppEntryPoint> {
     super.dispose();
   }
 
-  /// First check at startup
-  Future<void> _checkJwtToken() async {
+  // First check at startup
+  Future<void> _checkTokens() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('jwt_token');
+    final accessToken = prefs.getString('access_token');
+    final refreshToken = prefs.getString('refresh_token');
 
-    if (token != null && token.isNotEmpty) {
-      final isValid = await LicenseApiService.verifyToken(token);
-      setState(() {
-        _isLoggedIn = isValid;
-        _checkingLogin = false;
-      });
+    if (accessToken != null && accessToken.isNotEmpty) {
+      final isValid = await LicenseApiService.verifyToken(accessToken);
+
+      if (isValid) {
+        setState(() {
+          _isLoggedIn = true;
+          _checkingLogin = false;
+        });
+      } else if (refreshToken != null && refreshToken.isNotEmpty) {
+        // Try to refresh access token
+        final newAccess = await LicenseApiService.refreshAccessToken(refreshToken);
+        if (newAccess != null) {
+          await prefs.setString('access_token', newAccess);
+          setState(() {
+            _isLoggedIn = true;
+            _checkingLogin = false;
+          });
+        } else {
+          _logout();
+        }
+      } else {
+        _logout();
+      }
     } else {
       setState(() {
         _checkingLogin = false;
@@ -54,29 +73,34 @@ class _AppEntryPointState extends State<AppEntryPoint> {
     }
   }
 
-  /// Re-check token periodically
+  /// Re-check token periodically (every 5 min)
   void _startTokenCheckTimer() {
     _tokenCheckTimer = Timer.periodic(const Duration(minutes: 5), (timer) async {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('jwt_token');
+      final accessToken = prefs.getString('access_token');
+      final refreshToken = prefs.getString('refresh_token');
 
-      if (token == null || token.isEmpty) {
+      if (accessToken == null || accessToken.isEmpty) {
         _logout();
         return;
       }
 
-      final isValid = await LicenseApiService.verifyToken(token);
+      final isValid = await LicenseApiService.verifyToken(accessToken);
       if (!isValid) {
+        if (refreshToken != null && refreshToken.isNotEmpty) {
+          final newAccess = await LicenseApiService.refreshAccessToken(refreshToken);
+          if (newAccess != null) {
+            await prefs.setString('access_token', newAccess);
+            return;
+          }
+        }
         _logout();
       }
     });
   }
-
   void _logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('jwt_token');
-    await prefs.remove('doctor_username');
-    await prefs.remove('doctor_password');
+    await prefs.clear();
     setState(() {
       _isLoggedIn = false;
       _isRegistering = false;
@@ -93,20 +117,28 @@ class _AppEntryPointState extends State<AppEntryPoint> {
   }
 
   /// Called when doctor successfully logs in
-  void _handleLoginSuccess() {
+  void _handleLoginSuccess(String accessToken, String refreshToken) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('access_token', accessToken);
+    await prefs.setString('refresh_token', refreshToken);
+
     setState(() {
       _isLoggedIn = true;
     });
   }
 
-  @override
+
+ @override
   Widget build(BuildContext context) {
     if (_checkingLogin) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (_isLoggedIn) {
-      return const Menubar(body: DoctorWelcomeScreen());
+      return Menubar(
+        body: Addprescrip(title: "PatientInfo"),
+        onLogout: _logout,
+      );
     } else if (_isRegistering) {
       return DoctorRegisterScreen(onRegistered: _onRegistered);
     } else {
@@ -120,6 +152,5 @@ class _AppEntryPointState extends State<AppEntryPoint> {
   Future<void> _saveDoctorToLocal(DoctorInfo info) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('doctor_username', info.name);
-    //await prefs.setString('doctor_password', info.password); // ⚠️ Ideally hash this
   }
 }
