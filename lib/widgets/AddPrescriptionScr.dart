@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:docautomations/main.dart';
+import 'package:docautomations/services/license_api_service.dart';
 import 'package:docautomations/widgets/AddPrescription.dart';
 import 'package:docautomations/widgets/PatientInfo.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Addprescriptionscr extends StatefulWidget {
   const Addprescriptionscr({super.key});
@@ -33,6 +37,35 @@ final GlobalKey<PatientinfoState> _patientInfoKey = GlobalKey<PatientinfoState>(
   final String _keycomplaint='';
   final String _examination='';
   final String _diagnosis='';
+  String _doctorName='';
+  String _doctorQualification='';
+  String _doctorAddress='';
+  String _doctorContact='';
+  Uint8List? _doctorLogo;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDoctorInfo(); // load on widget creation
+     
+  }
+  Future<void> _loadDoctorInfo() async {
+    final doctorData = await LicenseApiService.fetchDoctorProfile();
+
+  if (doctorData != null) {
+    setState(() {
+      _doctorName = "Dr. ${doctorData['name'] ?? ''}";
+      _doctorQualification = doctorData['specialization'] ?? '';
+      _doctorAddress = doctorData['clinicAddress'] ?? '';
+      _doctorContact = doctorData['contact'] ?? '';
+
+      // Decode Base64 logo
+      if (doctorData['logoBase64'] != null && doctorData['logoBase64'].isNotEmpty) {
+        _doctorLogo = base64Decode(doctorData['logoBase64']);
+      }
+    });
+  }
+  }
 
   // Instead of a single prescription, maintain a list
   final List<Prescriptiondata> _prescriptions = [];
@@ -75,17 +108,19 @@ void generatePrescriptionPdf() async {
                 pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text("Dr. Sameer Kulkarni", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                pw.Text("MBBS, MD - General Medicine"),
-                pw.Text("DocAutomations Clinic, Pune"),
-                pw.Text("Contact: +91 9876543210"),
+                pw.Text(_doctorName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.Text(_doctorQualification),
+                pw.Text(_doctorAddress),
+                pw.Text("Contact:$_doctorContact"),
               ],
             ),
+             if (_doctorLogo != null)
                 pw.Container(
                   width: 60,
                   height: 60,
                   color: PdfColors.grey300, // Placeholder for logo
-                  child: pw.Center(child: pw.Image(imageLogo)),//Text("Logo")),
+                  //child: pw.Center(child: pw.Image(imageLogo)),//Text("Logo")),
+                  child: pw.Center(child:pw.Image(pw.MemoryImage(_doctorLogo!))),//Text("Logo")),
                 ),
               ],
             ),

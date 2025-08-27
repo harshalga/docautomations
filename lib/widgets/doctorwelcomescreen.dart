@@ -1,6 +1,7 @@
 
 
 import 'dart:convert';
+import 'package:docautomations/services/license_api_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:docautomations/widgets/doctorinfo.dart';
@@ -108,29 +109,38 @@ class DoctorWelcomeScreen extends StatelessWidget {
   const DoctorWelcomeScreen({super.key});
 
   Future<DoctorInfo> _loadInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonStr = prefs.getString('doctor_info');
-
-    if (jsonStr != null && jsonStr.isNotEmpty) {
-      try {
-        final decoded = jsonDecode(jsonStr);
-        final info = DoctorInfo.fromJson(decoded['doctor']);
-        return info;
-      } catch (e) {
-        rethrow;
+    try {
+    final doctorData = await LicenseApiService.fetchDoctorProfile();
+    
+    if (doctorData != null) {
+        return DoctorInfo.fromJson(doctorData);
+      } else {
+        throw Exception("No doctor data from server");
       }
-    } else {
-      return DoctorInfo(
-        name: 'Dr. Web',
-        specialization: 'General Physician',
-        clinicName: 'Web Clinic',
-        clinicAddress: '123 Internet Ave',
-        contact: '54545454',
-        loginEmail: 'web@example.com',
-        password: '4jqexfd',
-        logoBase64: '',
-      );
+    } catch (e) {
+      throw Exception("Error loading doctor info: $e");
     }
+
+    // if (jsonStr != null && jsonStr.isNotEmpty) {
+    //   try {
+    //     final decoded = jsonDecode(jsonStr);
+    //     final info = DoctorInfo.fromJson(decoded['doctor']);
+    //     return info;
+    //   } catch (e) {
+    //     rethrow;
+    //   }
+    // } else {
+    //   return DoctorInfo(
+    //     name: 'Dr. Web',
+    //     specialization: 'General Physician',
+    //     clinicName: 'Web Clinic',
+    //     clinicAddress: '123 Internet Ave',
+    //     contact: '54545454',
+    //     loginEmail: 'web@example.com',
+    //     password: '4jqexfd',
+    //     logoBase64: '',
+    //   );
+    // }
   }
 
   @override

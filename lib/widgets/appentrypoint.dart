@@ -27,7 +27,7 @@ class _AppEntryPointState extends State<AppEntryPoint> {
   @override
   void initState() {
     super.initState();
-    _checkJwtToken();
+    _checkTokens();
     _startTokenCheckTimer();
   }
 
@@ -94,17 +94,21 @@ class _AppEntryPointState extends State<AppEntryPoint> {
             return;
           }
         }
+        print("before Log out");
         _logout();
       }
     });
   }
   void _logout() async {
+    print("inside Log out");
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    if (mounted) {
     setState(() {
       _isLoggedIn = false;
       _isRegistering = false;
     });
+  }
   }
 
   /// Called when doctor successfully registers
@@ -117,12 +121,8 @@ class _AppEntryPointState extends State<AppEntryPoint> {
   }
 
   /// Called when doctor successfully logs in
-  void _handleLoginSuccess(String accessToken, String refreshToken) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('access_token', accessToken);
-    await prefs.setString('refresh_token', refreshToken);
-
-    setState(() {
+  void _handleLoginSuccess() async {
+        setState(() {
       _isLoggedIn = true;
     });
   }

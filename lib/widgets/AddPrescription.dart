@@ -116,9 +116,9 @@ class AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
                         // Step 2: Validate frequency selection
                         final isFrequencyValid = _frequencyKey.currentState?.validateFrequencySelection() ?? false;
 
-                        if (isFormValid && isFrequencyValid) {
-                          Navigator.pop(context, _prescription);
-                        }
+                          if (isFormValid && isFrequencyValid) {
+                            Navigator.pop(context, _prescription);
+                          }
                       },
                       child: const Text('Save Prescription'),
                     ),

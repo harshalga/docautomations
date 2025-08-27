@@ -294,12 +294,16 @@ class LicenseApiService {
     String? accessToken = prefs.getString("access_token");
     String? refreshToken = prefs.getString("refresh_token");
 
+    print ("Access Token from sharedpref : $accessToken");
+    print("Trying refresh with token: $refreshToken");
+
     var response = await http.get(
       Uri.parse(url),
       headers: {"Authorization": "Bearer $accessToken"},
     );
 
     if (response.statusCode == 401 && refreshToken != null) {
+      print("response status code is 401 and refreshtoken is not null");
       // Try refresh
       final refreshRes = await http.post(
         Uri.parse("$baseUrl/api/doctor/refresh"),
@@ -307,15 +311,24 @@ class LicenseApiService {
         body: jsonEncode({"refreshToken": refreshToken}),
       );
 
+      print("Refresh status: ${refreshRes.statusCode}");
+      print("Refresh body: ${refreshRes.body}");
+
       if (refreshRes.statusCode == 200) {
         final newAccessToken = jsonDecode(refreshRes.body)["accessToken"];
         await prefs.setString("access_token", newAccessToken);
+ 
+// ✅ Update both memory & storage
+      accessToken = newAccessToken;
+ print("🔑 Old access token: $accessToken");
+print("🔑 New access token: $newAccessToken");
 
         response = await http.get(
           Uri.parse(url),
-          headers: {"Authorization": "Bearer $newAccessToken"},
+          headers: {"Authorization": "Bearer $accessToken"},
         );
       } else {
+        print("inside logout");
         await _logout();
       }
     }
@@ -374,7 +387,24 @@ class LicenseApiService {
       body: jsonEncode(info.toJson()),
     );
 
-    return response.statusCode == 201;
+    if (response.statusCode == 201) {
+    final data = jsonDecode(response.body);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("access_token", data["accessToken"]);
+    await prefs.setString("refresh_token", data["refreshToken"]);
+
+    // Optionally also cache doctor profile locally
+    if (data["doctor"] != null) {
+      await prefs.setString("doctor_profile", jsonEncode(data["doctor"]));
+    }
+
+    return true;
+    }
+    else {
+    print("❌ Registration failed: ${response.statusCode} ${response.body}");
+    return false;
+  }
   }
 
   /// ✅ Login doctor
@@ -398,7 +428,7 @@ class LicenseApiService {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString("access_token", accessToken);
           await prefs.setString("refresh_token", refreshToken);
-
+          await prefs.setString("doctor_name", data["doctor"]["name"]);
           return {
             "accessToken": accessToken,
             "refreshToken": refreshToken,
@@ -422,6 +452,63 @@ class LicenseApiService {
     }
     return null;
   }
+
+//   // license_api_service.dart
+// static Future<Map<String, dynamic>?> fetchDoctorProfile() async {
+//   try {
+//     final prefs = await SharedPreferences.getInstance();
+//     final accessToken = prefs.getString("access_token");
+
+//     if (accessToken == null) return null;
+
+//     final response = await http.get(
+//       Uri.parse("$baseUrl/api/doctor/me"),
+//       headers: {
+//         "Authorization": "Bearer $accessToken",
+//         "Content-Type": "application/json",
+//       },
+//     );
+
+//     if (response.statusCode == 200) {
+//       final profile = jsonDecode(response.body) as Map<String, dynamic>;
+//       return profile;
+//     } else if (response.statusCode == 401) {
+//       print("⛔ Token expired, consider refreshing here");
+//       return null;
+//     } else {
+//       print("❌ Fetch failed: ${response.statusCode} ${response.body}");
+//       return null;
+//     }
+//   } catch (e) {
+//     print("Error fetching doctor profile: $e");
+//     return null;
+//   }
+// }
+
+// ✅ license_api_service.dart
+
+static Future<Map<String, dynamic>?> fetchDoctorProfile() async {
+  try {
+    final response = await _authenticatedGet("$baseUrl/api/doctor/me");
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else if (response.statusCode == 401) {
+      // This means refresh also failed
+      print("⛔ Unauthorized: token expired and refresh failed");
+      return null;
+    } else {
+      print("❌ Failed to fetch profile: ${response.statusCode} ${response.body}");
+      return null;
+    }
+  } catch (e) {
+    print("⚠️ Error in fetchDoctorProfile: $e");
+    return null;
+  }
+}
+
+
+
 
   /// ✅ Fetch doctor by ID (if needed)
   static Future<DoctorInfo?> fetchRegisteredDoctor() async {
@@ -542,6 +629,8 @@ class LicenseApiService {
   /// ✅ Logout
   static Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.remove("access_token");
+  await prefs.remove("refresh_token");
     await prefs.clear();
   }
 

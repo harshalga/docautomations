@@ -8,6 +8,7 @@ import 'package:docautomations/widgets/doctorinfo.dart';
 import 'package:docautomations/common/common_widgets.dart';
 
 import 'package:docautomations/services/license_api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DoctorRegisterScreen extends StatefulWidget {
   final void Function(DoctorInfo) onRegistered;
@@ -69,6 +70,7 @@ class _DoctorRegisterScreenState extends State<DoctorRegisterScreen> {
       final success = await LicenseApiService.registerDoctorOnServer(info);
 
     if (success) {
+      
       widget.onRegistered(info);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

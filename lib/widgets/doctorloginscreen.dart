@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DoctorLoginScreen extends StatefulWidget {
-  final VoidCallback onLoginSuccess;
+   //final void Function(String accessToken, String refreshToken) 
+  final VoidCallback onLoginSuccess; 
   final VoidCallback onRegisterTap;
 
   const DoctorLoginScreen({
@@ -37,9 +38,15 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
 
     if (tokens != null) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString("access_token", tokens["accessToken"]);
-      await prefs.setString("refresh_token", tokens["refreshToken"]);
-
+      final accessTok = tokens["accessToken"] ;
+      final refreshTok = tokens["refreshToken"];
+      print ("access token returned after login from _login = $accessTok");
+      print ("refresh token returned after login from _login = $refreshTok");
+      // // await prefs.setString("access_token", tokens["accessToken"] ??"");
+      // // await prefs.setString("refresh_token", tokens["refreshToken"]??"");
+      // await prefs.setString("access_token", accessTok!);
+      // await prefs.setString("refresh_token",refreshTok!);
+       
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login successful ✅')),
       );
@@ -75,6 +82,7 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
         final newAccessToken =
             await LicenseApiService.refreshAccessToken(refreshToken);
         if (newAccessToken != null) {
+          await prefs.setString("access_token", newAccessToken);
           widget.onLoginSuccess();
           return;
         }

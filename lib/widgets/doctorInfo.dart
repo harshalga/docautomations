@@ -9,7 +9,7 @@ class DoctorInfo {
   //final String? logoPath;       // For mobile/desktop
   final String? logoBase64;     // For web
   final String loginEmail  ;
-  final String password;
+  final String? password;
 
   
   DoctorInfo({
@@ -31,7 +31,7 @@ class DoctorInfo {
         'clinicAddress': clinicAddress,
         'contact': contact,
         'loginEmail':loginEmail,
-       'password': password,
+       if (password != null) 'password': password,  // ✅ Only include if present
         //'logoPath': logoPath,
         'logoBase64': logoBase64,
       };
@@ -43,7 +43,7 @@ class DoctorInfo {
         clinicAddress: json['clinicAddress'],
         contact: json['contact'],
         loginEmail: json['loginEmail'],
-        password: json['password'],
+        password: json['password'],   // ✅ Safe: null if not returned
         //logoPath: json['logoPath'],
         logoBase64: json['logoBase64'],
       );
