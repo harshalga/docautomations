@@ -113,6 +113,7 @@ class _AppEntryPointState extends State<AppEntryPoint> {
 
   /// Called when doctor successfully registers
   void _onRegistered(DoctorInfo info) async {
+    print ("doctor info :- $info.info.name");
     await _saveDoctorToLocal(info);
     setState(() {
       _isLoggedIn = true;

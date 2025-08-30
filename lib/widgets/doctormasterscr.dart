@@ -1,3 +1,4 @@
+import 'package:docautomations/common/appcolors.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
@@ -119,18 +120,32 @@ void _seedControllers(DoctorInfo d) {
     );
   }
 
-
-
-  @override
+ @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Doctor Master")),
-      body: Padding(
+    return SizedBox(
+      height: MediaQuery.of(context).size.height,
+      child: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          margin: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(50),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withOpacity(0.3),
+                blurRadius: 20,
+                offset: Offset.zero,
+              ),
+            ],
+          ),
+          child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: ListView(
-            children: [
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Doctor Name'),
@@ -171,6 +186,61 @@ void _seedControllers(DoctorInfo d) {
           ),
         ),
       ),
+        ),
+      ),
     );
   }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(title: const Text("Doctor Master")),
+  //     body: Padding(
+  //       padding: const EdgeInsets.all(16.0),
+  //       child: Form(
+  //         key: _formKey,
+  //         child: ListView(
+  //           children: [
+  //             TextFormField(
+  //               controller: _nameController,
+  //               decoration: const InputDecoration(labelText: 'Doctor Name'),
+  //               validator: (v) => v!.isEmpty ? 'Required' : null,
+  //             ),
+  //             TextFormField(
+  //               controller: _specController,
+  //               decoration: const InputDecoration(labelText: 'Specialization'),
+  //               validator: (v) => v!.isEmpty ? 'Required' : null,
+  //             ),
+  //             TextFormField(
+  //               controller: _clinicNameController,
+  //               decoration: const InputDecoration(labelText: 'Clinic Name'),
+  //               validator: (v) => v!.isEmpty ? 'Required' : null,
+  //             ),
+  //             TextFormField(
+  //               controller: _clinicAddressController,
+  //               decoration: const InputDecoration(labelText: 'Clinic Address'),
+  //               validator: (v) => v!.isEmpty ? 'Required' : null,
+  //             ),
+  //             TextFormField(
+  //               controller: _contactController,
+  //               decoration: const InputDecoration(labelText: 'Contact Details'),
+  //               validator: (v) => v!.isEmpty ? 'Required' : null,
+  //             ),
+  //             TextFormField(
+  //               controller: _loginEmailController,
+  //               decoration: const InputDecoration(labelText: 'Login Email'),
+  //               validator: (v) => v!.isEmpty ? 'Required' : null,
+  //             ),
+  //             const SizedBox(height: 12),
+  //             ElevatedButton(onPressed: _pickImage, child: const Text("Select Logo")),
+  //             const SizedBox(height: 10),
+  //             displayDoctorImage(_logoBase64),
+  //             const SizedBox(height: 20),
+  //             ElevatedButton(onPressed: _submit, child: const Text("Update Info")),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 }
