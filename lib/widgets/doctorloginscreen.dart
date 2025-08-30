@@ -40,8 +40,7 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
       final prefs = await SharedPreferences.getInstance();
       final accessTok = tokens["accessToken"] ;
       final refreshTok = tokens["refreshToken"];
-      print ("access token returned after login from _login = $accessTok");
-      print ("refresh token returned after login from _login = $refreshTok");
+      
       // // await prefs.setString("access_token", tokens["accessToken"] ??"");
       // // await prefs.setString("refresh_token", tokens["refreshToken"]??"");
       // await prefs.setString("access_token", accessTok!);

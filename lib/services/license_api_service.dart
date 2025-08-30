@@ -294,8 +294,7 @@ class LicenseApiService {
     String? accessToken = prefs.getString("access_token");
     String? refreshToken = prefs.getString("refresh_token");
 
-    print ("Access Token from sharedpref : $accessToken");
-    print("Trying refresh with token: $refreshToken");
+    
 
     var response = await http.get(
       Uri.parse(url),
@@ -378,7 +377,49 @@ print("🔑 New access token: $newAccessToken");
 
     return response;
   }
+/// 🔐 Helper: Authenticated PUT
+static Future<http.Response> _authenticatedPut(
+    String url, Map<String, dynamic> body) async {
+  final prefs = await SharedPreferences.getInstance();
+  String? accessToken = prefs.getString("access_token");
+  String? refreshToken = prefs.getString("refresh_token");
 
+  var response = await http.put(
+    Uri.parse(url),
+    headers: {
+      "Authorization": "Bearer $accessToken",
+      "Content-Type": "application/json",
+    },
+    body: jsonEncode(body),
+  );
+
+  // 🔁 handle expired token
+  if (response.statusCode == 401 && refreshToken != null) {
+    final refreshRes = await http.post(
+      Uri.parse("$baseUrl/api/doctor/refresh"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"refreshToken": refreshToken}),
+    );
+
+    if (refreshRes.statusCode == 200) {
+      final newAccessToken = jsonDecode(refreshRes.body)["accessToken"];
+      await prefs.setString("access_token", newAccessToken);
+
+      response = await http.put(
+        Uri.parse(url),
+        headers: {
+          "Authorization": "Bearer $newAccessToken",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(body),
+      );
+    } else {
+      await _logout();
+    }
+  }
+
+  return response;
+}
   /// ✅ Register doctor (no auth needed)
   static Future<bool> registerDoctorOnServer(DoctorInfo info) async {
     final response = await http.post(
@@ -406,6 +447,53 @@ print("🔑 New access token: $newAccessToken");
     return false;
   }
   }
+
+
+  /// ✅ Update doctor info (requires auth)
+// static Future<bool> updateDoctorOnServer(DoctorInfo info) async {
+//   try {
+//     // Retrieve access token from SharedPreferences
+//     final prefs = await SharedPreferences.getInstance();
+//     final token = prefs.getString('access_token');
+
+//     if (token == null) {
+//       print("❌ No access token found, cannot update doctor info");
+//       return false;
+//     }
+
+//     final response = await http.put(
+//       Uri.parse('$baseUrl/api/doctor/update'),
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'Authorization': 'Bearer $token', // ✅ auth header
+//       },
+//       body: jsonEncode(info.toJson()
+//         ..removeWhere((key, value) => value == null || value == "")), // remove empty fields
+//     );
+
+//     if (response.statusCode == 200) {
+//       print("✅ Doctor info updated successfully");
+//       return true;
+//     } else {
+//       print("❌ Failed to update doctor info: ${response.body}");
+//       return false;
+//     }
+//   } catch (e) {
+//     print("❌ Exception in updateDoctorOnServer: $e");
+//     return false;
+//   }
+// }
+
+/// ✅ Update doctor info
+static Future<bool> updateDoctorOnServer(DoctorInfo info) async {
+  final response = await _authenticatedPut(
+    "$baseUrl/api/doctor/update",
+    info.toJson(),
+  );
+
+  return response.statusCode == 200;
+}
+
 
   /// ✅ Login doctor
   static Future<Map<String, String>?> loginDoctor(String loginEmail, String password) async {

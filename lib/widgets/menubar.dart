@@ -1,5 +1,6 @@
 
 import 'package:docautomations/widgets/AddPrescrip.dart';
+import 'package:docautomations/widgets/doctormaster.dart';
 import 'package:docautomations/widgets/doctorwelcomescreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -106,7 +107,10 @@ String doctorName = ""; // store doctor name here
               title: const Text("Patient Diagnosis", style: TextStyle(fontSize: 20)),
             ),
             ListTile(
-              onTap: () {},
+              onTap: () {setState(() {
+      currentBody = const DoctorMaster(title: "Doctor Information");
+    });
+    Navigator.pop(context);},
               leading: const Icon(Icons.logo_dev, size: 26, color: Colors.black),
               title: const Text("Dr. Info", style: TextStyle(fontSize: 20)),
             ),
