@@ -1,6 +1,7 @@
 
 
 import 'dart:convert';
+import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/services/license_api_service.dart';
 import 'package:flutter/material.dart';
 
@@ -8,103 +9,7 @@ import 'package:docautomations/widgets/doctorinfo.dart';
 import 'package:docautomations/common/common_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// class DoctorWelcomeScreen extends StatelessWidget {
 
-//   const DoctorWelcomeScreen({super.key});
-
-//   Future<DoctorInfo> _loadInfo() async {
-//     print("Inside welcome screen load info");
-
-//     final prefs = await SharedPreferences.getInstance();
-//     final jsonStr = prefs.getString('doctor_info');
-    
-
-//     if (jsonStr != null && jsonStr.isNotEmpty) {
-//       print("Inside jsonstr exist");
-//       try {
-//         final decoded = jsonDecode(jsonStr);
-//         print("Decoded JSON: $decoded");
-//         final info = DoctorInfo.fromJson(decoded['doctor']);
-//         print("DoctorInfo loaded: ${info.name}");
-//         return info;
-//       } catch (e) {
-//         print("⚠️ Error parsing doctor_info: $e");
-//         rethrow;
-//       }
-//     } else {
-//       print("Fallback: no doctor_info found, returning default");
-//       return DoctorInfo(
-//         name: 'Dr. Web',
-//         specialization: 'General Physician',
-//         clinicName: 'Web Clinic',
-//         clinicAddress: '123 Internet Ave',
-//         contact: '54545454',
-//         loginEmail:'web@example.com' ,
-//         password: '4jqexfd',
-//         logoBase64: '',
-//       );
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     print("Inside welcome screen build");
-//     return FutureBuilder<DoctorInfo>(
-//       future: _loadInfo(),
-//       builder: (context, snapshot) {
-//         print("Inside builder");
-
-//         if (snapshot.connectionState == ConnectionState.waiting) {
-//           return  Scaffold(
-//             appBar: AppBar(
-//         title: Text( 'Welcome Screen ',
-//             style: Theme.of(context).textTheme.titleLarge!.copyWith(
-//                   color: Theme.of(context).colorScheme.onSecondary,
-//                 )),
-//         backgroundColor: Theme.of(context).colorScheme.secondary,
-//       ),
-//             body: Center(child: CircularProgressIndicator()),
-//           );
-//         }
-
-//         if (snapshot.hasError) {
-//           print("❌ Snapshot error: ${snapshot.error}");
-//           return Scaffold(
-//             body: Center(child: Text("Error: ${snapshot.error}")),
-//           );
-//         }
-
-//         if (!snapshot.hasData) {
-//           print("❌ Snapshot has no data");
-//           return const Scaffold(
-//             body: Center(child: Text("No doctor data available")),
-//           );
-//         }
-
-//         final info = snapshot.data!;
-//         print("✅ Loaded doctor info: ${info.name}");
-
-//         return 
-//            Padding(
-//             padding: const EdgeInsets.all(20.0),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 displayDoctorImage(info.logoBase64),
-//                 const SizedBox(height: 20),
-//                 Text(" ${info.name}", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-//                 Text(info.specialization),
-//                 Text(info.clinicName),
-//                 Text(info.clinicAddress),
-//                 Text(info.contact),
-//               ],
-//             ),
-//           );
-        
-//       },
-//     );
-//   }
-// }
 class DoctorWelcomeScreen extends StatelessWidget {
   const DoctorWelcomeScreen({super.key});
 
@@ -121,26 +26,7 @@ class DoctorWelcomeScreen extends StatelessWidget {
       throw Exception("Error loading doctor info: $e");
     }
 
-    // if (jsonStr != null && jsonStr.isNotEmpty) {
-    //   try {
-    //     final decoded = jsonDecode(jsonStr);
-    //     final info = DoctorInfo.fromJson(decoded['doctor']);
-    //     return info;
-    //   } catch (e) {
-    //     rethrow;
-    //   }
-    // } else {
-    //   return DoctorInfo(
-    //     name: 'Dr. Web',
-    //     specialization: 'General Physician',
-    //     clinicName: 'Web Clinic',
-    //     clinicAddress: '123 Internet Ave',
-    //     contact: '54545454',
-    //     loginEmail: 'web@example.com',
-    //     password: '4jqexfd',
-    //     logoBase64: '',
-    //   );
-    // }
+    
   }
 
   @override
@@ -189,12 +75,26 @@ class DoctorWelcomeScreen extends StatelessWidget {
             ),
             backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
-          body: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          body: SizedBox.expand(
+            child:Container(
+               padding: const EdgeInsets.all(20),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(50),
+            boxShadow: [
+              BoxShadow(
+                  color: AppColors.primary.withOpacity(0.3),
+                  blurRadius: 20,
+                  offset: Offset.zero),
+            ],
+          ),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                displayDoctorImage(info.logoBase64),
+                Center(
+               child: displayDoctorImage(info.logoBase64),
+                ),
                 const SizedBox(height: 20),
                 Text(
                   info.name,
@@ -209,8 +109,10 @@ class DoctorWelcomeScreen extends StatelessWidget {
                 Text(info.contact),
               ],
             ),
+            ),
           ),
         );
+        
       },
     );
   }
