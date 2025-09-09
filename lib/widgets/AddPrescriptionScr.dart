@@ -6,6 +6,7 @@ import 'package:docautomations/main.dart';
 import 'package:docautomations/services/license_api_service.dart';
 import 'package:docautomations/widgets/AddPrescription.dart';
 import 'package:docautomations/widgets/PatientInfo.dart';
+import 'package:docautomations/widgets/doctorinfo.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -43,6 +44,10 @@ final GlobalKey<PatientinfoState> _patientInfoKey = GlobalKey<PatientinfoState>(
   String _doctorContact='';
   Uint8List? _doctorLogo;
 
+  DoctorInfo? _doctorInfo;
+
+bool _printLetterhead = true; // default true
+
   @override
   void initState() {
     super.initState();
@@ -58,11 +63,41 @@ final GlobalKey<PatientinfoState> _patientInfoKey = GlobalKey<PatientinfoState>(
       _doctorQualification = doctorData['specialization'] ?? '';
       _doctorAddress = doctorData['clinicAddress'] ?? '';
       _doctorContact = doctorData['contact'] ?? '';
+       _printLetterhead = doctorData['printLetterhead'] ?? true; // ✅ fetch
 
-      // Decode Base64 logo
-      if (doctorData['logoBase64'] != null && doctorData['logoBase64'].isNotEmpty) {
-        _doctorLogo = base64Decode(doctorData['logoBase64']);
+      // // Decode Base64 logo
+      // if (doctorData['logoBase64'] != null && doctorData['logoBase64'].isNotEmpty) {
+      //   _doctorLogo = base64Decode(doctorData['logoBase64']);
+      // }
+
+      _doctorInfo = DoctorInfo(
+        name: doctorData['name'] ?? '',
+        specialization: doctorData['specialization'] ?? '',
+        clinicName: doctorData['clinicName'] ?? '',
+        clinicAddress: doctorData['clinicAddress'] ?? '',
+        contact: doctorData['contact'] ?? '',
+        loginEmail: doctorData['loginEmail'] ?? '',
+        password: doctorData['password'] ?? '',
+        logoBase64: doctorData['logoBase64'],
+        printLetterhead: doctorData['printLetterhead'] ?? true,
+        prescriptionCount: doctorData['prescriptionCount'] ?? 0,
+        licensedOnDate: doctorData['licensedOnDate'] != null
+            ? DateTime.tryParse(doctorData['licensedOnDate'])
+            : null,
+        nextRenewalDate: doctorData['nextRenewalDate'] != null
+            ? DateTime.tryParse(doctorData['nextRenewalDate'])
+            : null,
+        firstTimeRegistrationDate: doctorData['firstTimeRegistrationDate'] != null
+            ? DateTime.tryParse(doctorData['firstTimeRegistrationDate'])
+            : null,
+      );
+
+      // Decode logo
+      if (_doctorInfo?.logoBase64 != null && _doctorInfo!.logoBase64!.isNotEmpty) {
+        _doctorLogo = base64Decode(_doctorInfo!.logoBase64!);
       }
+
+
     });
   }
   }
@@ -78,7 +113,12 @@ final GlobalKey<PatientinfoState> _patientInfoKey = GlobalKey<PatientinfoState>(
     fontSize: 18,
     height: 2,
   );
-void generatePrescriptionPdf() async {
+void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
+  // 1️⃣ Increment the prescription count
+  // final updatedDoctor = doctorInfo.copyWith(
+  //   prescriptionCount: (doctorInfo.prescriptionCount ?? 0) + 1,
+  // );
+
   final pdf = pw.Document();
   final imageLogo = await imageFromAssetBundle('images/DrLogo.png');
   final name = _patientInfoKey.currentState?.tabNameController.text ?? '';
@@ -100,6 +140,7 @@ void generatePrescriptionPdf() async {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
+            if (_printLetterhead) ...[   // ✅ conditionally render
             // Header section
             pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -126,6 +167,11 @@ void generatePrescriptionPdf() async {
             ),
             pw.SizedBox(height: 10),
             pw.Divider(),
+             ] else ...[
+  // ✅ reserve same vertical space for pre-printed letterhead
+  pw.SizedBox(height: 100),   // adjust height to match your header block
+  pw.Divider(),
+],
             pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.end,
               children: [
@@ -190,6 +236,10 @@ try
   // await Printing.layoutPdf(
   // onLayout: (PdfPageFormat format) async => pdf.save(),
 
+  // 3️⃣ Save updated doctor info back to server
+ // await LicenseApiService.updateDoctorOnServer(updatedDoctor);
+ print("before pdf save and actually calling LicenseApiService.incrementPrescriptionCount");
+await LicenseApiService.incrementPrescriptionCount();
   final pdfBytes = await pdf.save();
 
     if (kIsWeb) {
@@ -312,7 +362,10 @@ catch(e)
       final isFormValid = _formKey.currentState!.validate();
       if (isFormValid)
        {
-          generatePrescriptionPdf();           
+         // generatePrescriptionPdf(_doctorInfo!);  
+          if (_doctorInfo != null) {
+  generatePrescriptionPdf(_doctorInfo!);
+}         
        }
 
     }

@@ -137,6 +137,31 @@ static Future<http.Response> _authenticatedPut(
 
   return response;
 }
+
+static Future<int?> incrementPrescriptionCount() async {
+  try {
+    
+    final response = await _authenticatedPut(
+      "$baseUrl/api/doctor/increment-prescription",
+      {}, // no body needed, just empty JSON
+    );
+ 
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+ 
+      return data["prescriptionCount"] as int;
+    } else {
+      print("Failed to increment prescription count: ${response.statusCode}");
+      return null;
+    }
+  } catch (e) {
+    print("Error incrementing prescription count: $e");
+    return null;
+  }
+}
+
+
+
   /// ✅ Register doctor (no auth needed)
   static Future<bool> registerDoctorOnServer(DoctorInfo info) async {
     final response = await http.post(

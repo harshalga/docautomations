@@ -171,6 +171,13 @@ class _DoctorRegisterScreenState extends State<DoctorRegisterScreen> {
         loginEmail: _loginEmailController.text,
         password: _passwordController.text,
         logoBase64: _logoBase64,
+        // ✅ new fields with defaults
+      printLetterhead: true, 
+      prescriptionCount: 0, // first time registration → start with 0
+      licensedOnDate: null,//DateTime.now(),
+      firstTimeRegistrationDate: DateTime.now(),
+      // you may set next renewal date = +1 year by default
+      nextRenewalDate: null,//DateTime.now().add(const Duration(days: 365)),
       );
 
       final success = await LicenseApiService.registerDoctorOnServer(info);

@@ -33,6 +33,8 @@ class _DoctorMasterScrState extends State<DoctorMasterScr> {
 
   String? _logoBase64;
 
+   bool _printLetterhead = true; // ✅ default
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +62,7 @@ void _seedControllers(DoctorInfo d) {
     _contactController = TextEditingController(text: d.contact);
     _loginEmailController = TextEditingController(text: d.loginEmail);
     _logoBase64 = d.logoBase64;
+    _printLetterhead = d.printLetterhead; // ✅ seed from model
   }
 
    @override
@@ -92,6 +95,7 @@ void _seedControllers(DoctorInfo d) {
         loginEmail: _loginEmailController.text,
         password: "", // not needed in edit
         logoBase64: _logoBase64,
+        printLetterhead: _printLetterhead, // ✅ save choice
       );
 
       final success = await LicenseApiService.updateDoctorOnServer(updatedInfo);
@@ -177,8 +181,17 @@ void _seedControllers(DoctorInfo d) {
                 validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
+              // ✅ Toggle for printLetterhead
+                  SwitchListTile(
+                    title: const Text("Print on Letterhead"),
+                    value: _printLetterhead,
+                    onChanged: (val) {
+                      setState(() => _printLetterhead = val);
+                    },
+                  ),
               ElevatedButton(onPressed: _pickImage, child: const Text("Select Logo")),
               const SizedBox(height: 10),
+              
               displayDoctorImage(_logoBase64),
               const SizedBox(height: 20),
               ElevatedButton(onPressed: _submit, child: const Text("Update Info")),
