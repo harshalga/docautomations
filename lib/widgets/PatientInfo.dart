@@ -34,6 +34,19 @@ class PatientinfoState extends State<Patientinfo> {
 //     );
 //   }
 
+void clearFields() {
+  tabNameController.clear();
+  ageController.clear();
+  keyComplaintcontroller.clear();
+  examinationcontroller.clear();
+  diagnoscontroller.clear();
+  followupDatecontroller.clear();
+  remarkscontroller.clear();
+  
+  setState(() {selectedGender = "Male";}); // refresh UI
+}
+
+
 Future<void> _selectNextFollowupDate () async
 {
   DateTime? _picked=  await showDatePicker(context: context, firstDate: DateTime(2000),

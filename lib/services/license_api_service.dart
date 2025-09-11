@@ -235,7 +235,11 @@ static Future<bool> updateDoctorOnServer(DoctorInfo info) async {
   );
   final prefs = await SharedPreferences.getInstance();
   final doctorData = await fetchDoctorProfile();
-     await prefs.setString("doctor_profile", jsonEncode(doctorData));
+  
+  if (doctorData != null) {
+    
+     await prefs.setString("doctor_profile", jsonEncode(doctorData["doctor"]));
+  }
   return response.statusCode == 200;
 }
 
@@ -262,7 +266,10 @@ static Future<bool> updateDoctorOnServer(DoctorInfo info) async {
           await prefs.setString("access_token", accessToken);
           await prefs.setString("refresh_token", refreshToken);
           await prefs.setString("doctor_name", data["doctor"]["name"]);
-          await prefs.setString("doctor_profile", jsonEncode(data));
+          
+          
+          await prefs.setString("doctor_profile", jsonEncode(data["doctor"]));
+          
           return {
             "accessToken": accessToken,
             "refreshToken": refreshToken,
@@ -324,7 +331,7 @@ static Future<bool> updateDoctorOnServer(DoctorInfo info) async {
 static Future<Map<String, dynamic>?> fetchDoctorProfile() async {
   try {
     final response = await _authenticatedGet("$baseUrl/api/doctor/me");
-
+print(" fetch profile in fetch doctor:  ${response.body}");
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else if (response.statusCode == 401) {

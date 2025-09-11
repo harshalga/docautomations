@@ -30,6 +30,8 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
   final _formKey = GlobalKey<FormState>();
 
 final GlobalKey<PatientinfoState> _patientInfoKey = GlobalKey<PatientinfoState>();
+bool _canGeneratePdf = true;  // initially enabled
+bool _canGenerateNext = false; // initially disabled
 
 
   final String _patientName = '';
@@ -61,12 +63,13 @@ final prefs = await SharedPreferences.getInstance();
   late final doctorData;
   if (stored != null) 
     {
+      print("Stored doct $stored" );
       doctorData = jsonDecode(stored) as Map<String, dynamic>;
     }
     else{
 
      doctorData = await LicenseApiService.fetchDoctorProfile();
-     await prefs.setString("doctor_profile", jsonEncode(doctorData));
+     await prefs.setString("doctor_profile", jsonEncode(doctorData["doctor"]));
 }
 
   if (doctorData != null) {
@@ -113,55 +116,7 @@ final prefs = await SharedPreferences.getInstance();
     });
   }
   }
-  // Future<void> _loadDoctorInfo() async {
-
-
-  //   final doctorData = await LicenseApiService.fetchDoctorProfile();
-
-  // if (doctorData != null) {
-  //   setState(() {
-  //     _doctorName = "Dr. ${doctorData['name'] ?? ''}";
-  //     _doctorQualification = doctorData['specialization'] ?? '';
-  //     _doctorAddress = doctorData['clinicAddress'] ?? '';
-  //     _doctorContact = doctorData['contact'] ?? '';
-  //      _printLetterhead = doctorData['printLetterhead'] ?? true; // ✅ fetch
-
-  //     // // Decode Base64 logo
-  //     // if (doctorData['logoBase64'] != null && doctorData['logoBase64'].isNotEmpty) {
-  //     //   _doctorLogo = base64Decode(doctorData['logoBase64']);
-  //     // }
-
-  //     _doctorInfo = DoctorInfo(
-  //       name: doctorData['name'] ?? '',
-  //       specialization: doctorData['specialization'] ?? '',
-  //       clinicName: doctorData['clinicName'] ?? '',
-  //       clinicAddress: doctorData['clinicAddress'] ?? '',
-  //       contact: doctorData['contact'] ?? '',
-  //       loginEmail: doctorData['loginEmail'] ?? '',
-  //       password: doctorData['password'] ?? '',
-  //       logoBase64: doctorData['logoBase64'],
-  //       printLetterhead: doctorData['printLetterhead'] ?? true,
-  //       prescriptionCount: doctorData['prescriptionCount'] ?? 0,
-  //       licensedOnDate: doctorData['licensedOnDate'] != null
-  //           ? DateTime.tryParse(doctorData['licensedOnDate'])
-  //           : null,
-  //       nextRenewalDate: doctorData['nextRenewalDate'] != null
-  //           ? DateTime.tryParse(doctorData['nextRenewalDate'])
-  //           : null,
-  //       firstTimeRegistrationDate: doctorData['firstTimeRegistrationDate'] != null
-  //           ? DateTime.tryParse(doctorData['firstTimeRegistrationDate'])
-  //           : null,
-  //     );
-
-  //     // Decode logo
-  //     if (_doctorInfo?.logoBase64 != null && _doctorInfo!.logoBase64!.isNotEmpty) {
-  //       _doctorLogo = base64Decode(_doctorInfo!.logoBase64!);
-  //     }
-
-
-  //   });
-  // }
-  // }
+  
 
   // Instead of a single prescription, maintain a list
   final List<Prescriptiondata> _prescriptions = [];
@@ -174,26 +129,31 @@ final prefs = await SharedPreferences.getInstance();
     fontSize: 18,
     height: 2,
   );
-void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
-  // 1️⃣ Increment the prescription count
-  // final updatedDoctor = doctorInfo.copyWith(
-  //   prescriptionCount: (doctorInfo.prescriptionCount ?? 0) + 1,
-  // );
 
+
+
+void _resetPrescriptionForm() {
+  setState(() {
+    _prescriptions.clear();  // clear medicines
+    _patientInfoKey.currentState?.clearFields(); // reset PatientInfo widget fields
+  });
+}
+
+
+void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
   final pdf = pw.Document();
-  final imageLogo = await imageFromAssetBundle('images/DrLogo.png');
   final name = _patientInfoKey.currentState?.tabNameController.text ?? '';
-  final age =  _patientInfoKey.currentState?.ageController.text ?? '';
+  final age = _patientInfoKey.currentState?.ageController.text ?? '';
   final complaints = _patientInfoKey.currentState?.keyComplaintcontroller.text ?? '';
   final examination = _patientInfoKey.currentState?.examinationcontroller.text ?? '';
   final diagnosis = _patientInfoKey.currentState?.diagnoscontroller.text ?? '';
-  final selectedGenderval = _patientInfoKey.currentState?.selectedGender.toString()??'';
+  final selectedGenderval = _patientInfoKey.currentState?.selectedGender.toString() ?? '';
   final nextfollowupdate = _patientInfoKey.currentState?.followupDatecontroller.text ?? '';
   final remarks = _patientInfoKey.currentState?.remarkscontroller.text ?? '';
-  
-  late DateTime now;
-  now = DateTime.now();
-  String formattedDate = DateFormat('dd/MM/yyyy').format(now);
+
+  final now = DateTime.now();
+  final formattedDate = DateFormat('dd/MM/yyyy').format(now);
+
   pdf.addPage(
     pw.Page(
       pageFormat: PdfPageFormat.a4,
@@ -201,76 +161,122 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            if (_printLetterhead) ...[   // ✅ conditionally render
-            // Header section
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                //pw.Text("Clinic Name", style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold)),
-                pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text(_doctorName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                pw.Text(_doctorQualification),
-                pw.Text(_doctorAddress),
-                pw.Text("Contact:$_doctorContact"),
-              ],
-            ),
-             if (_doctorLogo != null)
-                pw.Container(
-                  width: 60,
-                  height: 60,
-                  color: PdfColors.grey300, // Placeholder for logo
-                  //child: pw.Center(child: pw.Image(imageLogo)),//Text("Logo")),
-                  child: pw.Center(child:pw.Image(pw.MemoryImage(_doctorLogo!))),//Text("Logo")),
-                ),
-              ],
-            ),
-            pw.SizedBox(height: 10),
-            pw.Divider(),
-             ] else ...[
-  // ✅ reserve same vertical space for pre-printed letterhead
-  pw.SizedBox(height: 100),   // adjust height to match your header block
-  pw.Divider(),
-],
+            if (_printLetterhead) ...[
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(_doctorName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                      pw.Text(_doctorQualification),
+                      pw.Text(_doctorAddress),
+                      pw.Text("Contact: $_doctorContact"),
+                    ],
+                  ),
+                  if (_doctorLogo != null)
+                    pw.Container(
+                      width: 60,
+                      height: 60,
+                      child: pw.Image(pw.MemoryImage(_doctorLogo!)),
+                    ),
+                ],
+              ),
+              pw.SizedBox(height: 10),
+              pw.Divider(),
+            ] else ...[
+              pw.SizedBox(height: 100),
+              pw.Divider(),
+            ],
+
             pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.end,
               children: [
-              pw.Text("Date: $formattedDate", style: pw.TextStyle(fontSize: 14)),
-              ]
+                pw.Text("Date: $formattedDate", style: pw.TextStyle(fontSize: 14)),
+              ],
             ),
-            // Patient Info
+
+            // ✅ Patient Info
             pw.Text("Patient Information", style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
             pw.Text("Patient Name: $name", style: pw.TextStyle(fontSize: 16)),
             pw.Text("Age: $age", style: pw.TextStyle(fontSize: 16)),
             pw.Text("Gender: $selectedGenderval", style: pw.TextStyle(fontSize: 16)),
             pw.SizedBox(height: 5),
-            pw.Text("Key Complaints:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-            pw.Text(" $complaints", style: pw.TextStyle(fontSize: 14)),
-            pw.SizedBox(height: 10),
-            pw.Text("Examination:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-            pw.Text(" $examination", style: pw.TextStyle(fontSize: 14)),
-            pw.SizedBox(height: 10),
-            pw.Text("Diagnostics:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-            pw.Text(" $diagnosis", style: pw.TextStyle(fontSize: 14)),
-            pw.SizedBox(height: 10),
-            pw.Text("Remarks:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-            pw.Text(" $remarks", style: pw.TextStyle(fontSize: 14)),
-            pw.SizedBox(height: 10),
-            pw.Text("Next Follow Up Date :", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-            pw.Text(" $nextfollowupdate", style: pw.TextStyle(fontSize: 14)),
-            pw.SizedBox(height: 10),
 
-            // Medicines
+            // ✅ Only show sections if not empty
+            if (complaints.trim().isNotEmpty) ...[
+              pw.Text("Key Complaints:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+              pw.Text(" $complaints", style: pw.TextStyle(fontSize: 14)),
+              pw.SizedBox(height: 10),
+            ],
+
+            if (examination.trim().isNotEmpty) ...[
+              pw.Text("Examination:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+              pw.Text(" $examination", style: pw.TextStyle(fontSize: 14)),
+              pw.SizedBox(height: 10),
+            ],
+
+            if (diagnosis.trim().isNotEmpty) ...[
+              pw.Text("Diagnostics:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+              pw.Text(" $diagnosis", style: pw.TextStyle(fontSize: 14)),
+              pw.SizedBox(height: 10),
+            ],
+
+            if (remarks.trim().isNotEmpty) ...[
+              pw.Text("Remarks:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+              pw.Text(" $remarks", style: pw.TextStyle(fontSize: 14)),
+              pw.SizedBox(height: 10),
+            ],
+
+            if (nextfollowupdate.trim().isNotEmpty) ...[
+              pw.Text("Next Follow Up Date:", style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+              pw.Text(" $nextfollowupdate", style: pw.TextStyle(fontSize: 14)),
+              pw.SizedBox(height: 10),
+            ],
+
+            // ✅ Medicines Table
             pw.Text("Prescribed Medicines:", style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 5),
             if (_prescriptions.isEmpty)
-              pw.Text("No medicines added."),
-            ..._prescriptions.map((med) {
-              final time = med.toBitList(4);
-              return pw.Bullet(
-                  text: "${med.drugName ?? ''} - $time  - ${med.isBeforeFood ? 'Before Food' : 'After Food'} - ${med.followupDuration} ${med.inDays ? 'Days' : 'Months'} - ${med.remarks ?? ''}");
-            }),
+              pw.Text("No medicines added.")
+            else
+              pw.Table(
+                border: pw.TableBorder.all(color: PdfColors.grey),
+                columnWidths: {
+                  0: pw.FlexColumnWidth(2),
+                  1: pw.FlexColumnWidth(2),
+                  2: pw.FlexColumnWidth(2),
+                  3: pw.FlexColumnWidth(2),
+                  4: pw.FlexColumnWidth(2),
+                },
+                children: [
+                  // Header row
+                  pw.TableRow(
+                    decoration: pw.BoxDecoration(color: PdfColors.grey300),
+                    children: [
+                      pw.Padding(padding: pw.EdgeInsets.all(4), child: pw.Text("Medicine")),
+                      pw.Padding(padding: pw.EdgeInsets.all(4), child: pw.Text("Timing")),
+                      pw.Padding(padding: pw.EdgeInsets.all(4), child: pw.Text("Food")),
+                      pw.Padding(padding: pw.EdgeInsets.all(4), child: pw.Text("Duration")),
+                      pw.Padding(padding: pw.EdgeInsets.all(4), child: pw.Text("Remarks")),
+                    ],
+                  ),
+                  // Data rows
+                  ..._prescriptions.map((med) {
+                    final timeList  = med.toBitList(4);
+                    final time = timeList.join(", "); // join list items into one string
+                    return pw.TableRow(
+                      children: [
+                        pw.Padding(padding: pw.EdgeInsets.all(4), child: pw.Text(med.drugName ?? '')),
+                        pw.Padding(padding: pw.EdgeInsets.all(4), child: pw.Text(time)),
+                        pw.Padding(padding: pw.EdgeInsets.all(4), child: pw.Text(med.isBeforeFood ? 'Before Food' : 'After Food')),
+                        pw.Padding(padding: pw.EdgeInsets.all(4), child: pw.Text("${med.followupDuration} ${med.inDays ? 'Days' : 'Months'}")),
+                        pw.Padding(padding: pw.EdgeInsets.all(4), child: pw.Text(med.remarks ?? '')),
+                      ],
+                    );
+                  }),
+                ],
+              ),
 
             pw.Spacer(),
 
@@ -286,43 +292,23 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
     ),
   );
 
-  //await Printing.layoutPdf(onLayout: (format) async => pdf.save());
-try
-{
-  // final output = await getTemporaryDirectory();
-  // final file = File('${output.path}/prescription.pdf');
-  // await file.writeAsBytes(await pdf.save());
-
-  // OpenFile.open(file.path);
-  // await Printing.layoutPdf(
-  // onLayout: (PdfPageFormat format) async => pdf.save(),
-
-  // 3️⃣ Save updated doctor info back to server
- // await LicenseApiService.updateDoctorOnServer(updatedDoctor);
- print("before pdf save and actually calling LicenseApiService.incrementPrescriptionCount");
-await LicenseApiService.incrementPrescriptionCount();
-  final pdfBytes = await pdf.save();
+  try {
+    await LicenseApiService.incrementPrescriptionCount();
+    final pdfBytes = await pdf.save();
 
     if (kIsWeb) {
-      // Web: Show print dialog or download
       await Printing.layoutPdf(onLayout: (format) async => pdfBytes);
-      // OR use sharePdf to offer download
-      // await Printing.sharePdf(bytes: pdfBytes, filename: 'prescription.pdf');
     } else {
-      // Android/iOS/Desktop
       final dir = await getTemporaryDirectory();
       final file = io.File('${dir.path}/prescription.pdf');
       await file.writeAsBytes(pdfBytes);
       await OpenFile.open(file.path);
     }
-
-
-
-
+  } catch (e) {
+    print("Error generating or opening PDF: $e");
+  }
 }
-catch(e)
-{print("Error generating or opening PDF: $e");}
-}
+
 
   @override
   Widget build(BuildContext context) {
@@ -415,26 +401,82 @@ catch(e)
                           },
                         )
                       : const Text('No medicines added yet.'),
-
-                      Padding(
+Padding(
   padding: const EdgeInsets.only(top: 20),
   child: ElevatedButton.icon(
-    onPressed: (){
-      final isFormValid = _formKey.currentState!.validate();
-      if (isFormValid)
-       {
-         // generatePrescriptionPdf(_doctorInfo!);  
-          if (_doctorInfo != null) {
-  generatePrescriptionPdf(_doctorInfo!);
-}         
-       }
-
-    }
-    ,
+    style: ElevatedButton.styleFrom(
+      backgroundColor: _canGeneratePdf ? Colors.blue : Colors.grey, // ✅ greyed out
+    ),
+    onPressed: _canGeneratePdf
+        ? () {
+            final isFormValid = _formKey.currentState!.validate();
+            if (isFormValid && _doctorInfo != null) {
+              generatePrescriptionPdf(_doctorInfo!);
+              setState(() {
+                _canGeneratePdf = false;   // disable this button
+                _canGenerateNext = true;   // enable next prescription button
+              });
+            }
+          }
+        : null, // disabled if false
     icon: const Icon(Icons.picture_as_pdf),
     label: const Text("Generate PDF Prescription"),
   ),
 ),
+
+Padding(
+  padding: const EdgeInsets.only(top: 10),
+  child: ElevatedButton.icon(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: _canGenerateNext ? Colors.redAccent : Colors.grey, // ✅ greyed out
+    ),
+    onPressed: _canGenerateNext
+        ? () {
+            _resetPrescriptionForm();
+            setState(() {
+              _canGeneratePdf = true;    // enable PDF button again
+              _canGenerateNext = false;  // disable this one
+            });
+          }
+        : null, // disabled if false
+    icon: const Icon(Icons.refresh),
+    label: const Text("Generate Next Prescription"),
+  ),
+),
+
+//                       Padding(
+//   padding: const EdgeInsets.only(top: 20),
+//   child: ElevatedButton.icon(
+//     onPressed: (){
+//       final isFormValid = _formKey.currentState!.validate();
+//       if (isFormValid)
+//        {
+//          // generatePrescriptionPdf(_doctorInfo!);  
+//           if (_doctorInfo != null) {
+//   generatePrescriptionPdf(_doctorInfo!);
+// }         
+//        }
+
+//     }
+//     ,
+//     icon: const Icon(Icons.picture_as_pdf),
+//     label: const Text("Generate PDF Prescription"),
+//   ),
+// ),
+// Padding(
+//   padding: const EdgeInsets.only(top: 10),
+//   child: ElevatedButton.icon(
+//     style: ElevatedButton.styleFrom(
+//       backgroundColor: Colors.redAccent,
+//     ),
+//     onPressed: () {
+//       _resetPrescriptionForm();
+//     },
+//     icon: const Icon(Icons.refresh),
+//     label: const Text("Generate Next Prescription"),
+//   ),
+// ),
+
                 ],
               ),
             ),
