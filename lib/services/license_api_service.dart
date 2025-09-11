@@ -233,7 +233,9 @@ static Future<bool> updateDoctorOnServer(DoctorInfo info) async {
     "$baseUrl/api/doctor/update",
     info.toJson(),
   );
-
+  final prefs = await SharedPreferences.getInstance();
+  final doctorData = await fetchDoctorProfile();
+     await prefs.setString("doctor_profile", jsonEncode(doctorData));
   return response.statusCode == 200;
 }
 
@@ -260,6 +262,7 @@ static Future<bool> updateDoctorOnServer(DoctorInfo info) async {
           await prefs.setString("access_token", accessToken);
           await prefs.setString("refresh_token", refreshToken);
           await prefs.setString("doctor_name", data["doctor"]["name"]);
+          await prefs.setString("doctor_profile", jsonEncode(data));
           return {
             "accessToken": accessToken,
             "refreshToken": refreshToken,

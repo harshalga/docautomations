@@ -1,6 +1,7 @@
 
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:docautomations/widgets/AddPrescrip.dart';
 import 'package:docautomations/widgets/DoctorLoginScreen.dart';
 import 'package:docautomations/widgets/doctorinfo.dart';
@@ -88,7 +89,7 @@ class _AppEntryPointState extends State<AppEntryPoint> {
       // ✅ Grace period: don’t log out while registering
       return;
     }
-    
+
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('access_token');
     final refreshToken = prefs.getString('refresh_token');
@@ -265,5 +266,7 @@ class _AppEntryPointState extends State<AppEntryPoint> {
   Future<void> _saveDoctorToLocal(DoctorInfo info) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('doctor_username', info.name);
+    
+    //await prefs.setString("doctor_profile", jsonEncode(info));
   }
 }

@@ -54,8 +54,20 @@ bool _printLetterhead = true; // default true
     _loadDoctorInfo(); // load on widget creation
      
   }
+
   Future<void> _loadDoctorInfo() async {
-    final doctorData = await LicenseApiService.fetchDoctorProfile();
+final prefs = await SharedPreferences.getInstance();
+  final stored = prefs.getString("doctor_profile");
+  late final doctorData;
+  if (stored != null) 
+    {
+      doctorData = jsonDecode(stored) as Map<String, dynamic>;
+    }
+    else{
+
+     doctorData = await LicenseApiService.fetchDoctorProfile();
+     await prefs.setString("doctor_profile", jsonEncode(doctorData));
+}
 
   if (doctorData != null) {
     setState(() {
@@ -101,6 +113,55 @@ bool _printLetterhead = true; // default true
     });
   }
   }
+  // Future<void> _loadDoctorInfo() async {
+
+
+  //   final doctorData = await LicenseApiService.fetchDoctorProfile();
+
+  // if (doctorData != null) {
+  //   setState(() {
+  //     _doctorName = "Dr. ${doctorData['name'] ?? ''}";
+  //     _doctorQualification = doctorData['specialization'] ?? '';
+  //     _doctorAddress = doctorData['clinicAddress'] ?? '';
+  //     _doctorContact = doctorData['contact'] ?? '';
+  //      _printLetterhead = doctorData['printLetterhead'] ?? true; // ✅ fetch
+
+  //     // // Decode Base64 logo
+  //     // if (doctorData['logoBase64'] != null && doctorData['logoBase64'].isNotEmpty) {
+  //     //   _doctorLogo = base64Decode(doctorData['logoBase64']);
+  //     // }
+
+  //     _doctorInfo = DoctorInfo(
+  //       name: doctorData['name'] ?? '',
+  //       specialization: doctorData['specialization'] ?? '',
+  //       clinicName: doctorData['clinicName'] ?? '',
+  //       clinicAddress: doctorData['clinicAddress'] ?? '',
+  //       contact: doctorData['contact'] ?? '',
+  //       loginEmail: doctorData['loginEmail'] ?? '',
+  //       password: doctorData['password'] ?? '',
+  //       logoBase64: doctorData['logoBase64'],
+  //       printLetterhead: doctorData['printLetterhead'] ?? true,
+  //       prescriptionCount: doctorData['prescriptionCount'] ?? 0,
+  //       licensedOnDate: doctorData['licensedOnDate'] != null
+  //           ? DateTime.tryParse(doctorData['licensedOnDate'])
+  //           : null,
+  //       nextRenewalDate: doctorData['nextRenewalDate'] != null
+  //           ? DateTime.tryParse(doctorData['nextRenewalDate'])
+  //           : null,
+  //       firstTimeRegistrationDate: doctorData['firstTimeRegistrationDate'] != null
+  //           ? DateTime.tryParse(doctorData['firstTimeRegistrationDate'])
+  //           : null,
+  //     );
+
+  //     // Decode logo
+  //     if (_doctorInfo?.logoBase64 != null && _doctorInfo!.logoBase64!.isNotEmpty) {
+  //       _doctorLogo = base64Decode(_doctorInfo!.logoBase64!);
+  //     }
+
+
+  //   });
+  // }
+  // }
 
   // Instead of a single prescription, maintain a list
   final List<Prescriptiondata> _prescriptions = [];

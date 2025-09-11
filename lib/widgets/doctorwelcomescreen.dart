@@ -14,9 +14,13 @@ class DoctorWelcomeScreen extends StatelessWidget {
     try {
       final doctorData = await LicenseApiService.fetchDoctorProfile();
 
-      if (doctorData != null) {
-        return DoctorInfo.fromJson(doctorData);
-      } else {
+  if (doctorData != null)
+  {
+    
+    return DoctorInfo.fromJson(doctorData);
+       
+  }
+  else {
         throw Exception("No doctor data from server");
       }
     } catch (e) {
