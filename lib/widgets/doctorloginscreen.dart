@@ -1,4 +1,5 @@
 
+import 'package:docautomations/commonwidget/loadingOverlay.dart';
 import 'package:docautomations/services/license_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -91,41 +92,86 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
     }
   }
 
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Doctor Login")),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (_error != null)
-              Text(_error!, style: const TextStyle(color: Colors.red)),
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(labelText: "Username"),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: "Password"),
-              obscureText: true,
-            ),
-            const SizedBox(height: 24),
-            _loading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _login,
-                    child: const Text("Login"),
-                  ),
-            TextButton(
-              onPressed: widget.onRegisterTap,
-              child: const Text("New user? Register here"),
-            )
-          ],
-        ),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(title: const Text("Doctor Login")),
+    body: Stack(
+  children: [
+    Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (_error != null)
+            Text(_error!, style: const TextStyle(color: Colors.red)),
+          TextField(
+            controller: _usernameController,
+            decoration: const InputDecoration(labelText: "Username"),
+          ),
+          TextField(
+            controller: _passwordController,
+            decoration: const InputDecoration(labelText: "Password"),
+            obscureText: true,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _login,
+            child: const Text("Login"),
+          ),
+          TextButton(
+            onPressed: widget.onRegisterTap,
+            child: const Text("New user? Register here"),
+          )
+        ],
       ),
-    );
-  }
+    ),
+
+    /// Reusable overlay
+    LoadingOverlay(isLoading: _loading, message: "Logging in…"),
+  ],
+),
+
+  );
+}
+
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(title: const Text("Doctor Login")),
+  //     body: Padding(
+  //       padding: const EdgeInsets.all(24),
+  //       child: Column(
+  //         mainAxisAlignment: MainAxisAlignment.center,
+  //         children: [
+  //           if (_error != null)
+  //             Text(_error!, style: const TextStyle(color: Colors.red)),
+  //           TextField(
+  //             controller: _usernameController,
+  //             decoration: const InputDecoration(labelText: "Username"),
+  //           ),
+  //           TextField(
+  //             controller: _passwordController,
+  //             decoration: const InputDecoration(labelText: "Password"),
+  //             obscureText: true,
+  //           ),
+  //           const SizedBox(height: 24),
+  //           // _loading
+  //           //     ? const CircularProgressIndicator()
+  //           //     :
+  //                ElevatedButton(
+  //                   onPressed: _login,
+  //                   child: const Text("Login"),
+  //                 ),
+  //           TextButton(
+  //             onPressed: widget.onRegisterTap,
+  //             child: const Text("New user? Register here"),
+  //           )
+  //         ],
+  //       ),
+  //     ),
+      
+  //   );
+  // }
 }

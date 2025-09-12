@@ -148,6 +148,13 @@ static Future<int?> incrementPrescriptionCount() async {
  
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+
+      //saving to shared Pref 
+      final prefs = await SharedPreferences.getInstance();
+       // Optionally also cache doctor profile locally
+    if (data["doctor"] != null) {
+      await prefs.setString("doctor_profile", jsonEncode(data["doctor"]));
+    }
  
       return data["prescriptionCount"] as int;
     } else {
