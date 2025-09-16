@@ -338,7 +338,7 @@ static Future<bool> updateDoctorOnServer(DoctorInfo info) async {
 static Future<Map<String, dynamic>?> fetchDoctorProfile() async {
   try {
     final response = await _authenticatedGet("$baseUrl/api/doctor/me");
-print(" fetch profile in fetch doctor:  ${response.body}");
+
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else if (response.statusCode == 401) {

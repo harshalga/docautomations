@@ -48,22 +48,23 @@ class _DoctorMasterState extends State<DoctorMaster> {
   }
 
   Future<void> _handleUpdated(DoctorInfo updated) async {
-    setState(() => _doctorInfo = updated);
+   // setState(() => _doctorInfo = updated);
 
-    // Optionally persist immediately:
-    final ok = await LicenseApiService.updateDoctorOnServer(updated);
-    if (!mounted) return;
+    
+    // // Optionally persist immediately:
+    // //final ok = await LicenseApiService.updateDoctorOnServer(updated);
+    // if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(ok ? "Doctor updated." : "Update failed. Please retry."),
-      ),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     content: Text(ok ? "Doctor updated." : "Update failed. Please retry."),
+    //   ),
+    // );
 
-    if (!ok) {
-      // Reload from server to avoid stale UI if update failed
-      _loadLoggedInDoctor();
-    }
+    // if (!ok) {
+    //   // Reload from server to avoid stale UI if update failed
+       _loadLoggedInDoctor();
+    // }
   }
 
 

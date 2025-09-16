@@ -308,6 +308,10 @@ class _DoctorMasterScrState extends State<DoctorMasterScr> {
         password: "", // not needed in edit
         logoBase64: _logoBase64,
         printLetterhead: _printLetterhead,
+        prescriptionCount:widget.doctorInfo.prescriptionCount,
+        licensedOnDate:widget.doctorInfo.licensedOnDate,
+        nextRenewalDate:widget.doctorInfo.nextRenewalDate,
+        firstTimeRegistrationDate:widget.doctorInfo.firstTimeRegistrationDate,
         
       );
 
@@ -316,8 +320,8 @@ class _DoctorMasterScrState extends State<DoctorMasterScr> {
       setState(() => _isLoading = false); // ✅ stop loader
 
       if (success) {
-  //       final prefs = await SharedPreferences.getInstance();
-  // await prefs.setString("doctor_profile", jsonEncode(updatedInfo.toJson())); 
+        final prefs = await SharedPreferences.getInstance();
+  await prefs.setString("doctor_profile", jsonEncode(updatedInfo.toJson())); 
   
         widget.onUpdated(updatedInfo);
         ScaffoldMessenger.of(context).showSnackBar(

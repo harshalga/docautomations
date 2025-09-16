@@ -63,8 +63,10 @@ Future<void> _loadDoctorInfo() async {
   DoctorInfo? doctor;
 
   if (stored != null) {
+    
     doctor = DoctorInfo.fromJson(jsonDecode(stored));
   } else {
+     
     final apiData = await LicenseApiService.fetchDoctorProfile();
     if (apiData!= null)
     {
@@ -644,7 +646,7 @@ Widget build(BuildContext context) {
       setState(() {
         _prescriptions.add(result);
       });
-      print("Added medicine: ${result.drugName}");
+      
     }
   }
 

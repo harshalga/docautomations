@@ -12,6 +12,7 @@ class DoctorWelcomeScreen extends StatelessWidget {
 
   Future<DoctorInfo> _loadInfo() async {
     try {
+
       final doctorData = await LicenseApiService.fetchDoctorProfile();
 
   if (doctorData != null)
