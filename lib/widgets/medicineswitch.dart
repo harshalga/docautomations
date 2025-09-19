@@ -72,11 +72,15 @@ class MedicineSwitchState extends State<MedicineSwitch> {
       ),
       child: Column(
         children: [
-          Row(
+           FittedBox(
+            fit :BoxFit.scaleDown,
+          child: Row(
             children: [
               const Padding(
                 padding: EdgeInsets.all(10),
-                child: Text('Medicine (Tablet or Syrup)'),
+                child: 
+                
+                Text('Medicine (Tablet or Syrup)'),
               ),
               Padding(
                 padding: const EdgeInsets.all(10),
@@ -89,7 +93,8 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                 ),
               ),
             ],
-          ),
+          ),),
+      
           Padding(
             padding: const EdgeInsets.all(8),
             child: TextFormField(
@@ -108,6 +113,10 @@ class MedicineSwitchState extends State<MedicineSwitch> {
               ),
             ),
           ),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child:
+          
           Row(
             children: [
               const Padding(
@@ -136,7 +145,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
               ),
               Text('  $unitofmeasure', textAlign: TextAlign.left),
             ],
-          ),
+          ),),
         ],
       ),
     );

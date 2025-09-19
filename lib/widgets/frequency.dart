@@ -73,7 +73,9 @@ class FrequencyWidgetState extends State<FrequencyWidget> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text('Frequency', textAlign: TextAlign.left),
-          ToggleButtons(
+           FittedBox(
+            fit: BoxFit.scaleDown, // shrink if needed
+  child:          ToggleButtons(
             isSelected: isSelected,
             selectedColor: Colors.white,
             color: Colors.blue,
@@ -90,22 +92,22 @@ class FrequencyWidgetState extends State<FrequencyWidget> {
             children: const [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 5),
-                child: Text('Morning', style: TextStyle(fontSize: 18)),
+                child: Text('Morning', style: TextStyle(fontSize: 15)),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Text('Afternoon', style: TextStyle(fontSize: 18)),
+                child: Text('Afternoon', style: TextStyle(fontSize: 15)),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Text('Evening', style: TextStyle(fontSize: 18)),
+                child: Text('Evening', style: TextStyle(fontSize: 15)),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Text('Night', style: TextStyle(fontSize: 18)),
+                child: Text('Night', style: TextStyle(fontSize: 15)),
               ),
             ],
-          ),
+          ),),
           if (_errorText != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),

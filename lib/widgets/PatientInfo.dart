@@ -1,3 +1,4 @@
+
 import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/validationhandling/validation.dart';
 import 'package:docautomations/validationhandling/validator.dart';
@@ -23,16 +24,7 @@ class PatientinfoState extends State<Patientinfo> {
    final TextEditingController followupDatecontroller = TextEditingController();
   String selectedGender = "Male";
 
-// void _notifyParent() {
-//     widget.onChanged?.call(
-//       tabNameController.text,
-//       _ageController.text,
-//       _selectedGender,
-//       _keyComplaintcontroller.text,
-//       _examinationcontroller.text,
-//       _diagnoscontroller.text,
-//     );
-//   }
+
 
 void clearFields() {
   tabNameController.clear();
@@ -85,59 +77,30 @@ Future<void> _selectNextFollowupDate () async
     ),
     child: Column(
       children:[
-              Row(
-
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text('Name: '),
-                  ),
-                  Expanded(child: 
+              
                 TextFormField(
                   autofocus: true,
                   
                   decoration:  const InputDecoration(
-                      border: OutlineInputBorder(),
+                      //border: OutlineInputBorder(),
                       labelText: 'Enter patient name  '),
                   controller: tabNameController,
                   //onChanged: (_) => _notifyParent(),
                   validator: Validator.apply(context, const [RequiredValidation()])
-                )   )
-                ],
-              ),
+                ) ,  
+              
+              
 //Age
-              Row(
-
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text('Age: '),
-                  ),
-                  Expanded(child: 
-                  SizedBox(
-                    width: 50,
-                    child:TextFormField(                  
+              TextFormField(                  
                   keyboardType:TextInputType.number ,
                   decoration:  const InputDecoration(
-                      border: OutlineInputBorder(),
+                     // border: OutlineInputBorder(),
                       labelText: 'Enter patient Age  '),
                   controller: ageController,
                   //onChanged: (_) => _notifyParent(),
                   validator: Validator.apply(context, const [RequiredValidation(),NumericValidation(),ageValidation()])
                 )  ,
-                  )
-                  )
-                ],
-              ),
-              //Gender
-               Row(
-
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text('Gender: '),
-                  ),
-                  Expanded(child: 
+                   
                   DropdownButtonFormField<String>(
           value: selectedGender,
           decoration: const InputDecoration(labelText: "Gender"),
@@ -152,85 +115,47 @@ Future<void> _selectNextFollowupDate () async
             DropdownMenuItem(value: "Female", child: Text("Female")),
             DropdownMenuItem(value: "Other", child: Text("Other")),
           ],
-        ),   )
-                ],
-              ),
-           
-Row(
-
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text('Key Complaints: '),
-                  ),
-                  Expanded(child: 
+        ),    
                 TextFormField(
-                  
+                  keyboardType: TextInputType.multiline,
+                  minLines: 1,
+                   maxLines: 5,
                   decoration:  const InputDecoration(
-                      border: OutlineInputBorder(),
+                     // border: OutlineInputBorder(),
                       labelText: 'Enter key complaint '),
                        //onChanged: (_) => _notifyParent(),
                   controller: keyComplaintcontroller,
                   //validator: Validator.apply(context, const [RequiredValidation()])
-                )   )
-                ],
-              ),
-Row(
-
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text('Examination: '),
-                  ),
-                  Expanded(child: 
+                ),
                 TextFormField(
                   
                   keyboardType: TextInputType.multiline,
                   minLines: 1,
                    maxLines: 5,
                   decoration:  const InputDecoration(
-                      border: OutlineInputBorder(),
+                     // border: OutlineInputBorder(),
                       labelText: 'Enter examination inputs '),
                        //onChanged: (_) => _notifyParent(),
                   controller: examinationcontroller,
                   //validator: Validator.apply(context, const [RequiredValidation()])
-                )   )
-                ],
-              ),
-             Row(
-
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text('Diagnostics: '),
-                  ),
-                  Expanded(child: 
+                ), 
                 TextFormField(
                   
                   keyboardType: TextInputType.multiline,
                   minLines: 1,
                    maxLines: 5,
                   decoration:  const InputDecoration(
-                      border: OutlineInputBorder(),
+                      //border: OutlineInputBorder(),
                       labelText: 'Enter diagnosis inputs '),
                   controller: diagnoscontroller,
                   // onChanged: (_) => _notifyParent(),
                   //validator: Validator.apply(context, const [RequiredValidation()])
-                )   )
-                ],
-              ),
-Row(
-
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text('Next Followup Date: '),
-                  ),
-                  Expanded(child: 
+                ), 
+                SizedBox(height: 10,),
                 TextFormField(
                   keyboardType:TextInputType.number ,
                   decoration:  const InputDecoration(
-                      border: OutlineInputBorder(),
+                     // border: OutlineInputBorder(),
                       labelText: 'Next Follow up date  ',
                       filled: true,
                       prefixIcon: Icon(Icons.calendar_today),
@@ -243,28 +168,19 @@ Row(
                   controller: followupDatecontroller,
                   //onChanged: (_) => _notifyParent(),
                   //validator: Validator.apply(context, const [RequiredValidation()])
-                )   )
-                ],
-              ),
-              Row(
-
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text('Remarks: '),
-                  ),
-                  Expanded(child: 
-                TextFormField(
-                  keyboardType:TextInputType.number ,
+                ),
+                 TextFormField(
+                  keyboardType:TextInputType.multiline ,
+                  minLines: 1,
+                   maxLines: 5,
                   decoration:  const InputDecoration(
-                      border: OutlineInputBorder(),
+                     // border: OutlineInputBorder(),
                       labelText: 'Remarks  '),
                   controller: remarkscontroller,
                   //onChanged: (_) => _notifyParent(),
                  // validator: Validator.apply(context, const [RequiredValidation()])
-                )   )
-                ],
-              ),
+                ),
+              
 
       ]
     ));
