@@ -26,6 +26,8 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
   String? _error;
 
   Future<void> _login() async {
+    try
+    {
     setState(() => _loading = true);
 
     
@@ -35,9 +37,27 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
       _passwordController.text.trim(),
     );
 
+//     if (tokens != null) {
+//   ScaffoldMessenger.of(context).showSnackBar(
+//     SnackBar(content: Text('Tokens: ${tokens.toString()}')),
+//   );
+// } else {
+//   ScaffoldMessenger.of(context).showSnackBar(
+//     const SnackBar(content: Text('❌ Login failed — no tokens returned')),
+//   );
+// }
+
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(content: Text('after login doctor call')),);
+
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //      SnackBar(content: Text('tokens : ${tokens?["accessToken"]}')),);
+
     setState(() => _loading = false);
 
     if (tokens != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('inside token not null')),);
       final prefs = await SharedPreferences.getInstance();
       final accessTok = tokens["accessToken"] ;
       final refreshTok = tokens["refreshToken"];
@@ -53,11 +73,20 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
       widget.onLoginSuccess();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('inside else')),);
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login failed ❌')),
       );
       setState(() {
         _error = "Invalid username or password";
       });
+    }
+    }
+    catch( e)
+    {
+       ScaffoldMessenger.of(context).showSnackBar(
+  SnackBar(content: Text('Error: ${e.toString()}')),
+);
     }
   }
 

@@ -49,14 +49,14 @@ void clearFields() {
 
 Future<void> _selectNextFollowupDate () async
 {
-  DateTime? _picked=  await showDatePicker(context: context, firstDate: DateTime(2000),
+  DateTime? picked=  await showDatePicker(context: context, firstDate: DateTime(2000),
    lastDate: DateTime(2100)         
    ,initialDate: DateTime.now());
 
-   if (_picked != null)
+   if (picked != null)
    {
     setState(() {
-       String formattedDate = DateFormat('dd/MM/yyyy').format(_picked);
+       String formattedDate = DateFormat('dd/MM/yyyy').format(picked);
       followupDatecontroller.text = formattedDate;
     });
           

@@ -178,7 +178,6 @@ import 'dart:convert';
 import 'package:docautomations/widgets/doctorinfo.dart';
 import 'package:docautomations/common/common_widgets.dart';
 import 'package:docautomations/services/license_api_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 
 

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
-import 'package:docautomations/main.dart';
 import 'package:docautomations/services/license_api_service.dart';
 import 'package:docautomations/widgets/AddPrescription.dart';
 import 'package:docautomations/widgets/PatientInfo.dart';
@@ -15,7 +14,6 @@ import 'package:printing/printing.dart';
 import 'dart:io' as io; // Needed for File IO;
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,7 +47,7 @@ bool _isLoading = false;
 
   DoctorInfo? _doctorInfo;
 
-bool _printLetterhead = true; // default true
+final bool _printLetterhead = true; // default true
 
   @override
   void initState() {
@@ -173,7 +171,7 @@ void _resetPrescriptionForm() {
 
 void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
   setState(() => _isLoading = true);   // show loader
-  String _doctorName="Dr. ${doctorInfo.name}";
+  String doctorName="Dr. ${doctorInfo.name}";
   final pdf = pw.Document();
   final name = _patientInfoKey.currentState?.tabNameController.text ?? '';
   final age = _patientInfoKey.currentState?.ageController.text ?? '';
@@ -201,7 +199,7 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      pw.Text( _doctorName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                      pw.Text( doctorName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
                       pw.Text( doctorInfo.specialization ),
                       pw.Text( doctorInfo.clinicAddress),
                       pw.Text("Contact: ${doctorInfo.contact}"),

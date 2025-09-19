@@ -1,7 +1,6 @@
 
 
 import 'dart:async';
-import 'dart:convert';
 import 'package:docautomations/widgets/AddPrescrip.dart';
 import 'package:docautomations/widgets/DoctorLoginScreen.dart';
 import 'package:docautomations/widgets/doctorinfo.dart';

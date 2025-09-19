@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:docautomations/utils/logger.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:docautomations/widgets/doctorinfo.dart';
@@ -262,6 +263,12 @@ static Future<bool> updateDoctorOnServer(DoctorInfo info) async {
       body: jsonEncode({"loginEmail": loginEmail, "password": password}),
     );
 
+     print("🔹 Status code: ${response.statusCode}");
+     await AppLogger.log("Response body: ${response.statusCode}");
+    print("🔹 Response body: ${response.body}");
+await AppLogger.log("Response body: ${response.body}");
+     
+
      if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
@@ -276,15 +283,26 @@ static Future<bool> updateDoctorOnServer(DoctorInfo info) async {
           
           
           await prefs.setString("doctor_profile", jsonEncode(data["doctor"]));
+
+           print("✅ Token received: $accessToken");
+
+           await AppLogger.log("Response body: $accessToken");
           
           return {
             "accessToken": accessToken,
             "refreshToken": refreshToken,
           };
-        }
+        } else {
+        print("⚠️ Tokens not found in response JSON: $data");
+        await AppLogger.log("Tokens not found in response JSON: $data");
       }
+      } else {
+      print("⚠️ Login failed with status: ${response.statusCode}");
+      await AppLogger.log("Login failed with status: ${response.statusCode}");
+    }
     } catch (e) {
       print("Login error: $e");
+      await AppLogger.log("Login error: $e");
     }
     return null;
   }
