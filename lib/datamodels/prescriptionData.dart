@@ -5,11 +5,11 @@ class Prescriptiondata extends ChangeNotifier {
   bool isTablet;
   String drugName;
   bool isMeasuredInMg;
-  int drugUnit;
+  int? drugUnit;
   int freqBitField;
   bool isBeforeFood;
   bool inDays;
-  int followupDuration;
+  int? followupDuration;
   DateTime followupdate;
   String remarks;
 
@@ -17,11 +17,11 @@ class Prescriptiondata extends ChangeNotifier {
     this.isTablet = true,
     this.drugName = '',
     this.isMeasuredInMg = true,
-    this.drugUnit = 0,
+    this.drugUnit ,
     this.freqBitField = 0,
     this.isBeforeFood = true,
     this.inDays = true,
-    this.followupDuration = 0,
+    this.followupDuration ,
     DateTime? followupdate,
     this.remarks = '',
   }) : followupdate = followupdate ?? DateTime.now();

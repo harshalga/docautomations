@@ -69,10 +69,40 @@ String doctorName = ""; // store doctor name here
                       borderRadius: BorderRadius.circular(30),
                       color: Colors.lightBlue,
                     ),
-                    child:  Center(child: Text(doctorInitials, style: TextStyle(fontSize: 26))),
+                    //child:  Center(child: Text(doctorInitials, style: TextStyle(fontSize: 26))),
+                     child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: Image.asset(
+            "assets/icon/app_logo.png",
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              // 👇 fallback to initials if logo missing
+              return Center(
+                child: Text(
+                  doctorInitials,
+                  style: const TextStyle(fontSize: 26, color: Colors.white),
+                ),
+              );
+            },
+          ),
+        ),
+      
                   ),
                   const SizedBox(height: 20),
-                   Text(doctorName, style: TextStyle(color: Colors.black, fontSize: 26)),
+                  // Text(doctorName, style: TextStyle(color: Colors.black, fontSize: 26)),
+                   // Semi-transparent black container behind the doctor name
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        color: Colors.black.withOpacity(0.5),
+        child: Text(
+          doctorName,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 26,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
                 ],
               ),
             ),

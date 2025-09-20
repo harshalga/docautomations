@@ -127,13 +127,39 @@ Widget build(BuildContext context) {
     appBar: AppBar(title: const Text("Doctor Login")),
     body: Stack(
   children: [
-    Padding(
+    /// 🔹 Make screen scrollable
+        SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (_error != null)
             Text(_error!, style: const TextStyle(color: Colors.red)),
+
+            // Logo
+              // Center(
+              //   child: Image.asset(
+              //     'assets/icon/app_logo.png',
+              //     width: 300,  // adjust size as needed
+              //     height: 300,
+              //   ),
+              // ),
+// Logo 
+Center(
+  child: ClipRRect(
+    borderRadius: BorderRadius.circular(50), // adjust radius for more/less rounding
+    child: Image.asset(
+      'assets/icon/app_logo.png',
+      width: 300,
+      height: 300,
+      fit: BoxFit.cover, // ensures the image fills the rounded box
+    ),
+  ),
+),
+              
+              const SizedBox(height: 24), // spacing between logo and username
+
+
           TextField(
             controller: _usernameController,
             decoration: const InputDecoration(labelText: "Username"),

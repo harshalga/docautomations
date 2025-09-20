@@ -33,7 +33,9 @@ class MedicineSwitchState extends State<MedicineSwitch> {
 
     // Initialize text controllers if needed
     tabNameController.text = widget.prescription.drugName ?? '';
-    unitofmeasureController.text = widget.prescription.drugUnit.toString();
+    //unitofmeasureController.text = widget.prescription.drugUnit.toString();
+    unitofmeasureController.text = widget.prescription.drugUnit?.toString() ?? '';
+
     }
 
   void _toggleSwitch(bool value) {
@@ -135,7 +137,13 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                   controller: unitofmeasureController,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
-                    widget.prescription.drugUnit = int.tryParse(value) ?? 0;
+                    //widget.prescription.drugUnit = int.tryParse(value); //nulll if empty
+                    widget.prescription.drugUnit = value.isEmpty ? null : int.tryParse(value);
+    //                 if (value.isEmpty) {
+    //   widget.prescription.drugUnit = null; // or leave unchanged
+    // } else {
+    //   widget.prescription.drugUnit = int.tryParse(value);
+    // }
                   },
                   validator: Validator.apply(
                     context,

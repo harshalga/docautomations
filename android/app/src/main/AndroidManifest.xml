@@ -2,7 +2,7 @@
 <!-- Add this -->
     <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="docautomations"
+        android:label="Prescriptor"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
