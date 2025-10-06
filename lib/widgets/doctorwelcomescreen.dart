@@ -1,4 +1,5 @@
 import 'package:docautomations/common/appcolors.dart';
+import 'package:docautomations/commonwidget/trialbanner.dart';
 import 'package:docautomations/services/license_api_service.dart';
 import 'package:flutter/material.dart';
 
@@ -74,7 +75,10 @@ class DoctorWelcomeScreen extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
           body: SizedBox.expand(
-            child: Container(
+            child:Column(
+              children: [
+                TrialBanner(),
+                 Container(
               padding: const EdgeInsets.all(20),
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               decoration: BoxDecoration(
@@ -138,6 +142,9 @@ class DoctorWelcomeScreen extends StatelessWidget {
                 ],
               ),
             ),
+            
+              ],
+            )
           ),
         );
       },

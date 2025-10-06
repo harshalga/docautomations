@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:docautomations/common/appcolors.dart';
+import 'package:docautomations/common/licenseprovider.dart';
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
+import 'package:docautomations/commonwidget/trialbanner.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:docautomations/services/license_api_service.dart';
 import 'package:docautomations/widgets/AddPrescription.dart';
@@ -16,6 +18,7 @@ import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Addprescriptionscr extends StatefulWidget {
@@ -43,6 +46,7 @@ bool _isLoading = false;
   // String _doctorQualification='';
   // String _doctorAddress='';
   // String _doctorContact='';
+  
    Uint8List? _doctorLogo;
 
   DoctorInfo? _doctorInfo;
@@ -53,8 +57,11 @@ final bool _printLetterhead = true; // default true
   void initState() {
     super.initState();
     _loadDoctorInfo(); // load on widget creation
-     
+         
   }
+
+  
+
 Future<void> _loadDoctorInfo() async {
   final prefs = await SharedPreferences.getInstance();
   final stored = prefs.getString("doctor_profile");
@@ -345,10 +352,20 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
 
 @override
 Widget build(BuildContext context) {
-  return Stack(
+  return   Consumer<LicenseProvider>(
+      builder: (context, license, child) {
+        return
+   Stack(
     children: [
-      SizedBox(
-        height: MediaQuery.of(context).size.height,
+      Column(children: [
+       
+      //(!license.isSubscribed && license.isTrialActive) ?
+    TrialBanner(),
+    //: SizedBox.shrink(), // 👈 Reusable banner
+
+
+      Expanded(
+        
         child: SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.all(20),
@@ -383,94 +400,98 @@ Widget build(BuildContext context) {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _prescriptions.isNotEmpty
-                        ? ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: _prescriptions.length,
-                            itemBuilder: (context, index) {
-                              final presc = _prescriptions[index];
-                              return Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                elevation: 5,
-                                margin: const EdgeInsets.symmetric(vertical: 8),
-                                child: ListTile(
-                                  title: Text(presc.drugName ?? "Unnamed"),
-                                  subtitle: Text(
-                                    "For ${presc.followupDuration} ${presc.inDays ? "days" : "Months"} | ${presc.isBeforeFood ? "Before Food" : "After Food"} | ${presc.toBitList(4)}",
-                                  ),
-                                  trailing: PopupMenuButton<String>(
-                                    onSelected: (value) {
-                                      if (value == 'edit') {
-                                        _editPrescription(context, index);
-                                      } else if (value == 'delete') {
-                                        _deletePrescription(index);
-                                      }
-                                    },
-                                    itemBuilder: (context) => [
-                                      const PopupMenuItem(
-                                        value: 'edit',
-                                        child: Text('Edit'),
-                                      ),
-                                      const PopupMenuItem(
-                                        value: 'delete',
-                                        child: Text('Delete'),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          )
-                        : const Text('No medicines added yet.'),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20),
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _canGeneratePdf
-                              ? Colors.blue
-                              : Colors.grey,
-                        ),
-                        onPressed: _canGeneratePdf
-                            ? () {
-                                final isFormValid =
-                                    _formKey.currentState!.validate();
-                                if (isFormValid && _doctorInfo != null) {
-                                  generatePrescriptionPdf(_doctorInfo!);
-                                  setState(() {
-                                    _canGeneratePdf = false;
-                                    _canGenerateNext = true;
-                                  });
-                                }
-                              }
-                            : null,
-                        icon: const Icon(Icons.picture_as_pdf),
-                        label: const Text("Generate PDF Prescription"),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _canGenerateNext
-                              ? Colors.redAccent
-                              : Colors.grey,
-                        ),
-                        onPressed: _canGenerateNext
-                            ? () {
-                                _resetPrescriptionForm();
-                                setState(() {
-                                  _canGeneratePdf = true;
-                                  _canGenerateNext = false;
-                                });
-                              }
-                            : null,
-                        icon: const Icon(Icons.refresh),
-                        label: const Text("Generate Next Prescription"),
-                      ),
-                    ),
+                    // _prescriptions.isNotEmpty
+                    //     ? ListView.builder(
+                    //         shrinkWrap: true,
+                    //         physics: const NeverScrollableScrollPhysics(),
+                    //         itemCount: _prescriptions.length,
+                    //         itemBuilder: (context, index) {
+                    //           final presc = _prescriptions[index];
+                    //           return Card(
+                    //             shape: RoundedRectangleBorder(
+                    //               borderRadius: BorderRadius.circular(20),
+                    //             ),
+                    //             elevation: 5,
+                    //             margin: const EdgeInsets.symmetric(vertical: 8),
+                    //             child: ListTile(
+                    //               title: Text(presc.drugName ?? "Unnamed"),
+                    //               subtitle: Text(
+                    //                 "For ${presc.followupDuration} ${presc.inDays ? "days" : "Months"} | ${presc.isBeforeFood ? "Before Food" : "After Food"} | ${presc.toBitList(4)}",
+                    //               ),
+                    //               trailing: PopupMenuButton<String>(
+                    //                 onSelected: (value) {
+                    //                   if (value == 'edit') {
+                    //                     _editPrescription(context, index);
+                    //                   } else if (value == 'delete') {
+                    //                     _deletePrescription(index);
+                    //                   }
+                    //                 },
+                    //                 itemBuilder: (context) => [
+                    //                   const PopupMenuItem(
+                    //                     value: 'edit',
+                    //                     child: Text('Edit'),
+                    //                   ),
+                    //                   const PopupMenuItem(
+                    //                     value: 'delete',
+                    //                     child: Text('Delete'),
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //             ),
+                    //           );
+                    //         },
+                    //       )
+                    //     : const Text('No medicines added yet.'),
+                    _buildPrescriptionList(),
+                    
+                    // Padding(
+                    //   padding: const EdgeInsets.only(top: 20),
+                    //   child: ElevatedButton.icon(
+                    //     style: ElevatedButton.styleFrom(
+                    //       backgroundColor: _canGeneratePdf
+                    //           ? Colors.blue
+                    //           : Colors.grey,
+                    //     ),
+                    //     onPressed: _canGeneratePdf
+                    //         ? () {
+                    //             final isFormValid =
+                    //                 _formKey.currentState!.validate();
+                    //             if (isFormValid && _doctorInfo != null) {
+                    //               generatePrescriptionPdf(_doctorInfo!);
+                    //               setState(() {
+                    //                 _canGeneratePdf = false;
+                    //                 _canGenerateNext = true;
+                    //               });
+                    //             }
+                    //           }
+                    //         : null,
+                    //     icon: const Icon(Icons.picture_as_pdf),
+                    //     label: const Text("Generate PDF Prescription"),
+                    //   ),
+                    // ),
+                    _buildGeneratePdfButton(),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(top: 10),
+                    //   child: ElevatedButton.icon(
+                    //     style: ElevatedButton.styleFrom(
+                    //       backgroundColor: _canGenerateNext
+                    //           ? Colors.redAccent
+                    //           : Colors.grey,
+                    //     ),
+                    //     onPressed: _canGenerateNext
+                    //         ? () {
+                    //             _resetPrescriptionForm();
+                    //             setState(() {
+                    //               _canGeneratePdf = true;
+                    //               _canGenerateNext = false;
+                    //             });
+                    //           }
+                    //         : null,
+                    //     icon: const Icon(Icons.refresh),
+                    //     label: const Text("Generate Next Prescription"),
+                    //   ),
+                    // ),
+                    _buildNextPrescriptionButton(),
                   ],
                 ),
               ),
@@ -484,7 +505,9 @@ Widget build(BuildContext context) {
         message: "Generating Prescription……",
       ),
     ],
-  );
+  ),
+  ],);
+  });
 }
 
   //@override
@@ -631,6 +654,115 @@ Widget build(BuildContext context) {
 //       ),
 //     );
 //   }
+
+Widget _buildPrescriptionList() {
+    // your existing prescription list widget code
+    return Container(
+    child:   _prescriptions.isNotEmpty
+                        ? ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: _prescriptions.length,
+                            itemBuilder: (context, index) {
+                              final presc = _prescriptions[index];
+                              return Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                elevation: 5,
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                child: ListTile(
+                                  title: Text(presc.drugName ?? "Unnamed"),
+                                  subtitle: Text(
+                                    "For ${presc.followupDuration} ${presc.inDays ? "days" : "Months"} | ${presc.isBeforeFood ? "Before Food" : "After Food"} | ${presc.toBitList(4)}",
+                                  ),
+                                  trailing: PopupMenuButton<String>(
+                                    onSelected: (value) {
+                                      if (value == 'edit') {
+                                        _editPrescription(context, index);
+                                      } else if (value == 'delete') {
+                                        _deletePrescription(index);
+                                      }
+                                    },
+                                    itemBuilder: (context) => [
+                                      const PopupMenuItem(
+                                        value: 'edit',
+                                        child: Text('Edit'),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'delete',
+                                        child: Text('Delete'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : const Text('No medicines added yet.'),
+    );
+  }
+
+  Widget _buildGeneratePdfButton() {
+    // your existing generate PDF button code
+    return Container(
+      child:   Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _canGeneratePdf
+                              ? Colors.blue
+                              : Colors.grey,
+                        ),
+                        onPressed: _canGeneratePdf
+                            ? () {
+                                final isFormValid =
+                                    _formKey.currentState!.validate();
+                                if (isFormValid && _doctorInfo != null) {
+                                  generatePrescriptionPdf(_doctorInfo!);
+                                  setState(() {
+                                    _canGeneratePdf = false;
+                                    _canGenerateNext = true;
+                                  });
+                                }
+                              }
+                            : null,
+                        icon: const Icon(Icons.picture_as_pdf),
+                        label: const Text("Generate PDF Prescription"),
+                      ),
+                    ),
+    );
+  }
+
+  Widget _buildNextPrescriptionButton() {
+    // your existing next prescription button code
+    return Container(
+      child: Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _canGenerateNext
+                              ? Colors.redAccent
+                              : Colors.grey,
+                        ),
+                        onPressed: _canGenerateNext
+                            ? () {
+                                _resetPrescriptionForm();
+                                setState(() {
+                                  _canGeneratePdf = true;
+                                  _canGenerateNext = false;
+                                });
+                              }
+                            : null,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text("Generate Next Prescription"),
+                      ),
+                    ),
+    );
+  }
+
+
+
 
   Future<void> _createPrescription(BuildContext context) async {
     final result = await Navigator.push(

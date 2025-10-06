@@ -209,6 +209,7 @@
 import 'package:docautomations/common/appcolors.dart';
 // 🔹 import reusable loader
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
+import 'package:docautomations/commonwidget/trialbanner.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
@@ -339,8 +340,14 @@ class _DoctorMasterScrState extends State<DoctorMasterScr> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height,
+        Column(children: [
+
+        
+        TrialBanner(),
+        
+        // SizedBox(
+        //   height: MediaQuery.of(context).size.height,
+          Expanded(
           child: SingleChildScrollView(
             child: Container(
               padding: const EdgeInsets.all(20),
@@ -424,7 +431,7 @@ class _DoctorMasterScrState extends State<DoctorMasterScr> {
         // 🔹 loader overlay
         LoadingOverlay(isLoading: _isLoading, message: "Updating…"),
       ],
-    );
+    )],);
   }
 }
 

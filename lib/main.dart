@@ -1,3 +1,4 @@
+import 'package:docautomations/common/licenseprovider.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:docautomations/widgets/appentrypoint.dart';
 import 'package:flutter/material.dart';
@@ -6,11 +7,33 @@ import 'package:provider/provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  //TODOPR
+  print(" after ensureInitialized in main");
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => Prescriptiondata(),
+     MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LicenseProvider()..loadStatus()), // ..init  is added for trial/subscription status automatically refreshes when the app opens (or comes back from background)
+        // ChangeNotifierProvider(
+        //             lazy: false,
+        //             create: (_) {
+        //               final provider = LicenseProvider();
+        //               WidgetsBinding.instance.addPostFrameCallback((_) {
+        //                 provider.init();
+        //               });
+        //               return provider;
+        //             },
+        //                   ),
+        ChangeNotifierProvider(
+       create: (context) => Prescriptiondata()),
+      ],
       child: const MyApp(),
     ),
+
+    // ChangeNotifierProvider(
+    //   create: (context) => Prescriptiondata(),
+
+    //   child: const MyApp(),
+    // ),
   );
 }
 
@@ -18,6 +41,7 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
  
+
  
 
   @override
