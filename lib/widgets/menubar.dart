@@ -129,7 +129,7 @@ String doctorName = ""; // store doctor name here
               // },
                onTap: (){
                setState(() {
-      currentBody = const Addprescrip(title: "PatientInfo");
+      currentBody = const Addprescrip(title: "Patient Diagnosis");
     });
     Navigator.pop(context); // close drawer
   },
@@ -138,17 +138,17 @@ String doctorName = ""; // store doctor name here
             ),
             ListTile(
               onTap: () {setState(() {
-      currentBody = const DoctorMaster(title: "Doctor Information");
+      currentBody = const DoctorMaster(title: "Profile Settings");
     });
     Navigator.pop(context);},
-              leading: const Icon(Icons.logo_dev, size: 26, color: Colors.black),
-              title: const Text("Dr. Info", style: TextStyle(fontSize: 20)),
-            ),
-            ListTile(
-              onTap: () {},
               leading: const Icon(Icons.settings, size: 26, color: Colors.black),
-              title: const Text("Settings", style: TextStyle(fontSize: 20)),
-            ),
+              title: const Text("Profile Settings", style: TextStyle(fontSize: 20)),
+             ),
+            // ListTile(
+            //   onTap: () {},
+            //   leading: const Icon(Icons.settings, size: 26, color: Colors.black),
+            //   title: const Text("Settings", style: TextStyle(fontSize: 20)),
+            // ),
             const Divider(color: Colors.black),
             ListTile(
               onTap: () {

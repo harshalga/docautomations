@@ -26,6 +26,11 @@ class LicenseProvider with ChangeNotifier {
 
   bool get isLoading => _isLoading;
 
+  set isLoading(bool value) {        // ✅ public setter
+    _isLoading = value;
+    notifyListeners();
+  }
+
   bool get isTrialActive => _isTrialActive;
   int get prescriptionCount => _prescriptionCount;
   DateTime? get trialEndDate => _trialEndDate;
@@ -100,6 +105,22 @@ class LicenseProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+  //Save the feedback 
+Future<void> saveFeedback(String feedback) async {
+isLoading  = true;
+    //notifyListeners();
+     try {
+     await LicenseApiService.storeFeedbackBeforeUninstall(feedback);
+    
+    } catch (e) {
+      if (kDebugMode) {
+        print("❌ Error incrementing prescription: $e");
+      }
+    } finally {
+      isLoading = false;
+      //notifyListeners();
+    }
+}
 
   /// Increment prescription count (trial usage)
   Future<void> incrementPrescription() async {
@@ -123,12 +144,13 @@ class LicenseProvider with ChangeNotifier {
   }
 
   /// Activate subscription (after backend verifies purchase)
-  Future<void> activateSubscription(
+  Future<bool> activateSubscription(
       String productId, String transactionId, DateTime expiryDate,String platform,String receiptData )  async {
+    bool success = false;
          _isLoading = true;
     notifyListeners();
      try {
-    final success = await LicenseApiService.activateSubscription(
+     success = await LicenseApiService.activateSubscription(
       productId,
       transactionId,
       expiryDate,
@@ -138,13 +160,16 @@ class LicenseProvider with ChangeNotifier {
     if (success) {
       await loadStatus();
     }
+    return success;
     } catch (e) {
       if (kDebugMode) {
         print("❌ Error activating subscription: $e");
+        return false;
       }
     } finally {
       _isLoading = false;
       notifyListeners();
+      return success;
     }
   }
 

@@ -207,6 +207,7 @@
   
 // }
 import 'package:docautomations/common/appcolors.dart';
+import 'package:docautomations/common/licenseprovider.dart';
 // 🔹 import reusable loader
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
 import 'package:docautomations/commonwidget/trialbanner.dart';
@@ -217,6 +218,7 @@ import 'dart:convert';
 import 'package:docautomations/widgets/doctorinfo.dart';
 import 'package:docautomations/common/common_widgets.dart';
 import 'package:docautomations/services/license_api_service.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -337,13 +339,16 @@ class _DoctorMasterScrState extends State<DoctorMasterScr> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {return   Consumer<LicenseProvider>(
+      builder: (context, license, child) {
     return Stack(
       children: [
         Column(children: [
 
+         (!license.isSubscribed && license.isTrialActive) ?
+    TrialBanner(): SizedBox.shrink(), // 👈 Reusable banner
+        //TrialBanner(),
         
-        TrialBanner(),
         
         // SizedBox(
         //   height: MediaQuery.of(context).size.height,
@@ -432,6 +437,7 @@ class _DoctorMasterScrState extends State<DoctorMasterScr> {
         LoadingOverlay(isLoading: _isLoading, message: "Updating…"),
       ],
     )],);
-  }
+      });
+  }//Build 
 }
 

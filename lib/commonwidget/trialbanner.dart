@@ -1,5 +1,6 @@
 import 'package:docautomations/common/licenseprovider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:marquee/marquee.dart';
 
@@ -21,9 +22,9 @@ class TrialBanner extends StatelessWidget {
       final int usedPrescriptions = license.prescriptionCount;
       final int presRemaining = 100 - usedPrescriptions;
       final int daysLeft = _calculateDaysLeft(license.trialEndDate);
-
+      
       final message =
-          "🎉 Free trial expires on ${license.trialEndDate ?? '-'} | "
+          "🎉 Free trial expires on ${DateFormat('dd/MM/yyyy HH:mm:ss').format(license.trialEndDate!) } | "
           "Days left: $daysLeft | "
           "Used: $usedPrescriptions / 100 | "
           "Remaining: $presRemaining";

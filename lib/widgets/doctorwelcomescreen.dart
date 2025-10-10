@@ -1,10 +1,13 @@
 import 'package:docautomations/common/appcolors.dart';
+import 'package:docautomations/common/licenseprovider.dart';
 import 'package:docautomations/commonwidget/trialbanner.dart';
 import 'package:docautomations/services/license_api_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:docautomations/widgets/doctorinfo.dart';
 import 'package:docautomations/common/common_widgets.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class DoctorWelcomeScreen extends StatelessWidget {
   const DoctorWelcomeScreen({super.key});
@@ -30,6 +33,8 @@ class DoctorWelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Consumer<LicenseProvider>(
+      builder: (context, license, child) {
     return FutureBuilder<DoctorInfo>(
       future: _loadInfo(),
       builder: (context, snapshot) {
@@ -77,7 +82,8 @@ class DoctorWelcomeScreen extends StatelessWidget {
           body: SizedBox.expand(
             child:Column(
               children: [
-                TrialBanner(),
+                (!license.isSubscribed && license.isTrialActive) ?
+    TrialBanner(): SizedBox.shrink(),
                  Container(
               padding: const EdgeInsets.all(20),
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -139,6 +145,35 @@ class DoctorWelcomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+
+                const SizedBox(height: 20),
+
+                              // ✅ Show trial/subscription status using license provider
+                              if (license.isTrialActive == false && license.isSubscribed== false  )
+                                Text(
+                                  "Your trial has expired. Please renew your subscription. ${license.isTrialActive} also value licence subscribed ${license.isSubscribed} ",
+                                  style: TextStyle(
+                                    color: Colors.red[700],
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              else if (license.isSubscribed)
+                                const Text(
+                                  "Subscription Active ✅",
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              else
+                                Text(
+                                  "Trial Active until ${DateFormat('dd/MM/yyyy HH:mm:ss').format(license.trialEndDate!)}",
+                                  style: const TextStyle(
+                                    color: Colors.orange,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+
                 ],
               ),
             ),
@@ -149,5 +184,6 @@ class DoctorWelcomeScreen extends StatelessWidget {
         );
       },
     );
+    });
   }
 }

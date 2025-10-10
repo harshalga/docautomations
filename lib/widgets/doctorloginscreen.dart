@@ -56,8 +56,8 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
     setState(() => _loading = false);
 
     if (tokens != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('inside token not null')),);
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('inside token not null')),);
       final prefs = await SharedPreferences.getInstance();
       final accessTok = tokens["accessToken"] ;
       final refreshTok = tokens["refreshToken"];
@@ -67,13 +67,13 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
       // await prefs.setString("access_token", accessTok!);
       // await prefs.setString("refresh_token",refreshTok!);
        
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login successful ✅')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('Login successful ✅')),
+      // );
       widget.onLoginSuccess();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('inside else')),);
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('inside else')),);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login failed ❌')),
       );
