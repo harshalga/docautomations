@@ -1,29 +1,53 @@
+// 
+
 import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/common/licenseprovider.dart';
 import 'package:docautomations/commonwidget/trialbanner.dart';
 import 'package:docautomations/services/license_api_service.dart';
-import 'package:flutter/material.dart';
-
 import 'package:docautomations/widgets/doctorinfo.dart';
 import 'package:docautomations/common/common_widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class DoctorWelcomeScreen extends StatelessWidget {
+class DoctorWelcomeScreen extends StatefulWidget {
   const DoctorWelcomeScreen({super.key});
+
+  @override
+  State<DoctorWelcomeScreen> createState() => _DoctorWelcomeScreenState();
+}
+
+class _DoctorWelcomeScreenState extends State<DoctorWelcomeScreen> {
+  String _appVersion = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      setState(() {
+        _appVersion = "v ${info.version}+${info.buildNumber}";
+      });
+    } catch (e) {
+      setState(() {
+        _appVersion = "v 1.0.0"; // fallback
+      });
+    }
+  }
 
   Future<DoctorInfo> _loadInfo() async {
     try {
-
       final doctorData = await LicenseApiService.fetchDoctorProfile();
 
-  if (doctorData != null)
-  {
-    
-    return DoctorInfo.fromJson(doctorData);
-       
-  }
-  else {
+      if (doctorData != null) {
+        return DoctorInfo.fromJson(doctorData);
+      } else {
         throw Exception("No doctor data from server");
       }
     } catch (e) {
@@ -35,155 +59,268 @@ class DoctorWelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<LicenseProvider>(
       builder: (context, license, child) {
-    return FutureBuilder<DoctorInfo>(
-      future: _loadInfo(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(
-                'Welcome Screen',
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                      color: Theme.of(context).colorScheme.onSecondary,
-                    ),
-              ),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-            ),
-            body: const Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return Scaffold(
-            appBar: AppBar(title: const Text("Welcome Screen")),
-            body: Center(child: Text("Error: ${snapshot.error}")),
-          );
-        }
-
-        if (!snapshot.hasData) {
-          return Scaffold(
-            appBar: AppBar(title: const Text("Welcome Screen")),
-            body: const Center(child: Text("No doctor data available")),
-          );
-        }
-
-        final info = snapshot.data!;
-
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              'Welcome Screen',
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                    color: Theme.of(context).colorScheme.onSecondary,
+        return FutureBuilder<DoctorInfo>(
+          future: _loadInfo(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Scaffold(
+                appBar: AppBar(
+                  title: Text(
+                    'Welcome Screen',
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                        ),
                   ),
-            ),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-          ),
-          body: SizedBox.expand(
-            child:Column(
-              children: [
-                (!license.isSubscribed && license.isTrialActive) ?
-    TrialBanner(): SizedBox.shrink(),
-                 Container(
-              padding: const EdgeInsets.all(20),
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(50),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
-                    blurRadius: 20,
-                    offset: Offset.zero,
-                  ),
-                ],
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                ),
+                body: const Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            if (snapshot.hasError) {
+              return Scaffold(
+                appBar: AppBar(title: const Text("Welcome Screen")),
+                body: Center(child: Text("Error: ${snapshot.error}")),
+              );
+            }
+
+            if (!snapshot.hasData) {
+              return Scaffold(
+                appBar: AppBar(title: const Text("Welcome Screen")),
+                body: const Center(child: Text("No doctor data available")),
+              );
+            }
+
+            final info = snapshot.data!;
+
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  'Welcome Screen',
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
+                ),
+                backgroundColor: Theme.of(context).colorScheme.secondary,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              body: Stack(
                 children: [
-                  Center(child: displayDoctorImage(info.logoBase64)),
-                  const SizedBox(height: 20),
-                  Text(
-                    info.name,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(info.specialization),
-                  Text(info.clinicName),
-                  Text(info.clinicAddress),
-                  Text(info.contact),
-                  const SizedBox(height: 20),
-                  const Divider(),
-                  const SizedBox(height: 10),
-
-                  // ✅ Show letterhead status
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.print, color: Colors.blueGrey),
-                      const SizedBox(width: 8),
-                      Text(
-                        "Letterhead Printing: ${info.printLetterhead == true ? "Enabled" : "Disabled"}",
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // ✅ Show prescription count
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.medical_services, color: Colors.green),
-                      const SizedBox(width: 8),
-                      Text(
-                        "Total Prescriptions: ${info.prescriptionCount ?? 0}",
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-
-                const SizedBox(height: 20),
-
-                              // ✅ Show trial/subscription status using license provider
-                              if (license.isTrialActive == false && license.isSubscribed== false  )
+                  SizedBox.expand(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          if (!license.isSubscribed && license.isTrialActive)
+                            const TrialBanner(),
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(50),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primary.withOpacity(0.3),
+                                  blurRadius: 20,
+                                  offset: Offset.zero,
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Center(child: displayDoctorImage(info.logoBase64)),
+                                const SizedBox(height: 20),
                                 Text(
-                                  "Your trial has expired. Please renew your subscription. ${license.isTrialActive} also value licence subscribed ${license.isSubscribed} ",
-                                  style: TextStyle(
-                                    color: Colors.red[700],
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                              else if (license.isSubscribed)
-                                const Text(
-                                  "Subscription Active ✅",
-                                  style: TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                              else
-                                Text(
-                                  "Trial Active until ${DateFormat('dd/MM/yyyy HH:mm:ss').format(license.trialEndDate!)}",
+                                  info.name,
                                   style: const TextStyle(
-                                    color: Colors.orange,
+                                    fontSize: 24,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                                Text(info.specialization),
+                                Text(info.clinicName),
+                                Text(info.clinicAddress),
+                                Text(info.contact),
+                                const SizedBox(height: 20),
+                                const Divider(),
+                                const SizedBox(height: 10),
+
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.print,
+                                        color: Colors.blueGrey),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      "Letterhead Printing: ${info.printLetterhead == true ? "Enabled" : "Disabled"}",
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.medical_services,
+                                        color: Colors.green),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      "Total Prescriptions: ${info.prescriptionCount ?? 0}",
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+
+                               
+
+                                if (license.isTrialActive == false &&
+                                    license.isSubscribed == false)
+                                  Text(
+                                    "Your trial has expired. Please renew your subscription.",
+                                    style: TextStyle(
+                                      color: Colors.red[700],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  )
+                                else if (license.isSubscribed)
+                                  const Text(
+                                    "Subscription Active ✅",
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                else
+                                  Text(
+                                    "Trial Active until ${DateFormat('dd/MM/yyyy HH:mm:ss').format(license.trialEndDate!)}",
+                                    style: const TextStyle(
+                                      color: Colors.orange,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                
+ const SizedBox(height: 30),
+
+                  // ✅ Contact Us Section — App-themed design
+                  InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          title: Row(
+                            children: [
+                              Icon(Icons.email_outlined, color: AppColors.primary),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Contact Us",
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          content: const Text(
+                            "We would love to hear from you!\nSend us an email at contactprescriptor@zohomail.in",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 15),
+                          ),
+                          actionsAlignment: MainAxisAlignment.spaceEvenly,
+                          actions: [
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.grey[700],
+                              ),
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("Cancel"),
+                            ),
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: () async {
+                                final Uri emailUri = Uri(
+                                  scheme: 'mailto',
+                                  path: 'contactprescriptor@zohomail.in',
+                                  query: Uri.encodeFull('subject=Feedback for Prescriptor'),
+                                );
+                                if (await canLaunchUrl(emailUri)) {
+                                  await launchUrl(emailUri);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Could not open email app'),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                }
+                                Navigator.pop(context);
+                              },
+                              icon: const Icon(Icons.email_rounded, size: 20, color: AppColors.colorLightSecondary),
+                              label: const Text("Email"),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.email_outlined, color: AppColors.primary),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Contact Us",
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // ✅ App version (clean and aligned below contact section)
+                  Text(
+                    _appVersion.isEmpty ? "" : _appVersion,
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 13,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                 
+
 
                 ],
               ),
-            ),
-            
-              ],
-            )
-          ),
+            );
+          },
         );
       },
     );
-    });
   }
 }
