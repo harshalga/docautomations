@@ -229,9 +229,9 @@ class _DoctorWelcomeScreenState extends State<DoctorWelcomeScreen> {
                             ],
                           ),
                           content: const Text(
-                            "We would love to hear from you!\nSend us an email at contactprescriptor@zohomail.in",
+                            "We would love to hear from you!\nSend us an email at \n contactprescriptor@zohomail.in",
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 12),
                           ),
                           actionsAlignment: MainAxisAlignment.spaceEvenly,
                           actions: [
@@ -251,21 +251,33 @@ class _DoctorWelcomeScreenState extends State<DoctorWelcomeScreen> {
                                 ),
                               ),
                               onPressed: () async {
-                                final Uri emailUri = Uri(
-                                  scheme: 'mailto',
-                                  path: 'contactprescriptor@zohomail.in',
-                                  query: Uri.encodeFull('subject=Feedback for Prescriptor'),
-                                );
-                                if (await canLaunchUrl(emailUri)) {
-                                  await launchUrl(emailUri);
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Could not open email app'),
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                }
+//                                 final Uri emailUri = Uri(
+//   scheme: 'mailto',
+//   path: 'contactprescriptor@zohomail.in',
+//   queryParameters: {'subject': 'Feedback for Prescriptor'},
+// );
+final subject = Uri.encodeComponent('Feedback for Prescriptor');
+final Uri emailUri = Uri.parse(
+    'mailto:contactprescriptor@zohomail.in?subject=$subject');
+
+
+try {
+  final bool launched = await launchUrl(
+    emailUri,
+    mode: LaunchMode.externalApplication, // ✅ ensures it opens external apps
+  );
+  if (!launched) {
+    throw Exception('Could not launch');
+  }
+} catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('No email app found. Please install Gmail or Outlook.'),
+      behavior: SnackBarBehavior.floating,
+    ),
+  );
+}
+
                                 Navigator.pop(context);
                               },
                               icon: const Icon(Icons.email_rounded, size: 20, color: AppColors.colorLightSecondary),
