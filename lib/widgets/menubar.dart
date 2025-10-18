@@ -56,7 +56,7 @@ String doctorName = ""; // store doctor name here
               decoration: const BoxDecoration(
                 image: DecorationImage(
                   fit: BoxFit.fill,
-                  image: AssetImage("images/healthcare.jpg"),
+                  image: AssetImage("images/healthcare_2.png"),
                 ),
               ),
               child: Column(

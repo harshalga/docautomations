@@ -167,6 +167,21 @@ final response = await _authenticatedPost(
   }
 }
 
+Future<bool> resetPassword(String doctorEmailId, String newPassword) async {
+  final url = Uri.parse("$baseUrl/api/doctor/reset-password");
+  final response = await http.post(
+    url,
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({
+      "loginEmail": doctorEmailId,
+      "newPassword": newPassword,
+    }),
+  );
+
+  return response.statusCode == 200;
+}
+
+
 static Future<int?> incrementPrescriptionCount() async {
   try {
     
