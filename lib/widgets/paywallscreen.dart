@@ -271,7 +271,7 @@ setState(() => isLoading = true);
               const SizedBox(height: 10),
 
               Text(
-                "Hope Prescriptor served you well.\nWe would love to hear your feedback. \nEither email at vhsystemautomations@gmail.com or type in below...",
+                "Hope Prescriptor served you well.\nWe would love to hear your feedback. \nEither email at contactprescriptor@zohomail.in  or type in below...",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 15, color: Colors.grey[700]),
               ),
