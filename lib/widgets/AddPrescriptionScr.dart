@@ -9,13 +9,10 @@ import 'package:docautomations/services/license_api_service.dart';
 import 'package:docautomations/widgets/AddPrescription.dart';
 import 'package:docautomations/widgets/PatientInfo.dart';
 import 'package:docautomations/widgets/doctorinfo.dart';
+import 'package:docautomations/widgets/print_preview_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
-import 'dart:io' as io; // Needed for File IO;
-import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
@@ -36,12 +33,7 @@ bool _canGeneratePdf = true;  // initially enabled
 bool _canGenerateNext = false; // initially disabled
 bool _isLoading = false;
 
-  final String _patientName = '';
-  final String _patientAge = '';
-  final String _patientGender = '';
-  final String _keycomplaint='';
-  final String _examination='';
-  final String _diagnosis='';
+  
   
   
    Uint8List? _doctorLogo;
@@ -272,14 +264,23 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
     await LicenseApiService.incrementPrescriptionCount();
     final pdfBytes = await pdf.save();
 
-    if (kIsWeb) {
-      await Printing.layoutPdf(onLayout: (format) async => pdfBytes);
-    } else {
-      final dir = await getTemporaryDirectory();
-      final file = io.File('${dir.path}/prescription.pdf');
-      await file.writeAsBytes(pdfBytes);
-      await OpenFile.open(file.path);
-    }
+    // if (kIsWeb) {
+    //   await Printing.layoutPdf(onLayout: (format) async => pdfBytes);
+    // } else {
+    //   final dir = await getTemporaryDirectory();
+    //   final file = io.File('${dir.path}/prescription.pdf');
+    //   await file.writeAsBytes(pdfBytes);
+    //   await OpenFile.open(file.path);
+    // }
+
+    // Navigate to print preview screen
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PrintPreviewScreen(pdfBytes: pdfBytes),
+  ),
+);
+
   } catch (e) {
     print("Error generating or opening PDF: $e");
   }
@@ -288,79 +289,158 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
   }
 }
 
+// @override
+// Widget build(BuildContext context) {
+//   return   Consumer<LicenseProvider>(
+//       builder: (context, license, child) {
+//         return
+//    Stack(
+//     children: [
+//       Column(children: [
+       
+//       (!license.isSubscribed && license.isTrialActive) ?
+//     TrialBanner(): SizedBox.shrink(), // 👈 Reusable banner
+
+
+//       Expanded(
+        
+//         child: SingleChildScrollView(
+//           child: Container(
+//             padding: const EdgeInsets.all(20),
+//             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+//             decoration: BoxDecoration(
+//               color: Colors.white,
+//               borderRadius: BorderRadius.circular(50),
+//               boxShadow: [
+//                 BoxShadow(
+//                   color: AppColors.primary.withOpacity(0.3),
+//                   blurRadius: 20,
+//                   offset: Offset.zero,
+//                 ),
+//               ],
+//             ),
+//             child: Form(
+//               key: _formKey,
+//               child: DefaultTextStyle.merge(
+//                 style: descTextStyle,
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Patientinfo(key: _patientInfoKey),
+//                     const SizedBox(height: 10),
+//                     Padding(
+//                       padding: const EdgeInsets.all(8),
+//                       child: ElevatedButton(
+//                         onPressed: () {
+//                           _createPrescription(context);
+//                         },
+//                         child: const Text('Add Medicine'),
+//                       ),
+//                     ),
+//                     const SizedBox(height: 20),
+
+//                     _buildPrescriptionList(),
+
+//                     _buildGeneratePdfButton(),
+
+//                     _buildNextPrescriptionButton(),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//       // 🔽 Overlay on top when loading
+//       LoadingOverlay(
+//         isLoading: _isLoading,
+//         message: "Generating Prescription……",
+//       ),
+//     ],
+//   ),
+//   ],);
+//   });
+// }
+
 @override
 Widget build(BuildContext context) {
-  return   Consumer<LicenseProvider>(
-      builder: (context, license, child) {
-        return
-   Stack(
-    children: [
-      Column(children: [
-       
-      (!license.isSubscribed && license.isTrialActive) ?
-    TrialBanner(): SizedBox.shrink(), // 👈 Reusable banner
+  return Consumer<LicenseProvider>(
+    builder: (context, license, child) {
+      return Stack(
+        children: [
+          /// Entire screen content inside Scaffold
+          Scaffold(
+            backgroundColor: Colors.white,
+            body: Column(
+              children: [
+                // ✅ Trial banner if applicable
+                (!license.isSubscribed && license.isTrialActive)
+                    ? TrialBanner()
+                    : const SizedBox.shrink(),
 
-
-      Expanded(
-        
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(50),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
-                  blurRadius: 20,
-                  offset: Offset.zero,
+                /// Form content
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(50),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withOpacity(0.3),
+                            blurRadius: 20,
+                            offset: Offset.zero,
+                          ),
+                        ],
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: DefaultTextStyle.merge(
+                          style: descTextStyle,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Patientinfo(key: _patientInfoKey),
+                              const SizedBox(height: 10),
+                              Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    _createPrescription(context);
+                                  },
+                                  child: const Text('Add Medicine'),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              _buildPrescriptionList(),
+                              _buildGeneratePdfButton(),
+                              _buildNextPrescriptionButton(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
-            child: Form(
-              key: _formKey,
-              child: DefaultTextStyle.merge(
-                style: descTextStyle,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Patientinfo(key: _patientInfoKey),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _createPrescription(context);
-                        },
-                        child: const Text('Add Medicine'),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+          ),
 
-                    _buildPrescriptionList(),
-
-                    _buildGeneratePdfButton(),
-
-                    _buildNextPrescriptionButton(),
-                  ],
-                ),
+          /// ✅ Full-screen overlay
+          if (_isLoading)
+            Positioned.fill(
+              child: LoadingOverlay(
+                isLoading: true,
+                message: "Generating Prescription…",
               ),
             ),
-          ),
-        ),
-      ),
-      // 🔽 Overlay on top when loading
-      LoadingOverlay(
-        isLoading: _isLoading,
-        message: "Generating Prescription……",
-      ),
-    ],
-  ),
-  ],);
-  });
+        ],
+      );
+    },
+  );
 }
-
   
 
 Widget _buildPrescriptionList() {
@@ -436,7 +516,7 @@ Widget _buildPrescriptionList() {
                               }
                             : null,
                         icon: const Icon(Icons.picture_as_pdf),
-                        label: const Text("Generate PDF Prescription"),
+                        label: const Text("Generate PDF Prescription",style: TextStyle( color: Colors.black,)),
                       ),
                     ),
     );
@@ -463,7 +543,7 @@ Widget _buildPrescriptionList() {
                               }
                             : null,
                         icon: const Icon(Icons.refresh),
-                        label: const Text("Generate Next Prescription"),
+                        label: const Text("Generate Next Prescription",style: TextStyle( color: Colors.black,)),
                       ),
                     ),
     );
