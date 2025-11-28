@@ -34,13 +34,56 @@ class _DoctorRegisterScreenState extends State<DoctorRegisterScreen> {
   String? _logoBase64;
   bool _isLoading = false;
 
+  
+
   Future<void> _pickImage() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      final bytes = await picked.readAsBytes();
-      setState(() => _logoBase64 = base64Encode(bytes));
+  final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+  if (picked != null) {
+    // -------------------------------
+    // 1. EXTENSION VALIDATION
+    // -------------------------------
+    final extension = picked.name.split('.').last.toLowerCase();
+
+    const allowedExtensions = ['png', 'jpg', 'jpeg', 'webp'];
+
+    if (!allowedExtensions.contains(extension)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Only PNG, JPG, JPEG, WEBP formats are allowed"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
     }
+
+    // -------------------------------
+    // 2. SIZE VALIDATION (≤ 200 KB)
+    // -------------------------------
+    final sizeInBytes = await picked.length();
+    const maxSize = 200 * 1024; // 200 KB
+
+    if (sizeInBytes > maxSize) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Logo must be less than 200 KB"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // -------------------------------
+    // 3. Convert to Base64
+    // -------------------------------
+    final bytes = await picked.readAsBytes();
+    setState(() {
+      _logoBase64 = base64Encode(bytes);
+    });
   }
+}
+
+
 
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
