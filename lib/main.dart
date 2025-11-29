@@ -6,6 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+   //TODORemove: This prints every widget Flutter rebuilds, and WHY. to be removed
+   //debugPrintRebuildDirtyWidgets = true;
   WidgetsFlutterBinding.ensureInitialized();
   //TODOPR
   

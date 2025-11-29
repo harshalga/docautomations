@@ -2,6 +2,7 @@
 
 
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 //import 'package:flutter_validation/src/models/role.dart';
 
 /// base class for all validations.
@@ -58,7 +59,7 @@ class PeriodbasedValidation extends Validation<String>
 
 
     try{
-    print('The value $selectedlabel??' );
+   // print('The value $selectedlabel??' );
     // TODO: implement validate
     if (selectedlabel=='days')
     {
@@ -85,8 +86,8 @@ class PeriodbasedValidation extends Validation<String>
     } 
   }}
 
-class ageValidation extends Validation<String> {
-  const ageValidation();
+class AgeValidation  extends Validation<String> {
+  const AgeValidation ();
 
   @override
   String? validate(BuildContext context, String? value) {
@@ -95,7 +96,7 @@ class ageValidation extends Validation<String> {
     if ( value == null) return null;
     final int age = int.parse(value);
     if (  age >=110) {
-      return 'Enter a valid age etween 0 and 100 years !!!';
+      return 'Enter a valid age between 0 and 100 years !!!';
     }
     return null;
   }
@@ -145,6 +146,42 @@ class EmailValidation extends Validation<String> {
 //     return null;
 //   }
 // }
+
+//Validation for Next follow-up date must be greater than today\'s date
+class FutureDateStringValidation extends Validation<String> {
+  const FutureDateStringValidation();
+
+  @override
+  String? validate(BuildContext context, String? value) {
+    if (value == null || value.isEmpty) return null;
+
+try
+{
+  final parsed = DateFormat("dd/MM/yyyy").parseStrict(value);
+    
+    if (parsed == null) return "Invalid date format";
+
+    final today = DateTime.now();
+    final todayOnly = DateTime(today.year, today.month, today.day);
+    final selected = DateTime(parsed.year, parsed.month, parsed.day);
+
+    if (selected.isBefore(todayOnly)) {
+      return "Next follow-up date must be after today";
+    }
+    if (selected.isAtSameMomentAs(todayOnly)) {
+      return "Next follow-up date cannot be today";
+    }
+
+    return null;
+}
+catch(e)
+{
+  return "Enter date as DD/MM/YYYY";
+}
+    
+  }
+}
+
 
 
 /// a validation that checks if the value is a valid password.
