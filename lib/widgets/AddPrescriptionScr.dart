@@ -1189,6 +1189,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/common/licenseprovider.dart';
+import 'package:docautomations/common/medicineType.dart';
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
 import 'package:docautomations/commonwidget/trialbanner.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
@@ -1222,6 +1223,20 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
   bool _canGenerateNext = false;
   Uint8List? _doctorLogo;
   DoctorInfo? _doctorInfo;
+
+  /// Medicine type list
+  final List<MedicineType> types = [
+    MedicineType("Tablet", Icons.medication, "mg"),
+    MedicineType("Capsule", Icons.medication_liquid, "mg"),
+    MedicineType("Syrup", Icons.local_drink, "ml"),
+    MedicineType("Ointment", Icons.brush, "gm"),
+    MedicineType("Injection", Icons.vaccines, "ml"),
+    MedicineType("Inhalation", Icons.air, "puffs"),
+  ];
+
+  String _unitForType(String medicine) {
+    return types.firstWhere((e) => e.name == medicine).unit;
+  }
 
   final List<Prescriptiondata> _prescriptions = [];
 
@@ -1274,7 +1289,7 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
   // ===================================================================
   void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
     setState(() => _isLoading = true);
-
+    late String displayConsumption;
     final p = _patientInfoKey.currentState!;
     final pdf = pw.Document();
 
@@ -1385,17 +1400,28 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
 
                           late bool istabletType;
                           late String unitofmeasure;
-                          late String medicinetype;
+                          late String? medicinetype;
 
-                          istabletType =med.isTablet ?? true;
-                          unitofmeasure = istabletType ? 'mg' : 'ml';
-                          medicinetype = istabletType ? 'Tab' : 'Syrup';
+                          istabletType =med.isTablet ;
+                          unitofmeasure = _unitForType(med.medicineType.toString());  //istabletType ? 'mg' : 'ml';
+                          medicinetype = med.medicineType; //istabletType ? 'Tab' : 'Syrup';
+
+                          if (istabletType)
+                          {
+                            displayConsumption =  "${med.isBeforeFood ? 'Before Food' : 'After Food'}  ";
+                                
+                          }
+                          else
+                          {
+                            displayConsumption =  "NA";
+                          }
 
                           return pw.TableRow(
                             children: [
-                              _cell(medicinetype + ' ' + med.drugName + ' ' + med.drugUnit.toString() + ' '+ unitofmeasure ),
+                              _cell(medicinetype.toString() + ' ' + med.drugName + ' ' + med.drugUnit.toString() + ' '+ unitofmeasure ),
                               _cell(med.toBitList(4).join(" - ")),
-                              _cell(med.isBeforeFood ? "Before Food" : "After Food"),
+                              //_cell(med.isBeforeFood ? "Before Food" : "After Food"),
+                              _cell (displayConsumption),
                               _cell("${med.followupDuration} ${med.inDays ? 'Days' : 'Months'}"),
                               _cell(DateFormat('dd/MM/yyyy').format(med.followupdate) ),
                               _cell(med.remarks),
@@ -1558,7 +1584,8 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
   Widget _buildPrescriptionList() {
     late bool istabletType;
     late String unitofmeasure;
-    late String medicinetype;
+    late String? medicinetype;
+    late String displayConsumption;
     if (_prescriptions.isEmpty) {
       return const Text("No medicines added yet.");
     }
@@ -1570,19 +1597,28 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
       itemBuilder: (context, i) {
         
         final med = _prescriptions[i];
-        istabletType =med.isTablet ?? true;
+        istabletType =med.isTablet ;
         unitofmeasure = istabletType ? 'mg' : 'ml';
-        medicinetype = istabletType ? 'Tablet' : 'Syrup';
-
+        medicinetype = med.medicineType; //istabletType ? 'Tablet' : 'Syrup';
+        if (istabletType)
+        {
+          displayConsumption =  "For ${med.followupDuration} ${med.inDays ? "Days" : "Months"} | "
+              "${med.isBeforeFood ? 'Before Food' : 'After Food'} | "
+              "${med.toBitList(4).join(" - ")}";
+        }
+        else
+        {
+          displayConsumption =  "For ${med.followupDuration} ${med.inDays ? "Days" : "Months"} | "
+              
+              "${med.toBitList(4).join(" - ")}";
+        }
         return Card(
           elevation: 4,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: ListTile(
-            title: Text(medicinetype + ' ' + med.drugName + ' ' +  med.drugUnit.toString() + unitofmeasure ?? ""),
+            title: Text(medicinetype.toString() + ' ' + med.drugName + ' ' +  med.drugUnit.toString() + unitofmeasure ?? ""),
             subtitle: Text(
-              "For ${med.followupDuration} ${med.inDays ? "Days" : "Months"} | "
-              "${med.isBeforeFood ? 'Before Food' : 'After Food'} | "
-              "${med.toBitList(4).join(" - ")}",
+              displayConsumption,
             ),
             trailing: PopupMenuButton(
               onSelected: (value) {

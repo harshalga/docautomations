@@ -12,6 +12,7 @@ class Prescriptiondata extends ChangeNotifier {
   int? followupDuration;
   DateTime followupdate;
   String remarks;
+  String? medicineType;
 
   Prescriptiondata({
     this.isTablet = true,
@@ -24,6 +25,7 @@ class Prescriptiondata extends ChangeNotifier {
     this.followupDuration ,
     DateTime? followupdate,
     this.remarks = '',
+    this.medicineType ,
   }) : followupdate = followupdate ?? DateTime.now();
 //  late bool isTablet ;
 //  late String drugName;
@@ -62,6 +64,11 @@ void updateDrugName(String value) {
 
   void updateDrugUnit(int value) {
     drugUnit = value;
+    notifyListeners();
+  }
+
+  void updateMedicineType(String value) {
+    medicineType = value;
     notifyListeners();
   }
 
