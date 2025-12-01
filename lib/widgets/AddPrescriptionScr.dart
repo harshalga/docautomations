@@ -1361,24 +1361,43 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
                   ? pw.Text("No medicines added.")
                   : pw.Table(
                       border: pw.TableBorder.all(),
+                      columnWidths: {
+        0: pw.FixedColumnWidth(90),   // Medicine
+        1: pw.FixedColumnWidth(70),   // Frequency
+        2: pw.FixedColumnWidth(90),   // Consumption Pattern
+        3: pw.FixedColumnWidth(60),   // Duration
+        4: pw.FixedColumnWidth(70),   // Dosage Till Date
+        5: pw.FixedColumnWidth(70),   // Remarks
+      },
                       children: [
                         pw.TableRow(
                           decoration: pw.BoxDecoration(color: PdfColors.grey300),
                           children: [
                             _cellHeader("Medicine"),
-                            _cellHeader("Timing"),
-                            _cellHeader("Food"),
+                            _cellHeader("Frequency"),
+                            _cellHeader("Consumption "),
                             _cellHeader("Duration"),
+                            _cellHeader("Dosage Till Date "),
                             _cellHeader("Remarks"),
                           ],
                         ),
                         ..._prescriptions.map((med) {
+
+                          late bool istabletType;
+                          late String unitofmeasure;
+                          late String medicinetype;
+
+                          istabletType =med.isTablet ?? true;
+                          unitofmeasure = istabletType ? 'mg' : 'ml';
+                          medicinetype = istabletType ? 'Tab' : 'Syrup';
+
                           return pw.TableRow(
                             children: [
-                              _cell(med.drugName),
+                              _cell(medicinetype + ' ' + med.drugName + ' ' + med.drugUnit.toString() + ' '+ unitofmeasure ),
                               _cell(med.toBitList(4).join(" - ")),
                               _cell(med.isBeforeFood ? "Before Food" : "After Food"),
                               _cell("${med.followupDuration} ${med.inDays ? 'Days' : 'Months'}"),
+                              _cell(DateFormat('dd/MM/yyyy').format(med.followupdate) ),
                               _cell(med.remarks),
                             ],
                           );
@@ -1386,11 +1405,14 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
                       ],
                     ),
 
-              pw.SizedBox(height: 30),
+              //pw.SizedBox(height: 30),
+              //footer
+              pw.Spacer(),
               pw.Align(
                 alignment: pw.Alignment.centerRight,
                 child: pw.Text("Signature"),
               ),
+               pw.Divider(),
             ],
           );
         },
@@ -1426,11 +1448,11 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
   }
 
   pw.Widget _cell(String? text) =>
-      pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Text(text ?? ""));
+      pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Text(text ?? "", ));
 
   pw.Widget _cellHeader(String text) => pw.Padding(
       padding: const pw.EdgeInsets.all(5),
-      child: pw.Text(text, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)));
+      child: pw.Text(text, style: pw.TextStyle(fontWeight: pw.FontWeight.bold), maxLines: 1,) );
 
   // ===================================================================
   //  UI BUILD
@@ -1534,6 +1556,9 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
   }
 
   Widget _buildPrescriptionList() {
+    late bool istabletType;
+    late String unitofmeasure;
+    late String medicinetype;
     if (_prescriptions.isEmpty) {
       return const Text("No medicines added yet.");
     }
@@ -1542,13 +1567,18 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: _prescriptions.length,
-      itemBuilder: (_, i) {
+      itemBuilder: (context, i) {
+        
         final med = _prescriptions[i];
+        istabletType =med.isTablet ?? true;
+        unitofmeasure = istabletType ? 'mg' : 'ml';
+        medicinetype = istabletType ? 'Tablet' : 'Syrup';
+
         return Card(
           elevation: 4,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: ListTile(
-            title: Text(med.drugName ?? ""),
+            title: Text(medicinetype + ' ' + med.drugName + ' ' +  med.drugUnit.toString() + unitofmeasure ?? ""),
             subtitle: Text(
               "For ${med.followupDuration} ${med.inDays ? "Days" : "Months"} | "
               "${med.isBeforeFood ? 'Before Food' : 'After Food'} | "
@@ -1556,11 +1586,15 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
             ),
             trailing: PopupMenuButton(
               onSelected: (value) {
+                if (value == 'edit') {
+                   _editPrescription(context, i);
+                 } else
                 if (value == "delete") {
-                  setState(() => _prescriptions.removeAt(i));
+                  _deletePrescription(i);
                 }
               },
               itemBuilder: (_) => [
+                const PopupMenuItem(value: 'edit', child: Text('Edit')),
                 const PopupMenuItem(value: "delete", child: Text("Delete")),
               ],
             ),
@@ -1615,6 +1649,42 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
       ),
     );
   }
+
+    Future<void> _editPrescription(BuildContext context, int index) async {
+    final existing = _prescriptions[index];
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            AddPrescription(title: "Edit Prescription", existingPrescription: existing),
+      ),
+    );
+
+    if (result != null && result is Prescriptiondata) {
+      setState(() => _prescriptions[index] = result);
+    }
+  }
+
+  void _deletePrescription(int index) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Delete Prescription'),
+        content: const Text('Are you sure you want to delete this?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete', style: TextStyle(color: Colors.red))),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() => _prescriptions.removeAt(index));
+    }
+  }
+}
+
   // Widget _buildGeneratePdfButton() {
   //   return ElevatedButton.icon(
   //     icon: const Icon(Icons.picture_as_pdf),
@@ -1641,4 +1711,4 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
   //     ),
   //   );
   // }
-}
+//}

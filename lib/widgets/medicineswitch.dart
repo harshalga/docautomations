@@ -123,14 +123,14 @@ class MedicineSwitchState extends State<MedicineSwitch> {
             children: [
               const Padding(
                 padding: EdgeInsets.all(8),
-                child: Text('Unit of Measure', textAlign: TextAlign.left),
+                child: Text('Dose Unit', textAlign: TextAlign.left),
               ),
               SizedBox(
                 width: 150,
                 child: TextFormField(
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    hintText: 'Units in $unitofmeasure',
+                    hintText: 'Dose Units in $unitofmeasure',
                     hintTextDirection: TextDirection.rtl,
                     errorMaxLines: 2,
                   ),
