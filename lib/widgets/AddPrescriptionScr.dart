@@ -1199,6 +1199,7 @@ import 'package:docautomations/widgets/PatientInfo.dart';
 import 'package:docautomations/widgets/doctorinfo.dart';
 import 'package:docautomations/widgets/print_preview_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
@@ -1217,7 +1218,7 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<PatientinfoState> _patientInfoKey = GlobalKey<PatientinfoState>();
   bool _canGeneratePdf = true;
-
+  final bool _printLetterhead = true;
 
   bool _isLoading = false;
   bool _canGenerateNext = false;
@@ -1232,6 +1233,8 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
     MedicineType("Ointment", Icons.brush, "gm"),
     MedicineType("Injection", Icons.vaccines, "ml"),
     MedicineType("Inhalation", Icons.air, "puffs"),
+    MedicineType("Drops", Icons.opacity, "drops"),
+    MedicineType("Others", Icons.category, ""), // no unit needed
   ];
 
   String _unitForType(String medicine) {
@@ -1284,181 +1287,410 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
     });
   }
 
-  // ===================================================================
-  //  GENERATE PDF
-  // ===================================================================
-  void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
-    setState(() => _isLoading = true);
-    late String displayConsumption;
-    final p = _patientInfoKey.currentState!;
-    final pdf = pw.Document();
+  
+// void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
+//   setState(() => _isLoading = true);
 
-    final name = p.tabNameController.text;
-    final age = p.ageController.text;
-    final gender = p.gender.value;
-    final complaints = p.keyComplaintcontroller.text;
-    final exam = p.examinationcontroller.text;
-    final diagnosis = p.diagnoscontroller.text;
-    final remarks = p.remarkscontroller.text;
-    final nextDate = p.followupDatecontroller.text;
+//   final p = _patientInfoKey.currentState!;
+//   final pdf = pw.Document();
 
-    final formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+//   // 🔥 Load Unicode-safe font (Roboto recommended)
+//   final fontRegular = pw.Font.ttf(
+//     await rootBundle.load("assets/fonts/Roboto-Regular.ttf"),
+//   );
+//   final fontBold = pw.Font.ttf(
+//     await rootBundle.load("assets/fonts/Roboto-Bold.ttf"),
+//   );
 
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        build: (ctx) {
+//   final theme = pw.ThemeData.withFont(
+//     base: fontRegular,
+//     bold: fontBold,
+//   );
+
+//   final name = p.tabNameController.text;
+//   final age = p.ageController.text;
+//   final gender = p.gender.value;
+//   final complaints = p.keyComplaintcontroller.text;
+//   final exam = p.examinationcontroller.text;
+//   final diagnosis = p.diagnoscontroller.text;
+//   final remarks = p.remarkscontroller.text;
+//   final nextDate = p.followupDatecontroller.text;
+
+//   final formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+
+//   pdf.addPage(
+//     pw.MultiPage(
+//       theme: theme,
+//       pageFormat: PdfPageFormat.a4,
+//       margin: const pw.EdgeInsets.all(24),
+
+//       // --------------------------------------------------------------
+//       // HEADER (repeated on every page)
+//       // --------------------------------------------------------------
+//       header: (context) => pw.Column(
+//         crossAxisAlignment: pw.CrossAxisAlignment.start,
+//         children: [
+//           pw.Row(
+//             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+//             children: [
+//               pw.Column(
+//                 crossAxisAlignment: pw.CrossAxisAlignment.start,
+//                 children: [
+//                   pw.Text("Dr. ${doctorInfo.name}",
+//                       style: pw.TextStyle(
+//                         fontSize: 20,
+//                         fontWeight: pw.FontWeight.bold,
+//                       )),
+//                   pw.Text(doctorInfo.specialization),
+//                   pw.Text(doctorInfo.clinicAddress),
+//                   pw.Text("Contact: ${doctorInfo.contact}"),
+//                 ],
+//               ),
+//               if (_doctorLogo != null)
+//                 pw.Container(
+//                   width: 60,
+//                   height: 60,
+//                   child: pw.Image(pw.MemoryImage(_doctorLogo!)),
+//                 ),
+//             ],
+//           ),
+//           pw.SizedBox(height: 8),
+//           pw.Text("Date: $formattedDate",
+//               style: pw.TextStyle(fontSize: 12)),
+//           pw.SizedBox(height: 10),
+//           pw.Divider(),
+//         ],
+//       ),
+
+//       // --------------------------------------------------------------
+//       // FOOTER (only shows on LAST PAGE)
+//       // --------------------------------------------------------------
+//       footer: (context) => context.pageNumber == context.pagesCount
+//           ? pw.Column(
+//               children: [
+//                 pw.Divider(),
+//                 pw.Align(
+//                   alignment: pw.Alignment.centerRight,
+//                   child: pw.Text("Signature",
+//                       style: pw.TextStyle(
+//                         fontSize: 14,
+//                         fontWeight: pw.FontWeight.bold,
+//                       )),
+//                 ),
+//               ],
+//             )
+//           : pw.SizedBox(),
+
+//       // --------------------------------------------------------------
+//       // PAGE BODY
+//       // --------------------------------------------------------------
+//       build: (context) => [
+//         pw.SizedBox(height: 10),
+
+//         // PATIENT INFO
+//         pw.Text("Patient Information",
+//             style: pw.TextStyle(
+//                 fontSize: 18, fontWeight: pw.FontWeight.bold)),
+//         pw.SizedBox(height: 5),
+//         pw.Text("Patient Name: $name"),
+//         pw.Text("Age: $age"),
+//         pw.Text("Gender: $gender"),
+//         pw.SizedBox(height: 10),
+
+//         _section("Key Complaints", complaints),
+//         _section("Examination", exam),
+//         _section("Diagnostics", diagnosis),
+//         _section("Remarks", remarks),
+//         _section("Next Follow Up Date", nextDate),
+
+//         pw.SizedBox(height: 20),
+
+//         // MEDICINE TABLE
+//         pw.Text("Prescribed Medicines:",
+//             style: pw.TextStyle(
+//                 fontSize: 18, fontWeight: pw.FontWeight.bold)),
+//         pw.SizedBox(height: 10),
+
+//         _prescriptions.isEmpty
+//             ? pw.Text("No medicines added.")
+//             : pw.Table(
+//                 border: pw.TableBorder.all(),
+//                 columnWidths: {
+//                   0: pw.FixedColumnWidth(90),
+//                   1: pw.FixedColumnWidth(70),
+//                   2: pw.FixedColumnWidth(90),
+//                   3: pw.FixedColumnWidth(60),
+//                   4: pw.FixedColumnWidth(70),
+//                   5: pw.FixedColumnWidth(70),
+//                 },
+//                 children: [
+//                   pw.TableRow(
+//                     decoration: pw.BoxDecoration(color: PdfColors.grey300),
+//                     children: [
+//                       _cellHeader("Medicine"),
+//                       _cellHeader("Freq."),
+//                       _cellHeader("Consumption"),
+//                       _cellHeader("Duration"),
+//                       _cellHeader("Date"),
+//                       _cellHeader("Remarks"),
+//                     ],
+//                   ),
+
+//                   ..._prescriptions.map((med) {
+//                     final istablet = med.isTablet;
+//                     final unit = _unitForType(med.medicineType.toString());
+//                     final doseValue = med.drugUnit?.toString() ?? "";
+//                     final unitValue = (med.medicineType == "Ointment" ||
+//                             med.medicineType == "Others")
+//                         ? ""
+//                         : unit;
+
+//                     final consumption = istablet
+//                         ? (med.isBeforeFood ? "Before Food" : "After Food")
+//                         : "NA";
+
+//                     return pw.TableRow(
+//                       children: [
+//                         _cell(
+//                             "${med.medicineType} ${med.drugName} $doseValue $unitValue"),
+//                         _cell(med.toBitList(4).join(" - ")),
+//                         _cell(consumption),
+//                         _cell(
+//                             "${med.followupDuration} ${med.inDays ? 'Days' : 'Months'}"),
+//                         _cell(DateFormat('dd/MM/yyyy')
+//                             .format(med.followupdate)),
+//                         _cell(med.remarks),
+//                       ],
+//                     );
+//                   }),
+//                 ],
+//               ),
+//       ],
+//     ),
+//   );
+
+//   final pdfBytes = await pdf.save();
+//   await LicenseApiService.incrementPrescriptionCount();
+
+//   if (!mounted) return;
+
+//   Navigator.push(
+//     context,
+//     MaterialPageRoute(
+//       builder: (_) => PrintPreviewScreen(pdfBytes: pdfBytes),
+//     ),
+//   );
+
+//   setState(() => _isLoading = false);
+// }
+
+//Generate pdf 
+void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
+  setState(() => _isLoading = true);
+
+  final p = _patientInfoKey.currentState!;
+  final pdf = pw.Document();
+
+  // Load Unicode-safe fonts
+  final fontRegular = pw.Font.ttf(await rootBundle.load("assets/fonts/Roboto-Regular.ttf"));
+  final fontBold = pw.Font.ttf(await rootBundle.load("assets/fonts/Roboto-Bold.ttf"));
+
+  final theme = pw.ThemeData.withFont(
+    base: fontRegular,
+    bold: fontBold,
+  );
+
+  final name = p.tabNameController.text;
+  final age = p.ageController.text;
+  final gender = p.gender.value;
+  final complaints = p.keyComplaintcontroller.text;
+  final exam = p.examinationcontroller.text;
+  final diagnosis = p.diagnoscontroller.text;
+  final remarks = p.remarkscontroller.text;
+  final nextDate = p.followupDatecontroller.text;
+
+  final formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+
+  pdf.addPage(
+    pw.MultiPage(
+      theme: theme,
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.all(24),
+
+      // ---------------------------------------------------------
+      // HEADER (NO DATE here, ever)
+      // ---------------------------------------------------------
+      header: (context) {
+        if (!_printLetterhead) {
+          // No letterhead → but keep spacing + divider
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              // ----------------------------------------------------
-              //  Letterhead
-              // ----------------------------------------------------
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text("Dr. ${doctorInfo.name}",
-                          style: pw.TextStyle(
-                              fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                      pw.Text(doctorInfo.specialization),
-                      pw.Text(doctorInfo.clinicAddress),
-                      pw.Text("Contact: ${doctorInfo.contact}"),
-                    ],
-                  ),
-                  if (_doctorLogo != null)
-                    pw.Container(
-                      width: 60,
-                      height: 60,
-                      child: pw.Image(pw.MemoryImage(_doctorLogo!)),
-                    )
-                ],
-              ),
-              pw.SizedBox(height: 10),
+              pw.SizedBox(height: 100),
               pw.Divider(),
-
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.end,
-                children: [
-                  pw.Text("Date: $formattedDate"),
-                ],
-              ),
-              pw.SizedBox(height: 10),
-
-              // ----------------------------------------------------
-              //  PATIENT INFO
-              // ----------------------------------------------------
-              pw.Text("Patient Information",
-                  style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-              pw.Text("Patient Name: $name"),
-              pw.Text("Age: $age"),
-              pw.Text("Gender: $gender"),
-              pw.SizedBox(height: 10),
-
-              _section("Key Complaints", complaints),
-              _section("Examination", exam),
-              _section("Diagnostics", diagnosis),
-              _section("Remarks", remarks),
-              _section("Next Follow Up Date", nextDate),
-
-              pw.SizedBox(height: 20),
-
-              // ----------------------------------------------------
-              //  MEDICINE TABLE
-              // ----------------------------------------------------
-              pw.Text("Prescribed Medicines:",
-                  style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 10),
-
-              _prescriptions.isEmpty
-                  ? pw.Text("No medicines added.")
-                  : pw.Table(
-                      border: pw.TableBorder.all(),
-                      columnWidths: {
-        0: pw.FixedColumnWidth(90),   // Medicine
-        1: pw.FixedColumnWidth(70),   // Frequency
-        2: pw.FixedColumnWidth(90),   // Consumption Pattern
-        3: pw.FixedColumnWidth(60),   // Duration
-        4: pw.FixedColumnWidth(70),   // Dosage Till Date
-        5: pw.FixedColumnWidth(70),   // Remarks
-      },
-                      children: [
-                        pw.TableRow(
-                          decoration: pw.BoxDecoration(color: PdfColors.grey300),
-                          children: [
-                            _cellHeader("Medicine"),
-                            _cellHeader("Frequency"),
-                            _cellHeader("Consumption "),
-                            _cellHeader("Duration"),
-                            _cellHeader("Dosage Till Date "),
-                            _cellHeader("Remarks"),
-                          ],
-                        ),
-                        ..._prescriptions.map((med) {
-
-                          late bool istabletType;
-                          late String unitofmeasure;
-                          late String? medicinetype;
-
-                          istabletType =med.isTablet ;
-                          unitofmeasure = _unitForType(med.medicineType.toString());  //istabletType ? 'mg' : 'ml';
-                          medicinetype = med.medicineType; //istabletType ? 'Tab' : 'Syrup';
-
-                          if (istabletType)
-                          {
-                            displayConsumption =  "${med.isBeforeFood ? 'Before Food' : 'After Food'}  ";
-                                
-                          }
-                          else
-                          {
-                            displayConsumption =  "NA";
-                          }
-
-                          return pw.TableRow(
-                            children: [
-                              _cell(medicinetype.toString() + ' ' + med.drugName + ' ' + med.drugUnit.toString() + ' '+ unitofmeasure ),
-                              _cell(med.toBitList(4).join(" - ")),
-                              //_cell(med.isBeforeFood ? "Before Food" : "After Food"),
-                              _cell (displayConsumption),
-                              _cell("${med.followupDuration} ${med.inDays ? 'Days' : 'Months'}"),
-                              _cell(DateFormat('dd/MM/yyyy').format(med.followupdate) ),
-                              _cell(med.remarks),
-                            ],
-                          );
-                        })
-                      ],
-                    ),
-
-              //pw.SizedBox(height: 30),
-              //footer
-              pw.Spacer(),
-              pw.Align(
-                alignment: pw.Alignment.centerRight,
-                child: pw.Text("Signature"),
-              ),
-               pw.Divider(),
             ],
           );
-        },
-      ),
-    );
+        }
 
-    final pdfBytes = await pdf.save();
-    await LicenseApiService.incrementPrescriptionCount();
+        // Letterhead enabled
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      "Dr. ${doctorInfo.name}",
+                      style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
+                    ),
+                    pw.SizedBox(height: 2),
+                    pw.Text(doctorInfo.specialization),
+                    pw.Text(doctorInfo.clinicAddress),
+                    pw.Text("Contact: ${doctorInfo.contact}"),
+                  ],
+                ),
+                if (_doctorLogo != null)
+                  pw.Container(
+                    width: 60,
+                    height: 60,
+                    child: pw.Image(pw.MemoryImage(_doctorLogo!)),
+                  ),
+              ],
+            ),
+            pw.SizedBox(height: 10),
+            pw.Divider(),
+          ],
+        );
+      },
 
-    if (!mounted) return;
+      // ---------------------------------------------------------
+      // FOOTER (only last page)
+      // ---------------------------------------------------------
+      footer: (context) => context.pageNumber == context.pagesCount
+          ? pw.Column(children: [
+              pw.Divider(),
+              pw.Align(
+                alignment: pw.Alignment.centerRight,
+                child: pw.Text(
+                  "Signature",
+                  style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+                ),
+              ),
+            ])
+          : pw.SizedBox(),
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PrintPreviewScreen(pdfBytes: pdfBytes),
-      ),
-    );
+      // ---------------------------------------------------------
+      // PAGE BODY (Date goes here)
+      // ---------------------------------------------------------
+      build: (context) => [
+        // Print date ONLY here (never in header)
+        pw.Align(
+          alignment: pw.Alignment.centerRight,
+          child: pw.Text(
+            "Date: $formattedDate",
+            style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+          ),
+        ),
 
-    setState(() => _isLoading = false);
-  }
+        pw.SizedBox(height: 20),
+
+        // PATIENT INFO
+        pw.Text(
+          "Patient Information",
+          style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
+        ),
+        pw.SizedBox(height: 5),
+        pw.Text("Patient Name: $name"),
+        pw.Text("Age: $age"),
+        pw.Text("Gender: $gender"),
+        pw.SizedBox(height: 10),
+
+        _section("Key Complaints", complaints),
+        _section("Examination", exam),
+        _section("Diagnostics", diagnosis),
+        _section("Remarks", remarks),
+        _section("Next Follow Up Date", nextDate),
+
+        pw.SizedBox(height: 20),
+
+        // MEDICINE TABLE
+        pw.Text("Prescribed Medicines",
+            style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+        pw.SizedBox(height: 10),
+
+        _prescriptions.isEmpty
+            ? pw.Text("No medicines added.")
+            : pw.Table(
+                border: pw.TableBorder.all(),
+                columnWidths: {
+                  0: pw.FixedColumnWidth(100),
+                  1: pw.FixedColumnWidth(70),
+                  2: pw.FixedColumnWidth(80),
+                  3: pw.FixedColumnWidth(60),
+                  4: pw.FixedColumnWidth(70),
+                  5: pw.FixedColumnWidth(70),
+                },
+                children: [
+                  pw.TableRow(
+                    decoration: pw.BoxDecoration(color: PdfColors.grey300),
+                    children: [
+                      _cellHeader("Medicine"),
+                      _cellHeader("Freq."),
+                      _cellHeader("Consumption"),
+                      _cellHeader("Duration"),
+                      _cellHeader("Date"),
+                      _cellHeader("Remarks"),
+                    ],
+                  ),
+
+                  ..._prescriptions.map((med) {
+                    final isTablet = med.isTablet;
+                    final unit = _unitForType(med.medicineType.toString());
+                    final doseValue = med.drugUnit?.toString() ?? "";
+                    final unitValue =
+                        (med.medicineType == "Ointment" || med.medicineType == "Others")
+                            ? ""
+                            : unit;
+
+                    final consumption =
+                        isTablet ? (med.isBeforeFood ? "Before Food" : "After Food") : "NA";
+
+                    return pw.TableRow(
+                      children: [
+                        _cell("${med.medicineType} ${med.drugName} $doseValue $unitValue"),
+                        _cell(med.toBitList(4).join(" - ")),
+                        _cell(consumption),
+                        _cell("${med.followupDuration} ${med.inDays ? 'Days' : 'Months'}"),
+                        _cell(DateFormat('dd/MM/yyyy').format(med.followupdate)),
+                        _cell(med.remarks),
+                      ],
+                    );
+                  }),
+                ],
+              ),
+      ],
+    ),
+  );
+
+  // Save and show preview
+  final pdfBytes = await pdf.save();
+  await LicenseApiService.incrementPrescriptionCount();
+
+  if (!mounted) return;
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => PrintPreviewScreen(pdfBytes: pdfBytes),
+    ),
+  );
+
+  setState(() => _isLoading = false);
+}
+
 
   pw.Widget _section(String title, String value) {
     if (value.trim().isEmpty) return pw.SizedBox();
@@ -1598,7 +1830,7 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
         
         final med = _prescriptions[i];
         istabletType =med.isTablet ;
-        unitofmeasure = istabletType ? 'mg' : 'ml';
+        unitofmeasure =  _unitForType(med.medicineType.toString());//istabletType ? 'mg' : 'ml';
         medicinetype = med.medicineType; //istabletType ? 'Tablet' : 'Syrup';
         if (istabletType)
         {
@@ -1612,11 +1844,18 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
               
               "${med.toBitList(4).join(" - ")}";
         }
+
+         late String doseValue = (med.drugUnit?.toString() ?? "");
+         late String unitValue = med.medicineType == "Ointment" || med.medicineType == "Others"
+                            ? ""
+                            : (unitofmeasure);
+
+
         return Card(
           elevation: 4,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: ListTile(
-            title: Text(medicinetype.toString() + ' ' + med.drugName + ' ' +  med.drugUnit.toString() + unitofmeasure ?? ""),
+            title: Text(medicinetype.toString() + ' ' + med.drugName + ' ' +  doseValue +  ' ' +  unitValue),
             subtitle: Text(
               displayConsumption,
             ),

@@ -20,7 +20,7 @@ class Prescriptiondata extends ChangeNotifier {
     this.isMeasuredInMg = true,
     this.drugUnit ,
     this.freqBitField = 0,
-    this.isBeforeFood = true,
+    this.isBeforeFood = false,
     this.inDays = true,
     this.followupDuration ,
     DateTime? followupdate,
