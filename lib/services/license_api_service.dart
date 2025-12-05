@@ -245,19 +245,52 @@ static Future<int?> incrementPrescriptionCount() async {
 
   
 
-/// ✅ Update doctor info
+// /// ✅ Update doctor info
+// static Future<bool> updateDoctorOnServer(DoctorInfo info) async {
+//   print ("Before calling _authenticatedPut");
+//   final response = await _authenticatedPut(
+//     "$baseUrl/api/doctor/update",
+//     info.toJson(),
+//   );
+//   print ("after calling _authenticatedPut");
+  
+//   final prefs = await SharedPreferences.getInstance();
+//   final doctorData = await fetchDoctorProfile();
+  
+//   if (doctorData != null) {
+    
+//      await prefs.setString("doctor_profile", jsonEncode(doctorData["doctor"]));
+//   }
+  
+//   return response.statusCode == 200;
+// }
+
 static Future<bool> updateDoctorOnServer(DoctorInfo info) async {
-  final response = await _authenticatedPut(
-    "$baseUrl/api/doctor/update",
-    info.toJson(),
-  );
+  
+
+  http.Response? response;
+
+  try {
+    response = await _authenticatedPut(
+      "$baseUrl/api/doctor/update",
+      info.toJson(),
+    );
+  } catch (e, s) {
+    print("🔥 ERROR inside _authenticatedPut:");
+    print(e);
+    print(s);
+    return false;
+  }
+
+  
+
   final prefs = await SharedPreferences.getInstance();
   final doctorData = await fetchDoctorProfile();
-  
+
   if (doctorData != null) {
-    
-     await prefs.setString("doctor_profile", jsonEncode(doctorData["doctor"]));
+    await prefs.setString("doctor_profile", jsonEncode(doctorData["doctor"]));
   }
+
   return response.statusCode == 200;
 }
 

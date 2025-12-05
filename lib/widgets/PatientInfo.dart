@@ -394,7 +394,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Patientinfo extends StatefulWidget {
-  const Patientinfo({super.key});
+  final GlobalKey<FormFieldState<String>> nameFieldKey;
+  final GlobalKey<FormFieldState<String>> ageFieldKey;
+  
+  
+  const Patientinfo({ Key? key,
+                      required this.nameFieldKey,
+                      required this.ageFieldKey,
+                    }):super(key: key);
 
   @override
   PatientinfoState createState() => PatientinfoState();
@@ -494,6 +501,7 @@ class PatientinfoState extends State<Patientinfo>
         // NAME FIELD
         // ==============================
         TextFormField(
+          key: widget.nameFieldKey,
           controller: tabNameController,
           decoration: const InputDecoration(
             labelText: "Enter patient name",
@@ -510,6 +518,7 @@ class PatientinfoState extends State<Patientinfo>
         // AGE FIELD
         // ==============================
         TextFormField(
+          key: widget.ageFieldKey,
           controller: ageController,
           keyboardType: TextInputType.number,
           decoration: const InputDecoration(

@@ -1188,6 +1188,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:docautomations/common/appcolors.dart';
+import 'package:docautomations/common/common_widgets.dart';
 import 'package:docautomations/common/licenseprovider.dart';
 import 'package:docautomations/common/medicineType.dart';
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
@@ -1216,9 +1217,19 @@ class Addprescriptionscr extends StatefulWidget {
 
 class _AddprescriptionscrState extends State<Addprescriptionscr> {
   final _formKey = GlobalKey<FormState>();
+  final nameFieldKey = GlobalKey();
+  final ageFieldKey = GlobalKey();
+  final ScrollController _scrollController = ScrollController();
+
   final GlobalKey<PatientinfoState> _patientInfoKey = GlobalKey<PatientinfoState>();
+
+  // Keys for specific form fields INSIDE Patientinfo
+final GlobalKey<FormFieldState<String>> _nameFieldKey =
+    GlobalKey<FormFieldState<String>>();
+final GlobalKey<FormFieldState<String>> _ageFieldKey =
+    GlobalKey<FormFieldState<String>>();
   bool _canGeneratePdf = true;
-  final bool _printLetterhead = true;
+  bool _printLetterhead = true;
 
   bool _isLoading = false;
   bool _canGenerateNext = false;
@@ -1256,12 +1267,24 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getString("doctor_profile");
     DoctorInfo? doctor;
+     
 
-    if (stored != null) {
-      doctor = DoctorInfo.fromJson(jsonDecode(stored));
+    if (stored != null && stored.trim().isNotEmpty) {
+      try 
+      {
+      final data = jsonDecode(stored);
+      if (data is Map<String, dynamic>) {
+        doctor = DoctorInfo.fromJson(data);
+      }
+      
+      }
+      catch(e) {
+      print("❌ Corrupted doctor_profile JSON → clearing it");
+      prefs.remove("doctor_profile");
+    }
     } else {
       final apiData = await LicenseApiService.fetchDoctorProfile();
-      if (apiData != null) {
+      if (apiData != null && apiData["doctor"] != null) {
         doctor = DoctorInfo.fromJson(apiData["doctor"]);
         await prefs.setString("doctor_profile", jsonEncode(doctor.toJson()));
       }
@@ -1270,8 +1293,20 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
     if (!mounted) return;
     setState(() {
       _doctorInfo = doctor;
-      if (doctor?.logoBase64 != null && doctor!.logoBase64!.isNotEmpty) {
-        _doctorLogo = base64Decode(doctor.logoBase64!);
+      if (doctor != null) {
+      _printLetterhead = doctor.printLetterhead ?? true ;
+      
+      if (doctor.logoBase64 != null && doctor.logoBase64!.isNotEmpty) {
+       // _doctorLogo =  base64Decode(doctor.logoBase64!);
+       final base64String = doctor.logoBase64!;
+
+        // Remove prefix safely
+        final cleaned = base64String.contains(',')
+            ? base64String.split(',')[1]
+            : base64String;
+
+        _doctorLogo = base64Decode(cleaned);   // <-- Pure bytes for MemoryImage
+      }
       }
     });
   }
@@ -1287,202 +1322,6 @@ class _AddprescriptionscrState extends State<Addprescriptionscr> {
     });
   }
 
-  
-// void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
-//   setState(() => _isLoading = true);
-
-//   final p = _patientInfoKey.currentState!;
-//   final pdf = pw.Document();
-
-//   // 🔥 Load Unicode-safe font (Roboto recommended)
-//   final fontRegular = pw.Font.ttf(
-//     await rootBundle.load("assets/fonts/Roboto-Regular.ttf"),
-//   );
-//   final fontBold = pw.Font.ttf(
-//     await rootBundle.load("assets/fonts/Roboto-Bold.ttf"),
-//   );
-
-//   final theme = pw.ThemeData.withFont(
-//     base: fontRegular,
-//     bold: fontBold,
-//   );
-
-//   final name = p.tabNameController.text;
-//   final age = p.ageController.text;
-//   final gender = p.gender.value;
-//   final complaints = p.keyComplaintcontroller.text;
-//   final exam = p.examinationcontroller.text;
-//   final diagnosis = p.diagnoscontroller.text;
-//   final remarks = p.remarkscontroller.text;
-//   final nextDate = p.followupDatecontroller.text;
-
-//   final formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
-
-//   pdf.addPage(
-//     pw.MultiPage(
-//       theme: theme,
-//       pageFormat: PdfPageFormat.a4,
-//       margin: const pw.EdgeInsets.all(24),
-
-//       // --------------------------------------------------------------
-//       // HEADER (repeated on every page)
-//       // --------------------------------------------------------------
-//       header: (context) => pw.Column(
-//         crossAxisAlignment: pw.CrossAxisAlignment.start,
-//         children: [
-//           pw.Row(
-//             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-//             children: [
-//               pw.Column(
-//                 crossAxisAlignment: pw.CrossAxisAlignment.start,
-//                 children: [
-//                   pw.Text("Dr. ${doctorInfo.name}",
-//                       style: pw.TextStyle(
-//                         fontSize: 20,
-//                         fontWeight: pw.FontWeight.bold,
-//                       )),
-//                   pw.Text(doctorInfo.specialization),
-//                   pw.Text(doctorInfo.clinicAddress),
-//                   pw.Text("Contact: ${doctorInfo.contact}"),
-//                 ],
-//               ),
-//               if (_doctorLogo != null)
-//                 pw.Container(
-//                   width: 60,
-//                   height: 60,
-//                   child: pw.Image(pw.MemoryImage(_doctorLogo!)),
-//                 ),
-//             ],
-//           ),
-//           pw.SizedBox(height: 8),
-//           pw.Text("Date: $formattedDate",
-//               style: pw.TextStyle(fontSize: 12)),
-//           pw.SizedBox(height: 10),
-//           pw.Divider(),
-//         ],
-//       ),
-
-//       // --------------------------------------------------------------
-//       // FOOTER (only shows on LAST PAGE)
-//       // --------------------------------------------------------------
-//       footer: (context) => context.pageNumber == context.pagesCount
-//           ? pw.Column(
-//               children: [
-//                 pw.Divider(),
-//                 pw.Align(
-//                   alignment: pw.Alignment.centerRight,
-//                   child: pw.Text("Signature",
-//                       style: pw.TextStyle(
-//                         fontSize: 14,
-//                         fontWeight: pw.FontWeight.bold,
-//                       )),
-//                 ),
-//               ],
-//             )
-//           : pw.SizedBox(),
-
-//       // --------------------------------------------------------------
-//       // PAGE BODY
-//       // --------------------------------------------------------------
-//       build: (context) => [
-//         pw.SizedBox(height: 10),
-
-//         // PATIENT INFO
-//         pw.Text("Patient Information",
-//             style: pw.TextStyle(
-//                 fontSize: 18, fontWeight: pw.FontWeight.bold)),
-//         pw.SizedBox(height: 5),
-//         pw.Text("Patient Name: $name"),
-//         pw.Text("Age: $age"),
-//         pw.Text("Gender: $gender"),
-//         pw.SizedBox(height: 10),
-
-//         _section("Key Complaints", complaints),
-//         _section("Examination", exam),
-//         _section("Diagnostics", diagnosis),
-//         _section("Remarks", remarks),
-//         _section("Next Follow Up Date", nextDate),
-
-//         pw.SizedBox(height: 20),
-
-//         // MEDICINE TABLE
-//         pw.Text("Prescribed Medicines:",
-//             style: pw.TextStyle(
-//                 fontSize: 18, fontWeight: pw.FontWeight.bold)),
-//         pw.SizedBox(height: 10),
-
-//         _prescriptions.isEmpty
-//             ? pw.Text("No medicines added.")
-//             : pw.Table(
-//                 border: pw.TableBorder.all(),
-//                 columnWidths: {
-//                   0: pw.FixedColumnWidth(90),
-//                   1: pw.FixedColumnWidth(70),
-//                   2: pw.FixedColumnWidth(90),
-//                   3: pw.FixedColumnWidth(60),
-//                   4: pw.FixedColumnWidth(70),
-//                   5: pw.FixedColumnWidth(70),
-//                 },
-//                 children: [
-//                   pw.TableRow(
-//                     decoration: pw.BoxDecoration(color: PdfColors.grey300),
-//                     children: [
-//                       _cellHeader("Medicine"),
-//                       _cellHeader("Freq."),
-//                       _cellHeader("Consumption"),
-//                       _cellHeader("Duration"),
-//                       _cellHeader("Date"),
-//                       _cellHeader("Remarks"),
-//                     ],
-//                   ),
-
-//                   ..._prescriptions.map((med) {
-//                     final istablet = med.isTablet;
-//                     final unit = _unitForType(med.medicineType.toString());
-//                     final doseValue = med.drugUnit?.toString() ?? "";
-//                     final unitValue = (med.medicineType == "Ointment" ||
-//                             med.medicineType == "Others")
-//                         ? ""
-//                         : unit;
-
-//                     final consumption = istablet
-//                         ? (med.isBeforeFood ? "Before Food" : "After Food")
-//                         : "NA";
-
-//                     return pw.TableRow(
-//                       children: [
-//                         _cell(
-//                             "${med.medicineType} ${med.drugName} $doseValue $unitValue"),
-//                         _cell(med.toBitList(4).join(" - ")),
-//                         _cell(consumption),
-//                         _cell(
-//                             "${med.followupDuration} ${med.inDays ? 'Days' : 'Months'}"),
-//                         _cell(DateFormat('dd/MM/yyyy')
-//                             .format(med.followupdate)),
-//                         _cell(med.remarks),
-//                       ],
-//                     );
-//                   }),
-//                 ],
-//               ),
-//       ],
-//     ),
-//   );
-
-//   final pdfBytes = await pdf.save();
-//   await LicenseApiService.incrementPrescriptionCount();
-
-//   if (!mounted) return;
-
-//   Navigator.push(
-//     context,
-//     MaterialPageRoute(
-//       builder: (_) => PrintPreviewScreen(pdfBytes: pdfBytes),
-//     ),
-//   );
-
-//   setState(() => _isLoading = false);
-// }
 
 //Generate pdf 
 void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
@@ -1728,6 +1567,7 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
 
               Expanded(
                 child: SingleChildScrollView(
+                  controller: _scrollController,
                   child: _buildFormContent(),
                 ),
               ),
@@ -1778,7 +1618,9 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Patientinfo(key: _patientInfoKey),
+            Patientinfo(key: _patientInfoKey , 
+            nameFieldKey: _nameFieldKey,
+            ageFieldKey: _ageFieldKey,),
 
             const SizedBox(height: 20),
             _buildAddMedicineButton(),
@@ -1887,12 +1729,26 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
           backgroundColor: _canGeneratePdf ? Colors.blue : Colors.grey,
         ),
         onPressed: _canGeneratePdf
-            ? () {
-                if (_formKey.currentState!.validate() &&
-                    _doctorInfo != null) {
-                  generatePrescriptionPdf(_doctorInfo!);
-                  setState(() => _canGenerateNext = true);
-                }
+            ? () async{
+                    final isValid = _formKey.currentState!.validate();
+
+                    if (!isValid) {
+                       await _scrollToFirstError();
+                      return;
+                    }
+
+                    
+
+                    if (_doctorInfo != null) {
+                      generatePrescriptionPdf(_doctorInfo!);
+                      setState(() => _canGenerateNext = true);
+                    }
+
+                // if (_formKey.currentState!.validate() &&
+                //     _doctorInfo != null) {
+                //   generatePrescriptionPdf(_doctorInfo!);
+                //   setState(() => _canGenerateNext = true);
+                // }
               }
             : null,
         icon: const Icon(Icons.picture_as_pdf),
@@ -1958,6 +1814,37 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
       setState(() => _prescriptions.removeAt(index));
     }
   }
+
+ Future<void> _scrollToFirstError() async {
+  // Let Flutter paint the error messages first
+  await Future.delayed(const Duration(milliseconds: 100));
+
+  // Fields in the order you want to check
+  final fieldKeys = <GlobalKey<FormFieldState<String>>>[
+    _nameFieldKey,
+    _ageFieldKey,
+    
+  ];
+
+  for (final key in fieldKeys) {
+    final state = key.currentState;
+    final context = key.currentContext;
+
+    if (state != null && state.hasError && context != null) {
+      await Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: 0.3, // keeps field slightly below top
+      );
+      return;
+    }
+  }
+}
+
+
+
+
 }
 
   // Widget _buildGeneratePdfButton() {

@@ -289,6 +289,53 @@ class _DoctorMasterScrState extends State<DoctorMasterScr> {
     super.dispose();
   }
 
+// Future<void> _pickImage() async {
+//   final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+//   if (picked != null) {
+//     // -------------------------------
+//     // 1. EXTENSION VALIDATION
+//     // -------------------------------
+//     final extension = picked.name.split('.').last.toLowerCase();
+
+//     const allowedExtensions = ['png', 'jpg', 'jpeg', 'webp'];
+
+//     if (!allowedExtensions.contains(extension)) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text("Only PNG, JPG, JPEG, WEBP formats are allowed"),
+//           backgroundColor: Colors.red,
+//         ),
+//       );
+//       return;
+//     }
+
+//     // -------------------------------
+//     // 2. SIZE VALIDATION (≤ 200 KB)
+//     // -------------------------------
+//     final sizeInBytes = await picked.length();
+//     const maxSize = 200 * 1024; // 200 KB
+
+//     if (sizeInBytes > maxSize) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text("Logo must be less than 200 KB"),
+//           backgroundColor: Colors.red,
+//         ),
+//       );
+//       return;
+//     }
+
+//     // -------------------------------
+//     // 3. Convert to Base64
+//     // -------------------------------
+//     final bytes = await picked.readAsBytes();
+//     setState(() {
+//       _logoBase64 = base64Encode(bytes);
+//     });
+//   }
+// }
+
 Future<void> _pickImage() async {
   final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
 
@@ -327,14 +374,30 @@ Future<void> _pickImage() async {
     }
 
     // -------------------------------
-    // 3. Convert to Base64
+    // 3. Convert to Base64 WITH MIME PREFIX
     // -------------------------------
     final bytes = await picked.readAsBytes();
+    final rawBase64 = base64Encode(bytes);
+
+    // Detect image type -> build correct prefix
+    String mimeType;
+    if (extension == "png") {
+      mimeType = "image/png";
+    } else if (extension == "webp") {
+      mimeType = "image/webp";
+    } else {
+      mimeType = "image/jpeg"; // default for jpg / jpeg
+    }
+
+    // FINAL Base64 string expected by backend
+    final fullBase64 = "data:$mimeType;base64,$rawBase64";
+
     setState(() {
-      _logoBase64 = base64Encode(bytes);
+      _logoBase64 = fullBase64;
     });
   }
 }
+
 
 
   Future<void> _submit() async {
