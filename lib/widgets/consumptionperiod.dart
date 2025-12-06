@@ -273,7 +273,9 @@ import 'package:docautomations/validationhandling/validator.dart';
 class ConsumptionPeriod extends StatefulWidget {
   final Prescriptiondata prescriptionData;
 
-  const ConsumptionPeriod({super.key, required this.prescriptionData});
+  final GlobalKey<FormFieldState<String>> durationFieldKey;
+
+  const ConsumptionPeriod({super.key, required this.durationFieldKey, required this.prescriptionData});
 
   @override
   State<ConsumptionPeriod> createState() => ConsumptionPeriodState();
@@ -446,6 +448,7 @@ DateTime addMonthsSafe(DateTime date, int monthsToAdd) {
           const SizedBox(height: 6),
 
           TextFormField(
+            key: widget.durationFieldKey,
             controller: durationController,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(

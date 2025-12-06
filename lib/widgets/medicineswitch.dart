@@ -222,8 +222,12 @@ import 'package:docautomations/validationhandling/validator.dart';
 
 class MedicineSwitch extends StatefulWidget {
   final Prescriptiondata prescription;
+  //final GlobalKey medicinenameKey ;
+  final GlobalKey<FormFieldState<String>> medicinenameKey;
+  final GlobalKey<FormFieldState<String>> dosageFieldKey;
+  const MedicineSwitch({required this.medicinenameKey,  required this.dosageFieldKey,  required this.prescription ,super.key,});
 
-  const MedicineSwitch({super.key, required this.prescription});
+  //const MedicineSwitch({required this.medicinenameKey,  required this.dosageFieldKey,  required this.prescription ,Key? key,}): super(key: key);
 
   @override
   State<MedicineSwitch> createState() => MedicineSwitchState();
@@ -370,23 +374,24 @@ class MedicineSwitchState extends State<MedicineSwitch> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Select Medicine Type",
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 12),
+          // const Text(
+          //   "Select Medicine Type",
+          //   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          // ),
+          //const SizedBox(height: 12),
 
           /// Medicine type selection buttons
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: types.map((t) => _typeOptionTile(t)).toList(),
-          ),
-
+          // Wrap(
+          //   spacing: 6,
+          //   runSpacing: 6,
+          //   children: types.map((t) => _typeOptionTile(t)).toList(),
+          // ),
+          _buildMedicineTypeSelector(),
           const SizedBox(height: 20),
 
           /// Medicine Name
           TextFormField(
+            key:widget.medicinenameKey,
             controller: tabNameController,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -407,6 +412,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
 
                 Expanded(
                   child: TextFormField(
+                    key: widget.dosageFieldKey,
                     controller: doseController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
@@ -441,4 +447,82 @@ class MedicineSwitchState extends State<MedicineSwitch> {
       ),
     );
   }
+
+
+  Widget _buildMedicineTypeSelector() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        "Medicine Type",
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      ),
+      const SizedBox(height: 10),
+
+      GridView.count(
+        crossAxisCount: 4,              // ⭐️ 4 per row
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+
+        children: types.map((type) {
+          final bool isSelected =
+              widget.prescription.medicineType == type.name;
+
+          return GestureDetector(
+            onTap:  ()=>_selectType(type.name),
+ 
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: isSelected
+                    ? Colors.lightBlue.shade900
+                    : Colors.grey.shade200,
+                border: Border.all(
+                  color: isSelected
+                      ? Colors.lightBlue.shade900
+                      : Colors.grey.shade400,
+                  width: 1.5,
+                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: Colors.blue.shade900.withOpacity(0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        )
+                      ]
+                    : [],
+              ),
+
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    type.icon,
+                    size: 26,
+                    color: isSelected ? Colors.white : Colors.black87,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    type.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                      color: isSelected ? Colors.white : Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                ],
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    ],
+  );
+}
+
 }

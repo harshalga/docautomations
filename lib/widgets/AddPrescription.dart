@@ -61,6 +61,16 @@ class AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
 
   final GlobalKey<MedicineSwitchState> _MedicineSwitchKey = GlobalKey<MedicineSwitchState>();
   final GlobalKey<FrequencyWidgetState> _frequencyKey = GlobalKey<FrequencyWidgetState>();
+  //final medicinenameKey = GlobalKey();
+  // Keys for specific form fields INSIDE Patientinfo
+  final GlobalKey<FormFieldState<String>> _medicinenameKey =
+      GlobalKey<FormFieldState<String>>();
+      final GlobalKey<FormFieldState<String>> _dosageFieldKey =
+    GlobalKey<FormFieldState<String>>();
+      final GlobalKey<FormFieldState<bool>> _freqFieldKey =
+    GlobalKey<FormFieldState<bool>>();
+    final GlobalKey<FormFieldState<String>> _durationFieldKey =
+    GlobalKey<FormFieldState<String>>();
 
   static const descTextStyle = TextStyle(
     color: Colors.black,
@@ -96,27 +106,34 @@ class AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
               style: descTextStyle,
               child: Column(
                 children: [
-                  MedicineSwitch(key: _MedicineSwitchKey, prescription: _prescription),
+                  MedicineSwitch(key:_MedicineSwitchKey, medicinenameKey: _medicinenameKey,
+                   dosageFieldKey: _dosageFieldKey ,  prescription: _prescription),
                   const SizedBox(height: 10),
-                  FrequencyWidget(key: _frequencyKey, prescription: _prescription),
+                  FrequencyWidget(key: _frequencyKey , freqFieldKey: _freqFieldKey, prescription: _prescription),
                   const SizedBox(height: 10),
                   ConsumptionPattern(prescription: _prescription),
                   const SizedBox(height: 10),
-                  ConsumptionPeriod(prescriptionData: _prescription),
+                  ConsumptionPeriod( durationFieldKey: _durationFieldKey, prescriptionData: _prescription),
                   const SizedBox(height: 10),
                   Instructions(prescriptionData: _prescription),
                   const SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.all(8),
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async  {
                         // Step 1: Validate form fields
                         final isFormValid = _formKey.currentState!.validate();
-  
+                        
                         // Step 2: Validate frequency selection
-                        final isFrequencyValid = _frequencyKey.currentState?.validateFrequencySelection() ?? false;
+                        //final isFrequencyValid = _frequencyKey.currentState?.validateFrequencySelection() ?? false;
+                        //if (!isFormValid || !isFrequencyValid ) {
+                        if (!isFormValid  ) {
+                            await _scrollToFirstError();
+                            return;
+                         }
 
-                          if (isFormValid && isFrequencyValid) {
+                          //if (isFormValid && isFrequencyValid) {
+                          if (isFormValid ) {
                             Navigator.pop(context, _prescription);
                           }
                       },
@@ -131,4 +148,36 @@ class AddPrescriptionScreenState extends State<AddPrescriptionScreen> {
       ),
     );
   }
+
+  Future<void> _scrollToFirstError() async {
+  // Let Flutter paint the error messages first
+  await Future.delayed(const Duration(milliseconds: 100));
+
+  // Fields in the order you want to check
+  //final fieldKeys = <GlobalKey<FormFieldState<String>>>[
+    final fieldKeys = <GlobalKey>[
+    _medicinenameKey,
+    _dosageFieldKey,
+    _freqFieldKey,
+    _durationFieldKey,
+    
+  ];
+
+  for (final key in fieldKeys) {
+    final state = key.currentState;
+    final context = key.currentContext;
+
+    //if (state != null && state.hasError && context != null) {
+    if (state is FormFieldState && state.hasError && context != null) {
+      await Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: 0.3, // keeps field slightly below top
+      );
+      return;
+    }
+  }
+}
+
 }
