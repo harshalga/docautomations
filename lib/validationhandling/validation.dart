@@ -86,6 +86,55 @@ class PeriodbasedValidation extends Validation<String>
     } 
   }}
 
+  class DosageValidation extends Validation<String> {
+  final String medicineType;
+
+  DosageValidation(this.medicineType);
+
+  @override
+  String? validate(BuildContext context, String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "Please enter dosage";
+    }
+
+    final num? dose = num.tryParse(value);
+    if (dose == null) return "Enter a valid number";
+
+    switch (medicineType) {
+      case "Tablet":
+      case "Capsule":
+        if (dose < 1 || dose > 2000) {
+          return "Tablet dosage must be between 1–2000 mg";
+        }
+        break;
+
+      case "Syrup":
+        if (dose < 1 || dose > 50) {
+          return "Syrup dosage must be between 1–50 ml";
+        }
+        break;
+
+      case "Drops":
+        if (dose < 1 || dose > 10) {
+          return "Drops must be between 1–10";
+        }
+        break;
+
+      case "Inhalation":
+        if (dose < 1 || dose > 10) {
+          return "Puffs must be between 1–10";
+        }
+        break;
+
+      default:
+        return null; // Ointment / Others → No dosage
+    }
+
+    return null;
+  }
+}
+
+
 class AgeValidation  extends Validation<String> {
   const AgeValidation ();
 
@@ -116,6 +165,27 @@ class NumericValidation extends Validation<String> {
     return null;
   }
 }
+
+/// A validation that checks if the value is a strict valid double.
+/// Only integers or proper decimals allowed (e.g., 12 or 12.34).
+class DoubleValidation extends Validation<String> {
+  const DoubleValidation();
+
+  @override
+  String? validate(BuildContext context, String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+
+    // Strict pattern: at least one digit, optional decimal with digits
+    final strictDoubleRegex = RegExp(r'^\d+(\.\d+)?$');
+
+    if (!strictDoubleRegex.hasMatch(value)) {
+      return 'Please enter a valid number (e.g., 12 or 12.5)';
+    }
+
+    return null;
+  }
+}
+
 
 /// a validation that checks if the value is a valid email.
 class EmailValidation extends Validation<String> {

@@ -219,6 +219,7 @@ import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:flutter/material.dart';
 import 'package:docautomations/validationhandling/validation.dart';
 import 'package:docautomations/validationhandling/validator.dart';
+import 'package:flutter/services.dart';
 
 class MedicineSwitch extends StatefulWidget {
   final Prescriptiondata prescription;
@@ -262,7 +263,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
     // Update prescription model
     widget.prescription.medicineType = selectedType;
 
-    tabNameController.text = widget.prescription.drugName ?? "";
+    tabNameController.text = widget.prescription.drugName ;
     doseController.text = widget.prescription.drugUnit?.toString() ?? "";
   }
 
@@ -302,7 +303,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
       widget.prescription.drugUnit =
           doseController.text.isEmpty
               ? null
-              : int.tryParse(doseController.text);
+              : double.tryParse(doseController.text);
     }
     });
   }
@@ -393,6 +394,8 @@ class MedicineSwitchState extends State<MedicineSwitch> {
           TextFormField(
             key:widget.medicinenameKey,
             controller: tabNameController,
+            maxLength: 50,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               labelText: "Enter $selectedType Name",
@@ -423,11 +426,11 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                     ),
                     onChanged: (val) {
                       widget.prescription.drugUnit =
-                          val.isEmpty ? null : int.tryParse(val);
+                          val.isEmpty ? null : double.tryParse(val);
                     },
                     validator: Validator.apply(
                       context,
-                      const [RequiredValidation(), NumericValidation()],
+                       [RequiredValidation(), DoubleValidation(), DosageValidation(selectedType)],
                     ),
                   ),
                 ),

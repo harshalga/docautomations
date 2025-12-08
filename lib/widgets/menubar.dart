@@ -14,6 +14,11 @@ class Menubar extends StatefulWidget {
 
   const Menubar({super.key, required this.body,required this.onLogout});
 
+ // ⭐ ADD THIS
+  static _MenubarState? of(BuildContext context) {
+    return context.findAncestorStateOfType<_MenubarState>();
+  }
+
   @override
   State<Menubar> createState() => _MenubarState();
 }
@@ -28,6 +33,13 @@ String doctorName = ""; // store doctor name here
     _loadDoctorInfo(); // load on widget creation
      currentBody = widget.body; // 👈 start with the body passed from AppEntryPoint
   }
+
+  void changeScreen(Widget screen) {
+  setState(() {
+    currentBody = screen;
+  });
+}
+
   Future<void> _loadDoctorInfo() async {
     final prefs = await SharedPreferences.getInstance();
     final name = prefs.getString('doctor_name') ?? "Dr. Prescriptor";

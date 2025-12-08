@@ -5,7 +5,7 @@ class Prescriptiondata extends ChangeNotifier {
   bool isTablet;
   String drugName;
   bool isMeasuredInMg;
-  int? drugUnit;
+  double? drugUnit;
   int freqBitField;
   bool isBeforeFood;
   bool inDays;
@@ -62,7 +62,7 @@ void updateDrugName(String value) {
     notifyListeners();
   }
 
-  void updateDrugUnit(int value) {
+  void updateDrugUnit(double value) {
     drugUnit = value;
     notifyListeners();
   }

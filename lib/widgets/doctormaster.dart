@@ -193,9 +193,9 @@ Future<void> _handleUpdated(DoctorInfo updated) async {
       _doctorInfo = updated;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Doctor updated successfully.")),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(content: Text("Doctor updated successfully.")),
+    // );
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Update failed: $e")),

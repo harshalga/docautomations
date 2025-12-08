@@ -391,6 +391,7 @@
 import 'package:docautomations/validationhandling/validation.dart';
 import 'package:docautomations/validationhandling/validator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class Patientinfo extends StatefulWidget {
@@ -503,6 +504,11 @@ class PatientinfoState extends State<Patientinfo>
         TextFormField(
           key: widget.nameFieldKey,
           controller: tabNameController,
+          // inputFormatters: [
+          //   LengthLimitingTextInputFormatter(50),  // ⭐ MAX 25 CHARACTERS
+          //   ],
+          maxLength: 50,
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
           decoration: const InputDecoration(
             labelText: "Enter patient name",
             //border: OutlineInputBorder(),

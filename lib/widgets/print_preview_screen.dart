@@ -168,8 +168,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:docautomations/common/appcolors.dart';
-import 'package:docautomations/widgets/AddPrescription.dart';
-import 'package:docautomations/widgets/AddPrescriptionScr.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';

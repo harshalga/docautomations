@@ -211,7 +211,12 @@ import 'package:docautomations/common/licenseprovider.dart';
 // 🔹 import reusable loader
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
 import 'package:docautomations/commonwidget/trialbanner.dart';
+import 'package:docautomations/validationhandling/validation.dart';
+import 'package:docautomations/validationhandling/validator.dart';
+import 'package:docautomations/widgets/doctorwelcomescreen.dart';
+import 'package:docautomations/widgets/menubar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 
@@ -247,6 +252,14 @@ class _DoctorMasterScrState extends State<DoctorMasterScr> {
   late TextEditingController _clinicAddressController;
   late TextEditingController _contactController;
   late TextEditingController _loginEmailController;
+
+  final _nameKey = GlobalKey<FormFieldState>();
+  final _specKey = GlobalKey<FormFieldState>();
+  final _clinicNameKey = GlobalKey<FormFieldState>();
+  final _clinicAddressKey = GlobalKey<FormFieldState>();
+  final _contactKey = GlobalKey<FormFieldState>();
+  final _emailKey = GlobalKey<FormFieldState>();
+
 
   String? _logoBase64;
   bool _printLetterhead = true;
@@ -401,7 +414,14 @@ Future<void> _pickImage() async {
 
 
   Future<void> _submit() async {
-    if (_formKey.currentState!.validate()) {
+
+    final isValid = _formKey.currentState!.validate();
+
+  if (!isValid) {
+    await _scrollToFirstError();
+    return;
+  }
+  else  {
       setState(() => _isLoading = true); // ✅ start loader
 
       final updatedInfo = DoctorInfo(
@@ -428,11 +448,16 @@ Future<void> _pickImage() async {
       if (success) {
         final prefs = await SharedPreferences.getInstance();
   await prefs.setString("doctor_profile", jsonEncode(updatedInfo.toJson())); 
-  
+
         widget.onUpdated(updatedInfo);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Doctor info updated successfully")),
-        );
+
+       await _showSuccessPopup();  // 👈 show dialog first
+
+      
+
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(content: Text("Doctor info updated successfully")),
+        // );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Error updating doctor info")),
@@ -480,34 +505,52 @@ Future<void> _pickImage() async {
                     children: [
                       TextFormField(
                         controller: _nameController,
+                        key: _nameKey,
+                        maxLength: 50,
+                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
                         decoration:
                             const InputDecoration(labelText: 'Doctor Name'),
                         validator: (v) => v!.isEmpty ? 'Required' : null,
                       ),
                       TextFormField(
                         controller: _specController,
+                        key: _specKey,
+                        maxLength: 100,
+                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
                         decoration: const InputDecoration(labelText: 'Specialization'),
                         validator: (v) => v!.isEmpty ? 'Required' : null,
                       ),
                       TextFormField(
                         controller: _clinicNameController,
+                        key: _clinicNameKey,
+                        maxLength: 50,
+                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
                         decoration: const InputDecoration(labelText: 'Clinic Name'),
                         validator: (v) => v!.isEmpty ? 'Required' : null,
                       ),
                       TextFormField(
                         controller: _clinicAddressController,
+                         key: _clinicAddressKey,
+                        maxLength: 200,
+                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
                         decoration: const InputDecoration(labelText: 'Clinic Address'),
                         validator: (v) => v!.isEmpty ? 'Required' : null,
                       ),
                       TextFormField(
                         controller: _contactController,
+                        key: _contactKey,
+                        maxLength: 10,
+                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
                         decoration: const InputDecoration(labelText: 'Contact Details'),
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                        validator: Validator.apply(context, const [RequiredValidation(),NumericValidation()]),
                       ),
                       TextFormField(
                         controller: _loginEmailController,
+                        key: _emailKey,
+                        maxLength: 50,
+                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
                         decoration: const InputDecoration(labelText: 'Login Email'),
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                        validator: Validator.apply(context, const [RequiredValidation(),EmailValidation()]),
                       ),
                       const SizedBox(height: 12),
                       SwitchListTile(
@@ -542,5 +585,69 @@ Future<void> _pickImage() async {
     )],);
       });
   }//Build 
+
+  Future<void> _scrollToFirstError() async {
+  await Future.delayed(const Duration(milliseconds: 50));
+
+  final fields = [
+    _nameKey,
+    _specKey,
+    _clinicNameKey,
+    _clinicAddressKey,
+    _contactKey,
+    _emailKey,
+    
+  ];
+
+  for (final key in fields) {
+    final state = key.currentState;
+    final context = key.currentContext;
+
+    if (state != null && state.hasError && context != null) {
+      await Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: 0.3,
+      );
+      return;
+    }
+  }
+}
+
+Future<void> _showSuccessPopup() async {
+  await showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Text(
+        "Success",
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      content: const Text("Profile updated successfully!"),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(); // close popup ONLY
+
+            final menuState = Menubar.of(context);
+
+            if (menuState != null) {
+              menuState.changeScreen(const DoctorWelcomeScreen());
+            }
+          },
+          child: const Text("OK"),
+        ),
+      ],
+    ),
+  );
+}
+
+
+
+
+
+
 }
 
