@@ -214,15 +214,20 @@ static Future<int?> incrementPrescriptionCount() async {
 
 
   /// ✅ Register doctor (no auth needed)
-  static Future<bool> registerDoctorOnServer(DoctorInfo info) async {
+  static  Future<Map<String, dynamic>> registerDoctorOnServer(DoctorInfo info) async {
+    try
+    {
+  
     final response = await http.post(
       Uri.parse('$baseUrl/api/doctor/register'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(info.toJson()),
     );
 
+final data = jsonDecode(response.body);
+
     if (response.statusCode == 201) {
-    final data = jsonDecode(response.body);
+    
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("access_token", data["accessToken"]);
@@ -233,13 +238,32 @@ static Future<int?> incrementPrescriptionCount() async {
     if (data["doctor"] != null) {
       await prefs.setString("doctor_profile", jsonEncode(data["doctor"]));
     }
-
-    return true;
+    
+}
+      String     msg = "message" ;
+      if (response.statusCode == 400)
+      {
+        msg= "error";
+      }
+      
+     
+       return {
+      "success": response.statusCode == 201,
+      "message": data[msg] ?? "Unknown error"
+    };
+  //   else {
+  //   print("❌ Registration failed: ${response.statusCode} ${response.body}");
+  //   return false;
+  // }
     }
-    else {
-    print("❌ Registration failed: ${response.statusCode} ${response.body}");
-    return false;
-  }
+    catch(e)
+    {
+      
+      return {
+      "success": false,
+      "message": "Network error. Please try again."
+    };
+    }
   }
 
 

@@ -466,125 +466,291 @@ Future<void> _pickImage() async {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {return   Consumer<LicenseProvider>(
-      builder: (context, license, child) {
-    return Stack(
-      children: [
-        Column(children: [
+  // @override
+  // Widget build(BuildContext context) {return   Consumer<LicenseProvider>(
+  //     builder: (context, license, child) {
+  //   return Stack(
+  //     children: [
+  //       Column(children: [
 
-         (!license.isSubscribed && license.isTrialActive) ?
-    TrialBanner(): SizedBox.shrink(), // 👈 Reusable banner
-        //TrialBanner(),
+  //        (!license.isSubscribed && license.isTrialActive) ?
+  //   TrialBanner(): SizedBox.shrink(), // 👈 Reusable banner
+  //       //TrialBanner(),
         
         
-        // SizedBox(
-        //   height: MediaQuery.of(context).size.height,
-          Expanded(
-          child: SingleChildScrollView(
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              margin: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(50),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
-                    blurRadius: 20,
-                    offset: Offset.zero,
+  //       // SizedBox(
+  //       //   height: MediaQuery.of(context).size.height,
+  //         Expanded(
+  //         child: SingleChildScrollView(
+  //           child: Container(
+  //             padding: const EdgeInsets.all(20),
+  //             margin: const EdgeInsets.all(20),
+  //             decoration: BoxDecoration(
+  //               color: Colors.white,
+  //               borderRadius: BorderRadius.circular(50),
+  //               boxShadow: [
+  //                 BoxShadow(
+  //                   color: AppColors.primary.withOpacity(0.3),
+  //                   blurRadius: 20,
+  //                   offset: Offset.zero,
+  //                 ),
+  //               ],
+  //             ),
+  //             child: Padding(
+  //               padding: const EdgeInsets.all(16.0),
+  //               child: Form(
+  //                 key: _formKey,
+  //                 child: Column(
+  //                   crossAxisAlignment: CrossAxisAlignment.stretch,
+  //                   children: [
+  //                     TextFormField(
+  //                       controller: _nameController,
+  //                       key: _nameKey,
+  //                       maxLength: 50,
+  //                       maxLengthEnforcement: MaxLengthEnforcement.enforced,
+  //                       decoration:
+  //                           const InputDecoration(labelText: 'Doctor Name'),
+  //                       validator: (v) => v!.isEmpty ? 'Required' : null,
+  //                     ),
+  //                     TextFormField(
+  //                       controller: _specController,
+  //                       key: _specKey,
+  //                       maxLength: 100,
+  //                       maxLengthEnforcement: MaxLengthEnforcement.enforced,
+  //                       decoration: const InputDecoration(labelText: 'Specialization'),
+  //                       validator: (v) => v!.isEmpty ? 'Required' : null,
+  //                     ),
+  //                     TextFormField(
+  //                       controller: _clinicNameController,
+  //                       key: _clinicNameKey,
+  //                       maxLength: 50,
+  //                       maxLengthEnforcement: MaxLengthEnforcement.enforced,
+  //                       decoration: const InputDecoration(labelText: 'Clinic Name'),
+  //                       validator: (v) => v!.isEmpty ? 'Required' : null,
+  //                     ),
+  //                     TextFormField(
+  //                       controller: _clinicAddressController,
+  //                        key: _clinicAddressKey,
+  //                       maxLength: 200,
+  //                       maxLengthEnforcement: MaxLengthEnforcement.enforced,
+  //                       decoration: const InputDecoration(labelText: 'Clinic Address'),
+  //                       validator: (v) => v!.isEmpty ? 'Required' : null,
+  //                     ),
+  //                     TextFormField(
+  //                       controller: _contactController,
+  //                       key: _contactKey,
+  //                       maxLength: 10,
+  //                       maxLengthEnforcement: MaxLengthEnforcement.enforced,
+  //                       decoration: const InputDecoration(labelText: 'Contact Details'),
+  //                       validator: Validator.apply(context, const [RequiredValidation(),NumericValidation()]),
+  //                     ),
+  //                     TextFormField(
+  //                       controller: _loginEmailController,
+  //                       key: _emailKey,
+  //                       maxLength: 50,
+  //                       maxLengthEnforcement: MaxLengthEnforcement.enforced,
+  //                       decoration: const InputDecoration(labelText: 'Login Email'),
+  //                       validator: Validator.apply(context, const [RequiredValidation(),EmailValidation()]),
+  //                     ),
+  //                     const SizedBox(height: 12),
+  //                     SwitchListTile(
+  //                       title: const Text("Print on Letterhead"),
+  //                       value: _printLetterhead,
+  //                       onChanged: (val) {
+  //                         setState(() => _printLetterhead = val);
+  //                       },
+  //                     ),
+  //                     ElevatedButton(
+  //                       onPressed: _pickImage,
+  //                       child: const Text("Select Logo"),
+  //                     ),
+  //                     const SizedBox(height: 10),
+  //                     displayDoctorImage(_logoBase64),
+  //                     const SizedBox(height: 20),
+  //                     ElevatedButton(
+  //                       onPressed: _isLoading ? null : _submit,
+  //                       child: const Text("Update Info"),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+
+  //       // 🔹 loader overlay
+  //       LoadingOverlay(isLoading: _isLoading, message: "Updating…"),
+  //     ],
+  //   )],);
+  //     });
+  // }//Build 
+
+  @override
+Widget build(BuildContext context) {
+  return Consumer<LicenseProvider>(
+    builder: (context, license, child) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+
+        body: Stack(
+          children: [
+            // ===========================
+            // MAIN SCROLLABLE PAGE
+            // ===========================
+            SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+
+                  // ─────────────────────────
+                  // Trial Banner (only when needed)
+                  // ─────────────────────────
+                  if (!license.isSubscribed && license.isTrialActive)
+                    TrialBanner(),
+
+                  const SizedBox(height: 10),
+
+                  // ─────────────────────────
+                  // FORM CARD
+                  // ─────────────────────────
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(50),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withOpacity(0.25),
+                          blurRadius: 18,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+
+                    child: _buildFormContent(),
                   ),
                 ],
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        key: _nameKey,
-                        maxLength: 50,
-                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                        decoration:
-                            const InputDecoration(labelText: 'Doctor Name'),
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
-                      ),
-                      TextFormField(
-                        controller: _specController,
-                        key: _specKey,
-                        maxLength: 100,
-                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                        decoration: const InputDecoration(labelText: 'Specialization'),
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
-                      ),
-                      TextFormField(
-                        controller: _clinicNameController,
-                        key: _clinicNameKey,
-                        maxLength: 50,
-                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                        decoration: const InputDecoration(labelText: 'Clinic Name'),
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
-                      ),
-                      TextFormField(
-                        controller: _clinicAddressController,
-                         key: _clinicAddressKey,
-                        maxLength: 200,
-                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                        decoration: const InputDecoration(labelText: 'Clinic Address'),
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
-                      ),
-                      TextFormField(
-                        controller: _contactController,
-                        key: _contactKey,
-                        maxLength: 10,
-                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                        decoration: const InputDecoration(labelText: 'Contact Details'),
-                        validator: Validator.apply(context, const [RequiredValidation(),NumericValidation()]),
-                      ),
-                      TextFormField(
-                        controller: _loginEmailController,
-                        key: _emailKey,
-                        maxLength: 50,
-                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                        decoration: const InputDecoration(labelText: 'Login Email'),
-                        validator: Validator.apply(context, const [RequiredValidation(),EmailValidation()]),
-                      ),
-                      const SizedBox(height: 12),
-                      SwitchListTile(
-                        title: const Text("Print on Letterhead"),
-                        value: _printLetterhead,
-                        onChanged: (val) {
-                          setState(() => _printLetterhead = val);
-                        },
-                      ),
-                      ElevatedButton(
-                        onPressed: _pickImage,
-                        child: const Text("Select Logo"),
-                      ),
-                      const SizedBox(height: 10),
-                      displayDoctorImage(_logoBase64),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _isLoading ? null : _submit,
-                        child: const Text("Update Info"),
-                      ),
-                    ],
-                  ),
+            ),
+
+            // ===========================
+            // FULL-SCREEN LOADING OVERLAY
+            // ===========================
+            if (_isLoading)
+              Positioned.fill(
+                child: LoadingOverlay(
+                  isLoading: true,
+                  message: "Updating…",
                 ),
               ),
-            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+
+Widget _buildFormContent() {
+  return Form(
+    key: _formKey,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+
+        TextFormField(
+          controller: _nameController,
+          key: _nameKey,
+          maxLength: 50,
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+          decoration: const InputDecoration(labelText: 'Doctor Name'),
+          validator: (v) => v!.isEmpty ? 'Required' : null,
+        ),
+
+        TextFormField(
+          controller: _specController,
+          key: _specKey,
+          maxLength: 100,
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+          decoration: const InputDecoration(labelText: 'Specialization'),
+          validator: (v) => v!.isEmpty ? 'Required' : null,
+        ),
+
+        TextFormField(
+          controller: _clinicNameController,
+          key: _clinicNameKey,
+          maxLength: 50,
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+          decoration: const InputDecoration(labelText: 'Clinic Name'),
+          validator: (v) => v!.isEmpty ? 'Required' : null,
+        ),
+
+        TextFormField(
+          controller: _clinicAddressController,
+          key: _clinicAddressKey,
+          maxLength: 200,
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+          decoration: const InputDecoration(labelText: 'Clinic Address'),
+          validator: (v) => v!.isEmpty ? 'Required' : null,
+        ),
+
+        TextFormField(
+          controller: _contactController,
+          key: _contactKey,
+          maxLength: 10,
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+          decoration: const InputDecoration(labelText: 'Contact Details'),
+          validator: Validator.apply(
+            context,
+            const [RequiredValidation(), NumericValidation()],
           ),
         ),
 
-        // 🔹 loader overlay
-        LoadingOverlay(isLoading: _isLoading, message: "Updating…"),
+        TextFormField(
+          controller: _loginEmailController,
+          key: _emailKey,
+          maxLength: 50,
+          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+          decoration: const InputDecoration(labelText: 'Login Email'),
+          validator: Validator.apply(
+            context,
+            const [RequiredValidation(), EmailValidation()],
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        SwitchListTile(
+          title: const Text("Print on Letterhead"),
+          value: _printLetterhead,
+          onChanged: (val) => setState(() => _printLetterhead = val),
+        ),
+
+        ElevatedButton(
+          onPressed: _pickImage,
+          child: const Text("Select Logo"),
+        ),
+
+        const SizedBox(height: 10),
+
+        displayDoctorImage(_logoBase64),
+
+        const SizedBox(height: 20),
+
+        ElevatedButton(
+          onPressed: _isLoading ? null : _submit,
+          child: const Text("Update Info"),
+        ),
       ],
-    )],);
-      });
-  }//Build 
+    ),
+  );
+}
+
+
+
 
   Future<void> _scrollToFirstError() async {
   await Future.delayed(const Duration(milliseconds: 50));

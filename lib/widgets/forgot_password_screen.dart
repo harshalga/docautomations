@@ -60,7 +60,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() => _loading = true);
     try {
       final success = await LicenseApiService().resetPassword(
-         widget.loginEmailId,
+         widget.loginEmailId.trim().toLowerCase(),
          _newPasswordController.text.trim(),
       );
 

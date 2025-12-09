@@ -191,17 +191,26 @@ Future<void> _pickImage() async {
         nextRenewalDate: null,
       );
 
-      final success = await LicenseApiService.registerDoctorOnServer(info);
+      final result = await LicenseApiService.registerDoctorOnServer(info);
 
       setState(() => _isLoading = false);
 
-      if (success) {
+      if (result["success"]) {
         widget.onRegistered(info);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error saving doctor info")),
+           SnackBar(content: Text(result["message"])),
         );
       }
+
+      //TODO:
+      //If email is taken → scroll to email field
+  if (result["message"].toString().contains("Email")) {
+    await Scrollable.ensureVisible(
+      _emailKey.currentContext!,
+      duration: const Duration(milliseconds: 500),
+    );
+  }
     }
   }
 
