@@ -42,7 +42,20 @@ final _contactKey = GlobalKey<FormFieldState>();
 final _emailKey = GlobalKey<FormFieldState>();
 final _passwordKey = GlobalKey<FormFieldState>();
 
+String? _emailServerError;
 
+
+@override
+  void initState() {
+    super.initState();
+    
+    _loginEmailController.addListener(() {
+        if (_emailServerError != null) {
+          setState(() => _emailServerError = null);
+        }
+      });
+
+  }
 
 
   String? _logoBase64;
@@ -161,7 +174,6 @@ Future<void> _pickImage() async {
 
 
 
-
   Future<void> _submit() async {
     final isValid = _formKey.currentState!.validate();
      if (!isValid) {
@@ -179,7 +191,7 @@ Future<void> _pickImage() async {
         clinicName: _clinicNameController.text,
         clinicAddress: _clinicAddressController.text,
         contact: _contactController.text,
-        loginEmail: _loginEmailController.text,
+        loginEmail: _loginEmailController.text.trim().toLowerCase() ,
         password: _passwordController.text,
         logoBase64: _logoBase64,
 
@@ -198,20 +210,39 @@ Future<void> _pickImage() async {
       if (result["success"]) {
         widget.onRegistered(info);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text(result["message"])),
-        );
-      }
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //    SnackBar(content: Text(result["message"])),
+        //);
+        // Read backend response message
+        final message = LicenseApiService.lastErrorMessage;
 
-      //TODO:
-      //If email is taken → scroll to email field
-  if (result["message"].toString().contains("Email")) {
-    await Scrollable.ensureVisible(
-      _emailKey.currentContext!,
-      duration: const Duration(milliseconds: 500),
-    );
-  }
+          if (message == "Email already registered") {
+            setState(() {
+              _emailServerError = message; // 👈 show under textbox
+            });
+            // Scroll to email field
+              await Scrollable.ensureVisible(
+                _emailKey.currentContext!,
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                alignment: 0.3,
+              );
+              return; // ⛔ stop here
+      }
+    setState(() {
+          _emailServerError = message; // fallback error
+        });
+       return;
+  //     //TODO:
+  //     //If email is taken → scroll to email field
+  // if (result["message"].toString().contains("Email")) {
+  //   await Scrollable.ensureVisible(
+  //     _emailKey.currentContext!,
+  //     duration: const Duration(milliseconds: 500),
+  //   );
+  // }
     }
+  }
   }
 
   @override
@@ -250,7 +281,17 @@ Future<void> _pickImage() async {
                            maxLength: 50,
                           maxLengthEnforcement: MaxLengthEnforcement.enforced,
                           decoration:
-                              const InputDecoration(labelText: 'Doctor Name'),
+                              const InputDecoration(labelText: 'Doctor Name',
+                               prefix: Padding(
+                                padding: EdgeInsets.only(right: 6),
+                                child: Text(
+                                    "Dr.",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+    ),),
                           validator: (v) => v!.isEmpty ? 'Required' : null,
                         ),
                         TextFormField(
@@ -293,9 +334,10 @@ Future<void> _pickImage() async {
                           controller: _loginEmailController,
                           key: _emailKey,
                           maxLength: 50,
+                          
                         maxLengthEnforcement: MaxLengthEnforcement.enforced,
                           decoration:
-                              const InputDecoration(labelText: 'Login Email'),
+                               InputDecoration(labelText: 'Login Email' ,errorText: _emailServerError,),
                           validator:  Validator.apply(context, const [RequiredValidation(),EmailValidation()]),
                         ),
                         TextFormField(

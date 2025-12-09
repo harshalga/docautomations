@@ -212,12 +212,14 @@ static Future<int?> incrementPrescriptionCount() async {
 }
 
 
-
+static String? lastErrorMessage;
   /// ✅ Register doctor (no auth needed)
   static  Future<Map<String, dynamic>> registerDoctorOnServer(DoctorInfo info) async {
     try
     {
   
+    
+
     final response = await http.post(
       Uri.parse('$baseUrl/api/doctor/register'),
       headers: {'Content-Type': 'application/json'},
@@ -227,7 +229,7 @@ static Future<int?> incrementPrescriptionCount() async {
 final data = jsonDecode(response.body);
 
     if (response.statusCode == 201) {
-    
+      lastErrorMessage = null; 
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("access_token", data["accessToken"]);
@@ -246,7 +248,7 @@ final data = jsonDecode(response.body);
         msg= "error";
       }
       
-     
+     lastErrorMessage = data[msg] ?? "Unknown error"; // 👈 save backend msg
        return {
       "success": response.statusCode == 201,
       "message": data[msg] ?? "Unknown error"
@@ -258,7 +260,7 @@ final data = jsonDecode(response.body);
     }
     catch(e)
     {
-      
+      lastErrorMessage = "Network error. Please try again.";
       return {
       "success": false,
       "message": "Network error. Please try again."

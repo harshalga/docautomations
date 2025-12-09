@@ -430,7 +430,7 @@ Future<void> _pickImage() async {
         clinicName: _clinicNameController.text,
         clinicAddress: _clinicAddressController.text,
         contact: _contactController.text,
-        loginEmail: _loginEmailController.text,
+        loginEmail: _loginEmailController.text.trim().toLowerCase(),
         password: "", // not needed in edit
         logoBase64: _logoBase64,
         printLetterhead: _printLetterhead,
@@ -666,7 +666,18 @@ Widget _buildFormContent() {
           key: _nameKey,
           maxLength: 50,
           maxLengthEnforcement: MaxLengthEnforcement.enforced,
-          decoration: const InputDecoration(labelText: 'Doctor Name'),
+          decoration:  InputDecoration(labelText: 'Doctor Name', 
+                               prefix: Padding(
+                                padding: EdgeInsets.only(right: 6),
+                                child: Text(
+                                    "Dr.",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+    ),
+          ),
           validator: (v) => v!.isEmpty ? 'Required' : null,
         ),
 

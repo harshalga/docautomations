@@ -132,7 +132,7 @@ class _DoctorWelcomeScreenState extends State<DoctorWelcomeScreen> {
                                 Center(child: displayDoctorImage(info.logoBase64)),
                                 const SizedBox(height: 20),
                                 Text(
-                                  info.name,
+                                 "Dr." + info.name,
                                   style: const TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
