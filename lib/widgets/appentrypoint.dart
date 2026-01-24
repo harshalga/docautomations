@@ -322,8 +322,8 @@ class _AppEntryPointState extends State<AppEntryPoint> {
     }
 
     // Check validity silently
-    final bool isValid = await LicenseApiService.verifyToken(accessToken);
-
+    //final bool isValid = await LicenseApiService.verifyToken(accessToken);
+    final bool isValid = await LicenseApiService.verifyToken();
     if (isValid) {
       if (!wasLoggedIn) _markLoggedInOnce();
       return;
@@ -358,10 +358,7 @@ class _AppEntryPointState extends State<AppEntryPoint> {
     }
 
     // Start silent refresh
-    if (_tokenCheckTimer == null) {
-      _tokenCheckTimer =
-          Timer.periodic(const Duration(minutes: 5), (_) => _checkLoginStatus());
-    }
+    _tokenCheckTimer ??= Timer.periodic(const Duration(minutes: 5), (_) => _checkLoginStatus());
 
     // Silent status refresh (DOES NOT rebuild UI)
     context.read<LicenseProvider>().loadStatus();

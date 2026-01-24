@@ -102,7 +102,8 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
     final refreshToken = prefs.getString('refresh_token');
 
     if (accessToken != null) {
-      bool valid = await LicenseApiService.verifyToken(accessToken);
+      //bool valid = await LicenseApiService.verifyToken(accessToken);
+      bool valid = await LicenseApiService.verifyToken();
       if (valid) {
         widget.onLoginSuccess();
         return;

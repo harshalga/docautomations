@@ -1,16 +1,34 @@
+import 'dart:async';
+
 import 'package:docautomations/common/licenseprovider.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
+import 'package:docautomations/services/local_file_logger.dart';
 import 'package:docautomations/widgets/appentrypoint.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'services/logger_service.dart';
 
 void main() {
    //TODORemove: This prints every widget Flutter rebuilds, and WHY. to be removed
    //debugPrintRebuildDirtyWidgets = true;
   WidgetsFlutterBinding.ensureInitialized();
   //TODOPR
-  
+      // 1) Flutter framework errors
+      FlutterError.onError = (FlutterErrorDetails details) async {
+      // Let framework still dump it to console
+      FlutterError.dumpErrorToConsole(details);
+      await LoggerService.logFlutterError(details);
+      };
+
+// 2) Zone for uncaught async errors
+runZonedGuarded<Future<void>>(() async {
+// Optional: Initialize services here (DB, DI, Sentry, etc.)
+
+
+// Example: warm up local logger file with header
+await LocalFileLogger.init();
+
   runApp(
      MultiProvider(
       providers: [
@@ -37,6 +55,9 @@ void main() {
     //   child: const MyApp(),
     // ),
   );
+  }, (error, stack) async {
+await LoggerService.logZonedError(error, stack);
+});
 }
 
 

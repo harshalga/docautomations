@@ -1228,7 +1228,7 @@ final GlobalKey<FormFieldState<String>> _nameFieldKey =
     GlobalKey<FormFieldState<String>>();
 final GlobalKey<FormFieldState<String>> _ageFieldKey =
     GlobalKey<FormFieldState<String>>();
-  bool _canGeneratePdf = true;
+  final bool _canGeneratePdf = true;
   bool _printLetterhead = true;
 
   bool _isLoading = false;
@@ -1480,7 +1480,7 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
                       _cellHeader("Freq."),
                       _cellHeader("Consumption"),
                       _cellHeader("Duration"),
-                      _cellHeader("Date"),
+                      _cellHeader("Consume Till Date"),
                       _cellHeader("Remarks"),
                     ],
                   ),
@@ -1697,7 +1697,7 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
           elevation: 4,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: ListTile(
-            title: Text(medicinetype.toString() + ' ' + med.drugName + ' ' +  doseValue +  ' ' +  unitValue),
+            title: Text('$medicinetype ${med.drugName} $doseValue $unitValue'),
             subtitle: Text(
               displayConsumption,
             ),

@@ -30,7 +30,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   bool _validateFields() {
     final passwordValidator = Validator.apply<String>(
       context,
-      const [RequiredValidation(), PasswordValidation(minLength: 6, number: true)],
+      const [RequiredValidation(), PasswordValidation(number: true,upperCase: true, specialChar: true)],
     );
 
     final newPassword = _newPasswordController.text.trim();

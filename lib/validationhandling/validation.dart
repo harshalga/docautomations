@@ -228,8 +228,6 @@ class FutureDateStringValidation extends Validation<String> {
 try
 {
   final parsed = DateFormat("dd/MM/yyyy").parseStrict(value);
-    
-    if (parsed == null) return "Invalid date format";
 
     final today = DateTime.now();
     final todayOnly = DateTime(today.year, today.month, today.day);

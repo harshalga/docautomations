@@ -399,10 +399,10 @@ class Patientinfo extends StatefulWidget {
   final GlobalKey<FormFieldState<String>> ageFieldKey;
   
   
-  const Patientinfo({ Key? key,
+  const Patientinfo({ super.key,
                       required this.nameFieldKey,
                       required this.ageFieldKey,
-                    }):super(key: key);
+                    });
 
   @override
   PatientinfoState createState() => PatientinfoState();
@@ -462,11 +462,6 @@ class PatientinfoState extends State<Patientinfo>
   // ==============================
   // DEBUG BUILD TRACKER
   // ==============================
-  @override
-  void initState() {
-    super.initState();
-    //print("🟢 PatientInfo INIT called — Widget created");
-  }
 
   @override
   void dispose() {

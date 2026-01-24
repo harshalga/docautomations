@@ -4,6 +4,7 @@ import 'package:docautomations/widgets/doctormaster.dart';
 import 'package:docautomations/widgets/doctorwelcomescreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import  'package:docautomations/widgets/sharelogsscreen.dart';
 
 
 
@@ -155,6 +156,15 @@ String doctorName = ""; // store doctor name here
     Navigator.pop(context);},
               leading: const Icon(Icons.settings, size: 26, color: Colors.black),
               title: const Text("Profile Settings", style: TextStyle(fontSize: 20)),
+             ),
+
+             ListTile(
+              onTap: () {setState(() {
+      currentBody =  ShareLogsScreen();
+    });
+    Navigator.pop(context);},
+              leading: const Icon(Icons.bug_report, size: 26, color: Colors.black),
+              title: const Text("Share Logs", style: TextStyle(fontSize: 20)),
              ),
             // ListTile(
             //   onTap: () {},

@@ -168,6 +168,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:docautomations/common/appcolors.dart';
+import 'package:docautomations/services/error_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
@@ -194,10 +195,11 @@ class _PrintPreviewScreenState extends State<PrintPreviewScreen> {
         [XFile(file.path)],
         text: 'Prescription from Prescriptor',
       );
-    } catch (e) {
+    } catch (e,s) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error sharing PDF: $e")),
       );
+      ErrorHandler.handle(e,stack: s);
     } finally {
       setState(() => _isSharing = false);
     }
