@@ -243,14 +243,54 @@ class MedicineSwitchState extends State<MedicineSwitch> {
 
   /// Medicine type list
   final List<MedicineType> types = [
-    MedicineType("Tablet", Icons.medication, "mg"),
-    MedicineType("Capsule", Icons.medication_liquid, "mg"),
-    MedicineType("Syrup", Icons.local_drink, "ml"),
-    MedicineType("Ointment", Icons.handyman, "gm"), // tube-like icon
-    MedicineType("Injection", Icons.vaccines, "ml"),
-    MedicineType("Inhalation", Icons.air, "puffs"),
-    MedicineType("Drops", Icons.opacity, "drops"),
-    MedicineType("Others", Icons.category, ""), // no unit needed
+    MedicineType("Tablet", Image.asset(
+    "assets/icon/tablet.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  ), "mg"),
+    MedicineType("Capsule", Image.asset(
+    "assets/icon/capsule.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  ), "mg"),
+    MedicineType("Syrup", Image.asset(
+    "assets/icon/bottle.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  ) , "ml"),
+    MedicineType("Ointment", Image.asset(
+    "assets/icon/ointment.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  ) , "gm"), // tube-like icon
+    MedicineType("Injection",Image.asset(
+    "assets/icon/injection.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  ) , "ml"),
+    MedicineType("Inhalation", Image.asset(
+    "assets/icon/inhaler.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  ) , "puffs"),
+    MedicineType("Drops",Image.asset(
+    "assets/icon/eye-dropper.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  ) , "drops"),
+    MedicineType("Others", Image.asset(
+    "assets/icon/first-aid-kit.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  ) , ""), // no unit needed
   ];
 
   @override
@@ -336,11 +376,18 @@ class MedicineSwitchState extends State<MedicineSwitch> {
         ),
         child: Column(
           children: [
-            Icon(
-              med.icon,
-              size: 28,
-              color: selected ? Colors.white : Colors.black87,
-            ),
+            IconTheme(
+      data: IconThemeData(
+        color: selected  ? Colors.white : Colors.black87,
+        size: 26,
+      ),
+      child: med.icon,
+    ),
+            // Icon(
+            //   med.icon,
+            //   size: 28,
+            //   color: selected ? Colors.white : Colors.black87,
+            // ),
             const SizedBox(height: 6),
             Text(
               med.name,
@@ -388,7 +435,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
           //   children: types.map((t) => _typeOptionTile(t)).toList(),
           // ),
           _buildMedicineTypeSelector(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
 
           /// Medicine Name
           TextFormField(
@@ -398,7 +445,9 @@ class MedicineSwitchState extends State<MedicineSwitch> {
             maxLengthEnforcement: MaxLengthEnforcement.enforced,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              labelText: "Enter $selectedType Name",
+              labelText:  selectedType == 'Others'
+              ? 'Enter other medicine type'
+              : 'Enter $selectedType Name' ,//"Enter $selectedType Name",
             ),
             onChanged: (val) => widget.prescription.drugName = val,
             validator: Validator.apply(context, const [RequiredValidation()]),
@@ -477,22 +526,23 @@ class MedicineSwitchState extends State<MedicineSwitch> {
             onTap:  ()=>_selectType(type.name),
  
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+              height: 96,
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 color: isSelected
-                    ? Colors.lightBlue.shade900
+                    ? Colors.red.shade900
                     : Colors.grey.shade200,
                 border: Border.all(
                   color: isSelected
-                      ? Colors.lightBlue.shade900
+                      ? const Color.fromARGB(255, 218, 3, 57)
                       : Colors.grey.shade400,
                   width: 1.5,
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: Colors.blue.shade900.withOpacity(0.3),
+                          color: AppColors.secondary.withOpacity(0.2),
                           blurRadius: 6,
                           offset: const Offset(0, 3),
                         )
@@ -500,26 +550,56 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                     : [],
               ),
 
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    type.icon,
-                    size: 26,
-                    color: isSelected ? Colors.white : Colors.black87,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    type.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                      color: isSelected ? Colors.white : Colors.black87,
-                    ),
-                    textAlign: TextAlign.center,
-                  )
-                ],
-              ),
+//               child: Column(
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [
+//                   // Icon(
+//                   //   type.icon,
+//                   //   size: 26,
+//                   //   color: isSelected ? Colors.white : Colors.black87,
+//                   // ),
+//                   IconTheme(
+//   data: IconThemeData(
+//     color: isSelected ? Colors.white : Colors.black87,
+//     size: 26,
+//   ),
+//   child: type.icon,
+// ),
+//                   const SizedBox(height: 6),
+//                   Text(
+//                     type.name,
+//                     style: TextStyle(
+//                       fontWeight: FontWeight.w600,
+//                       fontSize: 12,
+//                       color: isSelected ? Colors.white : Colors.black87,
+//                     ),
+//                     textAlign: TextAlign.center,
+//                   )
+//                 ],
+//               ),
+child: Column(
+  mainAxisAlignment: MainAxisAlignment.center,
+  crossAxisAlignment: CrossAxisAlignment.center, // 👈 ADD HERE
+  children: [
+    SizedBox(
+      height: 32,
+      child: type.icon,
+    ),
+    const SizedBox(height: 4),
+    // Text(
+    //   type.name,
+    //   textAlign: TextAlign.center,
+    //   maxLines: 1,
+    //   overflow: TextOverflow.ellipsis,
+    //   style: TextStyle(
+    //     fontWeight: FontWeight.w600,
+    //     fontSize: 12,
+    //     color: isSelected ? Colors.white : Colors.black87,
+    //   ),
+    // ),
+  ],
+),
+
             ),
           );
         }).toList(),

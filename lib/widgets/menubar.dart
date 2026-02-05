@@ -63,127 +63,272 @@ String doctorName = ""; // store doctor name here
     return Scaffold(
       appBar: AppBar(title: const Text("Prescriptor")),
       drawer: Drawer(
-        child: ListView(
-          children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  fit: BoxFit.fill,
-                  image: AssetImage("images/healthcare_2.png"),
+  child: Column(
+    children: [
+      // ================= HEADER =================
+      SizedBox(
+        height: 220, // ✅ FIXED HEIGHT (important)
+        child: DrawerHeader(
+          margin: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              image: AssetImage("images/healthcare_2.png"),
+            ),
+          ),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Dark overlay
+  //            Container(color: Colors.black.withOpacity(0.4)),
+
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Avatar / Logo
+                    Container(
+                      height: 60,
+                      width: 60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        color: Colors.lightBlue,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Image.asset(
+                          "assets/icon/app_logo.png",
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Text(
+                                doctorInitials,
+                                style: const TextStyle(
+                                  fontSize: 26,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+// 👇 DARK OVERLAY ONLY HERE
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.55),
+              borderRadius: BorderRadius.circular(8),
+            ),
+                    // Doctor name (SAFE)
+                    child :Text(
+                      doctorName,
+                      maxLines: 2, // ✅ prevents overflow
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20, // ⬅ reduced from 26
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+          )
+                  ],
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 60,
-                    width: 60,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Colors.lightBlue,
-                    ),
-                    //child:  Center(child: Text(doctorInitials, style: TextStyle(fontSize: 26))),
-                     child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: Image.asset(
-            "assets/icon/app_logo.png",
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              // 👇 fallback to initials if logo missing
-              return Center(
-                child: Text(
-                  doctorInitials,
-                  style: const TextStyle(fontSize: 26, color: Colors.white),
-                ),
-              );
-            },
-          ),
-        ),
-      
-                  ),
-                  const SizedBox(height: 20),
-                  // Text(doctorName, style: TextStyle(color: Colors.black, fontSize: 26)),
-                   // Semi-transparent black container behind the doctor name
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        color: Colors.black.withOpacity(0.5),
-        child: Text(
-          doctorName,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 26,
-            fontWeight: FontWeight.bold,
+            ],
           ),
         ),
       ),
-                ],
-              ),
-            ),
+
+      // ================= MENU =================
+      Expanded(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
             ListTile(
-               onTap: (){
-               setState(() {
-      currentBody = const DoctorWelcomeScreen();
-    });
-    Navigator.pop(context); // close drawer
-  },
-    // { Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => const DoctorWelcomeScreen()),
-    // );},
-              leading: const Icon(Icons.home, size: 26, color: Colors.black),
+              leading: const Icon(Icons.home, size: 26),
               title: const Text("HomePage", style: TextStyle(fontSize: 20)),
-            ),
-            ListTile(
-              // onTap: () {
-              //   Navigator.push(
-              //     context,
-              //     MaterialPageRoute(builder: (context) => const Addprescrip(title: "PatientInfo")),
-              //   );
-              // },
-               onTap: (){
-               setState(() {
-      currentBody = const Addprescrip(title: "Patient Diagnosis");
-    });
-    Navigator.pop(context); // close drawer
-  },
-              leading: const Icon(Icons.info, size: 26, color: Colors.black),
-              title: const Text("Patient Diagnosis", style: TextStyle(fontSize: 20)),
-            ),
-            ListTile(
-              onTap: () {setState(() {
-      currentBody = const DoctorMaster(title: "Profile Settings");
-    });
-    Navigator.pop(context);},
-              leading: const Icon(Icons.settings, size: 26, color: Colors.black),
-              title: const Text("Profile Settings", style: TextStyle(fontSize: 20)),
-             ),
-
-             ListTile(
-              onTap: () {setState(() {
-      currentBody =  ShareLogsScreen();
-    });
-    Navigator.pop(context);},
-              leading: const Icon(Icons.bug_report, size: 26, color: Colors.black),
-              title: const Text("Share Logs", style: TextStyle(fontSize: 20)),
-             ),
-            // ListTile(
-            //   onTap: () {},
-            //   leading: const Icon(Icons.settings, size: 26, color: Colors.black),
-            //   title: const Text("Settings", style: TextStyle(fontSize: 20)),
-            // ),
-            const Divider(color: Colors.black),
-            ListTile(
               onTap: () {
-
-                Navigator.pop(context); // close drawer
-                 widget.onLogout();      // 👈 call parent logout
+                setState(() {
+                  currentBody = const DoctorWelcomeScreen();
+                });
+                Navigator.pop(context);
               },
-              leading: const Icon(Icons.logout, size: 26, color: Colors.black),
+            ),
+            ListTile(
+              leading: const Icon(Icons.info, size: 26),
+              title: const Text("Patient Diagnosis", style: TextStyle(fontSize: 20)),
+              onTap: () {
+                setState(() {
+                  currentBody = const Addprescrip(title: "Patient Diagnosis");
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings, size: 26),
+              title: const Text("Profile Settings", style: TextStyle(fontSize: 20)),
+              onTap: () {
+                setState(() {
+                  currentBody = const DoctorMaster(title: "Profile Settings");
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.bug_report, size: 26),
+              title: const Text("Share Logs", style: TextStyle(fontSize: 20)),
+              onTap: () {
+                setState(() {
+                  currentBody = ShareLogsScreen();
+                });
+                Navigator.pop(context);
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout, size: 26),
               title: const Text("Logout", style: TextStyle(fontSize: 20)),
+              onTap: () {
+                Navigator.pop(context);
+                widget.onLogout();
+              },
             ),
           ],
         ),
       ),
+    ],
+  ),
+),
+
+  //     drawer: Drawer(
+
+  //       child: ListView(
+  //         children: [
+  //           DrawerHeader(
+  //             decoration: const BoxDecoration(
+  //               image: DecorationImage(
+  //                 fit: BoxFit.fill,
+  //                 image: AssetImage("images/healthcare_2.png"),
+  //               ),
+  //             ),
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Container(
+  //                   height: 60,
+  //                   width: 60,
+  //                   decoration: BoxDecoration(
+  //                     borderRadius: BorderRadius.circular(30),
+  //                     color: Colors.lightBlue,
+  //                   ),
+  //                   //child:  Center(child: Text(doctorInitials, style: TextStyle(fontSize: 26))),
+  //                    child: ClipRRect(
+  //         borderRadius: BorderRadius.circular(30),
+  //         child: Image.asset(
+  //           "assets/icon/app_logo.png",
+  //           fit: BoxFit.cover,
+  //           errorBuilder: (context, error, stackTrace) {
+  //             // 👇 fallback to initials if logo missing
+  //             return Center(
+  //               child: Text(
+  //                 doctorInitials,
+  //                 style: const TextStyle(fontSize: 26, color: Colors.white),
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //       ),
+      
+  //                 ),
+  //                 const SizedBox(height: 20),
+  //                 // Text(doctorName, style: TextStyle(color: Colors.black, fontSize: 26)),
+  //                  // Semi-transparent black container behind the doctor name
+  //     Container(
+  //       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+  //       color: Colors.black.withOpacity(0.5),
+  //       child: Text(
+  //         doctorName,
+  //         style: const TextStyle(
+  //           color: Colors.white,
+  //           fontSize: 26,
+  //           fontWeight: FontWeight.bold,
+  //         ),
+  //       ),
+  //     ),
+  //               ],
+  //             ),
+  //           ),
+  //           ListTile(
+  //              onTap: (){
+  //              setState(() {
+  //     currentBody = const DoctorWelcomeScreen();
+  //   });
+  //   Navigator.pop(context); // close drawer
+  // },
+  //   // { Navigator.push(
+  //   //   context,
+  //   //   MaterialPageRoute(builder: (context) => const DoctorWelcomeScreen()),
+  //   // );},
+  //             leading: const Icon(Icons.home, size: 26, color: Colors.black),
+  //             title: const Text("HomePage", style: TextStyle(fontSize: 20)),
+  //           ),
+  //           ListTile(
+  //             // onTap: () {
+  //             //   Navigator.push(
+  //             //     context,
+  //             //     MaterialPageRoute(builder: (context) => const Addprescrip(title: "PatientInfo")),
+  //             //   );
+  //             // },
+  //              onTap: (){
+  //              setState(() {
+  //     currentBody = const Addprescrip(title: "Patient Diagnosis");
+  //   });
+  //   Navigator.pop(context); // close drawer
+  // },
+  //             leading: const Icon(Icons.info, size: 26, color: Colors.black),
+  //             title: const Text("Patient Diagnosis", style: TextStyle(fontSize: 20)),
+  //           ),
+  //           ListTile(
+  //             onTap: () {setState(() {
+  //     currentBody = const DoctorMaster(title: "Profile Settings");
+  //   });
+  //   Navigator.pop(context);},
+  //             leading: const Icon(Icons.settings, size: 26, color: Colors.black),
+  //             title: const Text("Profile Settings", style: TextStyle(fontSize: 20)),
+  //            ),
+
+  //            ListTile(
+  //             onTap: () {setState(() {
+  //     currentBody =  ShareLogsScreen();
+  //   });
+  //   Navigator.pop(context);},
+  //             leading: const Icon(Icons.bug_report, size: 26, color: Colors.black),
+  //             title: const Text("Share Logs", style: TextStyle(fontSize: 20)),
+  //            ),
+  //           // ListTile(
+  //           //   onTap: () {},
+  //           //   leading: const Icon(Icons.settings, size: 26, color: Colors.black),
+  //           //   title: const Text("Settings", style: TextStyle(fontSize: 20)),
+  //           // ),
+  //           const Divider(color: Colors.black),
+  //           ListTile(
+  //             onTap: () {
+
+  //               Navigator.pop(context); // close drawer
+  //                widget.onLogout();      // 👈 call parent logout
+  //             },
+  //             leading: const Icon(Icons.logout, size: 26, color: Colors.black),
+  //             title: const Text("Logout", style: TextStyle(fontSize: 20)),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
       body: SafeArea(child:currentBody), //widget.body, // 👈 load dynamic body here
       resizeToAvoidBottomInset: false,
     );

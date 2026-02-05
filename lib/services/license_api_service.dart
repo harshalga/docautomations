@@ -585,6 +585,7 @@
 // }
 
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:docautomations/network/dio_client.dart';
@@ -618,6 +619,20 @@ static Future<void> storeFeedbackBeforeUninstall(String feedback) async {
       error: e,
       stack: s,
     );
+  }
+}
+
+static Future<void> warmUpBackend() async {
+  try {
+    await DioClient.instance.get(
+      '/api/doctor/health',
+      options: Options(
+        receiveTimeout: const Duration(seconds: 45),
+      ),
+    );
+  } catch (_) {
+    // ❗ Never block splash for warm-up failure
+    // Login will still retry later
   }
 }
 
@@ -710,33 +725,31 @@ static Future<Map<String, dynamic>> registerDoctorOnServer(
       "success": true,
       "message": "Registered successfully",
     };
-  } catch (e, s) {
-    String message = "Registration failed";
-await LoggerService.debug("inside catch");
+  } 
+    catch (e, s) {
+    String message = "Registration failed" ;
+
     if (e is DioException && e.response?.data != null) {
       // 🔥 Extract backend message (IMPORTANT)
       final responseData = e.response!.data;
-await LoggerService.debug("inside DioException && e.response?.data != null");
-      if (responseData is Map<String, dynamic>) {
-        await LoggerService.debug("inside responsedata map");
-        message = responseData["message"] ?? message;
-        await LoggerService.debug("message  set to "+ message);
-          // message = responseData["message"] 
-          //     ?? responseData["error"] 
-          //       ?? message;
 
+      if (responseData is Map<String, dynamic>) {
+
+        message = responseData["message"] ?? message;
 
       }
     }
 
-    lastErrorMessage = message;
+  else
+  {
 
     await LoggerService.error(
       'Doctor registration failed',
       error: e,
       stack: s,
     );
-
+  }
+  lastErrorMessage = message;
     return {
       "success": false,
       "message": message,
@@ -825,6 +838,8 @@ static Future<Map<String, String>?> loginDoctor(
         "loginEmail": loginEmail,
         "password": password,
       },
+      options: Options(
+    receiveTimeout: const Duration(seconds: 45),),
     );
 
     final data = response.data;
@@ -850,6 +865,16 @@ static Future<Map<String, String>?> loginDoctor(
       "refreshToken": _refreshToken!,
     };
   } catch (e, s) {
+     String message = "Login failed";
+
+     if (e is DioException) {
+    if (e.type == DioExceptionType.receiveTimeout) {
+      message = "Server is taking longer than usual. Please try again.";
+    } else if (e.response?.data != null) {
+      message = e.response!.data["message"] ?? message;
+    }
+  }
+
     await LoggerService.error(
       'Doctor login failed',
       error: e,
@@ -918,6 +943,11 @@ static Future<bool> verifyToken() async {
     await DioClient.instance.get('/api/doctor/me');
     return true;
   } catch (e, s) {
+    if (e is DioException &&
+      e.error is SocketException) {
+    // Network not available
+    return false; // stay on login
+  }
     await LoggerService.error(
       'Token verification failed',
       error: e,

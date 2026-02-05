@@ -84,9 +84,7 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
       }
     } catch (e) {
       setState(() => _loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+      
     }
   }
 

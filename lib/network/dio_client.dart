@@ -55,7 +55,7 @@ class DioClient {
       BaseOptions(
         baseUrl: 'https://license-server-0zfe.onrender.com',
         connectTimeout: const Duration(seconds: 15),
-        receiveTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 45),
         headers: {'Content-Type': 'application/json'},
       ),
     );

@@ -1238,14 +1238,74 @@ final GlobalKey<FormFieldState<String>> _ageFieldKey =
 
   /// Medicine type list
   final List<MedicineType> types = [
-    MedicineType("Tablet", Icons.medication, "mg"),
-    MedicineType("Capsule", Icons.medication_liquid, "mg"),
-    MedicineType("Syrup", Icons.local_drink, "ml"),
-    MedicineType("Ointment", Icons.brush, "gm"),
-    MedicineType("Injection", Icons.vaccines, "ml"),
-    MedicineType("Inhalation", Icons.air, "puffs"),
-    MedicineType("Drops", Icons.opacity, "drops"),
-    MedicineType("Others", Icons.category, ""), // no unit needed
+    MedicineType("Tablet",
+    Image.asset(
+    "assets/icon/tablet.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  ),
+     "mg"),
+    MedicineType("Capsule",
+     //Icons.medication_liquid
+     Image.asset(
+    "assets/icon/capsule.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  )
+    ,
+      "mg"),
+    MedicineType("Syrup", 
+     Image.asset(
+    "assets/icon/bottle.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  )
+     
+    , "ml"),
+    MedicineType("Ointment",
+     Image.asset(
+    "assets/icon/ointment.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  )
+    , "gm"),
+    MedicineType("Injection", 
+     Image.asset(
+    "assets/icon/injection.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  )
+    , "ml"),
+    MedicineType("Inhalation", 
+    
+    Image.asset(
+    "assets/icon/inhaler.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  )
+  , "puffs"),
+    MedicineType("Drops", 
+     Image.asset(
+    "assets/icon/eye-dropper.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  )
+    , "drops"),
+    MedicineType("Others", 
+     Image.asset(
+    "assets/icon/first-aid-kit.png",
+    width: 28,
+    height: 28,
+    fit: BoxFit.contain,
+  )
+    , ""), // no unit needed
   ];
 
   String _unitForType(String medicine) {
