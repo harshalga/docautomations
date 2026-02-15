@@ -34,6 +34,13 @@ class _DoctorRegisterScreenState extends State<DoctorRegisterScreen> {
   final _loginEmailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  final _confirmPasswordController = TextEditingController();
+
+
+
+bool _showPassword = false;
+bool _showConfirmPassword = false;
+
   final _nameKey = GlobalKey<FormFieldState>();
 final _specKey = GlobalKey<FormFieldState>();
 final _clinicNameKey = GlobalKey<FormFieldState>();
@@ -41,6 +48,7 @@ final _clinicAddressKey = GlobalKey<FormFieldState>();
 final _contactKey = GlobalKey<FormFieldState>();
 final _emailKey = GlobalKey<FormFieldState>();
 final _passwordKey = GlobalKey<FormFieldState>();
+final _confirmPasswordKey = GlobalKey<FormFieldState>();
 
 String? _emailServerError;
 
@@ -54,6 +62,13 @@ String? _emailServerError;
           setState(() => _emailServerError = null);
         }
       });
+
+      _passwordController.addListener(() {
+  if (_confirmPasswordKey.currentState != null) {
+    _confirmPasswordKey.currentState!.validate();
+  }
+});
+
 
   }
 
@@ -109,6 +124,13 @@ String? _emailServerError;
 //     });
 //   }
 // }
+@override
+void dispose() {
+  _passwordController.dispose();
+  _confirmPasswordController.dispose();
+  super.dispose();
+}
+
 
 Future<void> _pickImage() async {
   final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -340,15 +362,62 @@ Future<void> _pickImage() async {
                                InputDecoration(labelText: 'Login Email' ,errorText: _emailServerError,),
                           validator:  Validator.apply(context, const [RequiredValidation(),EmailValidation()]),
                         ),
+                        // TextFormField(
+                        //   controller: _passwordController,
+                        //   key: _passwordKey,
+                        //   decoration:
+                        //       const InputDecoration(labelText: 'Password'),
+                        //   validator: Validator.apply(context, const [RequiredValidation(),PasswordValidation(number: true,upperCase: true,
+                        //   specialChar: true)]),
+                        //   obscureText: true,
+                        // ),
                         TextFormField(
-                          controller: _passwordController,
-                          key: _passwordKey,
-                          decoration:
-                              const InputDecoration(labelText: 'Password'),
-                          validator: Validator.apply(context, const [RequiredValidation(),PasswordValidation(number: true,upperCase: true,
-                          specialChar: true)]),
-                          obscureText: true,
-                        ),
+  controller: _passwordController,
+  key: _passwordKey,
+  obscureText: !_showPassword,
+  decoration: InputDecoration(
+    labelText: 'Password',
+    suffixIcon: IconButton(
+      icon: Icon(
+        _showPassword ? Icons.visibility : Icons.visibility_off,
+      ),
+      onPressed: () {
+        setState(() => _showPassword = !_showPassword);
+      },
+    ),
+  ),
+  validator: Validator.apply(context, const [
+    RequiredValidation(),
+    PasswordValidation(number: true, upperCase: true, specialChar: true),
+  ]),
+),
+TextFormField(
+  controller: _confirmPasswordController,
+  key: _confirmPasswordKey,
+  obscureText: !_showConfirmPassword,
+  decoration: InputDecoration(
+    labelText: 'Confirm Password',
+    suffixIcon: IconButton(
+      icon: Icon(
+        _showConfirmPassword ? Icons.visibility : Icons.visibility_off,
+      ),
+      onPressed: () {
+        setState(() => _showConfirmPassword = !_showConfirmPassword);
+      },
+    ),
+  ),
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Required';
+    }
+    if (value != _passwordController.text) {
+      return 'Passwords do not match';
+    }
+    return null;
+  },
+),
+
+
                         const SizedBox(height: 12),
                         ElevatedButton(
                             onPressed: _pickImage,
@@ -386,6 +455,7 @@ Future<void> _pickImage() async {
     _contactKey,
     _emailKey,
     _passwordKey,
+    _confirmPasswordKey,
   ];
 
   for (final key in fields) {
