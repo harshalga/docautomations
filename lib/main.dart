@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:docautomations/common/licenseprovider.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
@@ -21,6 +22,21 @@ void main() {
       await LoggerService.logFlutterError(details);
       };
 
+     FlutterError.onError = (FlutterErrorDetails details) {
+  LoggerService.logFlutterError(details);
+  FlutterError.presentError(details); // still print in console
+};
+
+PlatformDispatcher.instance.onError = (error, stack) {
+  LoggerService.logFlutterError(
+    FlutterErrorDetails(
+      exception: error,
+      stack: stack,
+    ),
+  );
+  return true;
+};
+
 // 2) Zone for uncaught async errors
 runZonedGuarded<Future<void>>(() async {
 // Optional: Initialize services here (DB, DI, Sentry, etc.)
@@ -28,6 +44,8 @@ runZonedGuarded<Future<void>>(() async {
 
 // Example: warm up local logger file with header
 await LocalFileLogger.init();
+
+await LoggerService.init(); // Added today 5/Feb/2026
 
   runApp(
      MultiProvider(

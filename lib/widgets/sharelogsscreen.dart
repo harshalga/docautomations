@@ -40,7 +40,9 @@ body: Center(
 child: Column(
 mainAxisAlignment: MainAxisAlignment.center,
 children: [
-Text(logPath == null ? 'Loading log file…' : 'Log file ready.'),
+Text(logPath == null ? 'Loading log file…' : 'The log file is ready.\n\n'
+                      'Click on the Share Logs button to share logs with the support team, '
+                      'so that our support team can guide you.'),
 SizedBox(height: 20),
 ElevatedButton(
 onPressed: logPath == null ? null : _shareLogs,

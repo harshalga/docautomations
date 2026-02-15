@@ -4,9 +4,12 @@
 
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
 import 'package:docautomations/services/license_api_service.dart';
+import 'package:docautomations/services/local_file_logger.dart';
+import 'package:docautomations/services/logger_service.dart';
 import 'package:docautomations/validationhandling/validator.dart';
 import 'package:docautomations/widgets/forgot_password_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:docautomations/validationhandling/validation.dart';
 
@@ -93,6 +96,28 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
     super.initState();
     _checkExistingLogin();
   }
+Future<void> _shareLogs() async {
+  try {
+    
+    final file = await LoggerService.getLogFile(); // your existing log file
+    if (file == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No logs available")),
+      );
+      return;
+    }
+
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      subject: "Prescriptor App – Login Issue Logs",
+      text: "Hi Support,\n\nPlease find the attached logs.\n\nThanks",
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Unable to share logs")),
+    );
+  }
+}
 
   Future<void> _checkExistingLogin() async {
     final prefs = await SharedPreferences.getInstance();
@@ -138,8 +163,8 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
                     child: Image.asset(
                       'assets/icon/app_logo.png',
                       
-                      width: 300,
-                      height: 300,
+                      width: 200,
+                      height: 200,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -182,7 +207,7 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
                   onPressed: _login,
                   child: const Text("Login"),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 10),
 
                 // Forgot Password
                 TextButton(
@@ -211,12 +236,19 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
                   },
                   child: const Text("Forgot Password?"),
                 ),
-
+TextButton.icon(
+  icon: const Icon(Icons.email_outlined),
+  label: const Text("Having trouble logging in? Share logs with support"),
+  onPressed: _shareLogs,
+),
                 // Register
                 TextButton(
                   onPressed: widget.onRegisterTap,
                   child: const Text("New user? Register here"),
                 ),
+
+                
+
               ],
             ),
           ),
