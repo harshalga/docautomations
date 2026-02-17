@@ -250,6 +250,17 @@ catch(e)
   }
 }
 
+//We can perform server side validation by passing a function that returns the error message if any, otherwise null. This allows us to integrate async server checks into our validation flow.
+class ServerValidation extends Validation<String> {
+  final String? Function() errorProvider;
+
+  const ServerValidation(this.errorProvider);
+
+  @override
+  String? validate(BuildContext context, String? value) {
+    return errorProvider();
+  }
+}
 
 
 /// a validation that checks if the value is a valid password.

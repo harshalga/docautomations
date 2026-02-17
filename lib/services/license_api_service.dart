@@ -794,6 +794,26 @@ static Future<Map<String, dynamic>> registerDoctorOnServer(
 
   
 
+static Future<bool> isEmailAlreadyRegistered(String email) async {
+  try {
+    final res = await DioClient.instance.get(
+      "/api/doctor/check-email",
+      queryParameters: {
+        "email": email.trim().toLowerCase(),
+      },
+    );
+
+    final data = res.data;
+
+    if (data == null) return false;
+
+    return data["exists"] ?? false;
+  } catch (e) {
+    debugPrint("Email check failed: $e");
+    return false;
+  }
+}
+
 
 
 static Future<bool> updateDoctorOnServer(DoctorInfo info) async {

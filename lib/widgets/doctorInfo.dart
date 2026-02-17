@@ -58,7 +58,7 @@ class DoctorInfo {
         clinicName: json['clinicName'],
         clinicAddress: json['clinicAddress'],
         contact: json['contact'],
-        loginEmail: json['loginEmail'],
+        loginEmail: json['loginEmail'], //TODO: handle null 
         password: json['password'],   // ✅ Safe: null if not returned
         //logoPath: json['logoPath'],
         logoBase64: json['logoBase64'],

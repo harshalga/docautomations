@@ -47,6 +47,7 @@ class InstructionsState extends State<Instructions> {
           Expanded(
             child: TextField(
               controller: remarksController,
+              maxLength: 300,
               keyboardType: TextInputType.multiline,
               minLines: 1,
               maxLines: 5,

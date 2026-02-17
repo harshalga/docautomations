@@ -586,8 +586,9 @@ class PatientinfoState extends State<Patientinfo>
         // ==============================
         TextFormField(
           controller: keyComplaintcontroller,
+          maxLength: 500,
           decoration: const InputDecoration(
-            labelText: "Enter key complaint",
+            labelText: "Enter chief complaints",
             //border: OutlineInputBorder(),
           ),
           minLines: 1,
@@ -601,8 +602,9 @@ class PatientinfoState extends State<Patientinfo>
         // ==============================
         TextFormField(
           controller: examinationcontroller,
+          maxLength: 500,
           decoration: const InputDecoration(
-            labelText: "Enter examination inputs",
+            labelText: "Enter findings on examination",
             //border: OutlineInputBorder(),
           ),
            minLines: 1,
@@ -616,6 +618,7 @@ class PatientinfoState extends State<Patientinfo>
         // ==============================
         TextFormField(
           controller: diagnoscontroller,
+          maxLength: 500,
           decoration: const InputDecoration(
             labelText: "Enter diagnosis inputs",
             //border: OutlineInputBorder(),
@@ -652,6 +655,7 @@ class PatientinfoState extends State<Patientinfo>
         // ==============================
         TextFormField(
           controller: remarkscontroller,
+          maxLength: 500,
           keyboardType: TextInputType.multiline,
             minLines: 1,
             maxLines: 5,

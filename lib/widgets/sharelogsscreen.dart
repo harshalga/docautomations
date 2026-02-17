@@ -22,6 +22,7 @@ _loadLogFile();
 
 Future<void> _loadLogFile() async {
 final path = await LocalFileLogger.getLogPath();
+
 setState(() => logPath = path);
 }
 

@@ -25,7 +25,7 @@ class Menubar extends StatefulWidget {
 }
 
 class _MenubarState extends State<Menubar> {
-  bool isHome = true;
+  bool isHome = false; // 👈 track if we're on home screen or not 
 String doctorName = ""; // store doctor name here
  String doctorInitials = "";
   late Widget currentBody; // 👈 this will hold the page shown in the body
