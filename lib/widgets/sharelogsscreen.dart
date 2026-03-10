@@ -4,6 +4,8 @@ import '../services/local_file_logger.dart';
 
 
 class ShareLogsScreen extends StatefulWidget {
+  const ShareLogsScreen({super.key});
+
 @override
 State<ShareLogsScreen> createState() => _ShareLogsScreenState();
 }

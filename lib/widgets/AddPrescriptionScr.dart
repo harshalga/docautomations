@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:docautomations/common/appcolors.dart';
-import 'package:docautomations/common/common_widgets.dart';
 import 'package:docautomations/common/licenseprovider.dart';
 import 'package:docautomations/common/medicineType.dart';
 import 'package:docautomations/commonwidget/loadingOverlay.dart';

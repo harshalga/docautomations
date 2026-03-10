@@ -351,7 +351,6 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'package:dio/dio.dart';
 import 'package:docautomations/network/dio_client.dart';
 import 'package:docautomations/widgets/AddPrescrip.dart';
 import 'package:docautomations/widgets/DoctorLoginScreen.dart';

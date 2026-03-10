@@ -4,7 +4,6 @@
 
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
 import 'package:docautomations/services/license_api_service.dart';
-import 'package:docautomations/services/local_file_logger.dart';
 import 'package:docautomations/services/logger_service.dart';
 import 'package:docautomations/validationhandling/validator.dart';
 import 'package:docautomations/widgets/forgot_password_screen.dart';

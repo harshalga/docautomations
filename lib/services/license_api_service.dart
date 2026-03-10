@@ -1207,7 +1207,7 @@ static Future<void> storeFeedbackBeforeUninstall(String feedback) async {
       '/api/feedback',
       data: {'feedbackText': feedback},
     ),
-    (_) => null, // We don't care about the response for feedback
+    (_) {}, // We don't care about the response for feedback
   );
   
 }
