@@ -439,13 +439,35 @@ if (!backendOk) {
     if (!mounted) return;
     final token = prefs.getString('access_token');
 
-    setState(() {
-    _state = (token == null || token.isEmpty)
-        ? AppStartupState.loggedOut
-        : AppStartupState.loggedIn;
-  });
+  //   setState(() {
+  //   _state = (token == null || token.isEmpty)
+  //       ? AppStartupState.loggedOut
+  //       : AppStartupState.loggedIn;
+  // });
 
-    context.read<LicenseProvider>().loadStatus();
+  //   await context.read<LicenseProvider>().loadStatus();
+
+  if (token == null || token.isEmpty) {
+      setState(() => _state = AppStartupState.loggedOut);
+      return;
+    }
+
+    // // ✅ WAIT for license status
+    //// await context.read<LicenseProvider>().loadStatus();
+
+    //// if (!mounted) return;
+
+    //// setState(() => _state = AppStartupState.loggedIn);
+
+     // ✅ Just mark logged in
+  setState(() => _state = AppStartupState.loggedIn);
+  context.read<LicenseProvider>().loadStatus();
+  // // ✅ Load license AFTER UI builds
+  // Future.microtask(() {
+  //   if (mounted) {
+  //     context.read<LicenseProvider>().loadStatus();
+  //   }
+  // });
 
   } catch (_) {
     if (mounted)
@@ -486,15 +508,15 @@ Future<void> _bootstrap() async {
    
     super.dispose();
   }
-Future<void> _clearCorruptedSession() async {
-  await LicenseApiService.clearSession();
+// Future<void> _clearCorruptedSession() async {
+//   await LicenseApiService.clearSession();
 
-  if (mounted) {
-    setState(() {
-      _state = AppStartupState.loggedOut;
-    });
-  }
-}
+//   if (mounted) {
+//     setState(() {
+//       _state = AppStartupState.loggedOut;
+//     });
+//   }
+// }
   
 
 
@@ -504,12 +526,44 @@ Future<void> _clearCorruptedSession() async {
   // LOGOUT
   // -------------------------------------------------------------
   void _logout() async {
-  final prefs = await SharedPreferences.getInstance();
+
+
+ final platform = getPlatform();
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Switch Doctor / Logout"),
+        content: const Text("Are you sure you want to switch doctor or logout?"),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("No")),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Yes")),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      if (kIsWeb) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("You can now close this tab.")),
+        );
+      } else if (platform == 'android') {
+        final prefs = await SharedPreferences.getInstance();
   await prefs.clear();
 
   if (mounted) {
     setState(() => _state = AppStartupState.loggedOut);
-  }
+
+      }
+
+      
+        //SystemNavigator.pop();
+      } else if (platform == 'ios') {
+        exit(0);
+      }
+    }
+    //33434534543543
+  
 
  
 }
@@ -582,6 +636,8 @@ Widget build(BuildContext context) {
         screen = PaywallScreen(
           onSubscriptionActivated: confirmExit,
           onMaybeLater: confirmExit,
+          onRestorePurchase: _restorePurchase,
+          onSwitchDoctor: _logout,
         );
       }
       break;
@@ -686,6 +742,18 @@ Widget _offlineScreen() {
     if (Theme.of(context).platform == TargetPlatform.iOS) return "ios";
     return "unknown";
   }
+Future<void> _restorePurchase() async {
+
+  final licenseProvider = context.read<LicenseProvider>();
+
+  await licenseProvider.loadStatus(); // re-check subscription from backend
+
+  if (mounted) {
+    setState(() {
+      _state = AppStartupState.loggedIn;
+    });
+  }
+}
 
   Future<void> confirmExit() async {
     final platform = getPlatform();
@@ -708,6 +776,7 @@ Widget _offlineScreen() {
           const SnackBar(content: Text("You can now close this tab.")),
         );
       } else if (platform == 'android') {
+        
         SystemNavigator.pop();
       } else if (platform == 'ios') {
         exit(0);

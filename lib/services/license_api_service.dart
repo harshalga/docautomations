@@ -1165,13 +1165,10 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:docautomations/network/dio_client.dart';
 import 'package:docautomations/services/logger_service.dart';
-import 'package:docautomations/utils/logger.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:docautomations/widgets/doctorinfo.dart';
 

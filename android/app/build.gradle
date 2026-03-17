@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.docautomations"
+    namespace = "com.docautomations.prescriptor"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

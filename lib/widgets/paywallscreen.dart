@@ -16,7 +16,13 @@ import 'package:docautomations/common/licenseprovider.dart'; // ✅ make sure th
 class PaywallScreen extends StatefulWidget {
   final VoidCallback onSubscriptionActivated;//  onPurchaseSuccess;
   final VoidCallback onMaybeLater;
-  const PaywallScreen({super.key, required this.onSubscriptionActivated, required this.onMaybeLater});
+  final VoidCallback onRestorePurchase;   // NEW
+  final VoidCallback onSwitchDoctor;      // NEW
+
+  const PaywallScreen({super.key, required this.onSubscriptionActivated, 
+  required this.onMaybeLater,
+  required this.onRestorePurchase,
+    required this.onSwitchDoctor,});
   @override
   State<PaywallScreen> createState() => _PaywallScreenState();
 
@@ -385,6 +391,36 @@ setState(() => isLoading = true);
                   ),
                 ),
               ),
+              const SizedBox(height: 12),
+
+SizedBox(
+  width: double.infinity,
+  child: TextButton(
+    onPressed: widget.onRestorePurchase,
+    child: const Text(
+      "Restore Purchase",
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+  ),
+),
+
+SizedBox(
+  width: double.infinity,
+  child: TextButton(
+    onPressed: widget.onSwitchDoctor,
+    child: const Text(
+      "Switch Doctor (Log out)",
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+  ),
+),
 
               const SizedBox(height: 16),
 

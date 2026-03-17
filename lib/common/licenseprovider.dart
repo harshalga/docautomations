@@ -186,6 +186,7 @@
 
 import 'package:docautomations/services/license_api_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LicenseProvider with ChangeNotifier {
   // ============================================================
@@ -270,6 +271,19 @@ class LicenseProvider with ChangeNotifier {
       notifyListeners(); // 🔥 Single notification
     }
   }
+
+  Future<void> logout() async {
+  // Clear stored license / login data
+  //_licenseData = null;
+  //_isActive = false;
+
+  // If you use SharedPreferences clear it
+   final prefs = await SharedPreferences.getInstance();
+   await prefs.clear();
+
+  notifyListeners();
+}
+
 
   /// Increment prescription count (trial usage)
   Future<void> incrementPrescription() async {

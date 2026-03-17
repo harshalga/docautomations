@@ -4,7 +4,6 @@ import 'package:logger/logger.dart';
 import 'local_file_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:intl/intl.dart';
 
 
 class LoggerService {
