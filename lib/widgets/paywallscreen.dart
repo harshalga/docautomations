@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
+import 'package:docautomations/services/billing_service.dart';
 import 'package:docautomations/services/license_api_service.dart';
+import 'package:docautomations/utils/subscriptionplan.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +12,15 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:docautomations/common/licenseprovider.dart'; // ✅ make sure this import is correct
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:in_app_purchase_android/billing_client_wrappers.dart';
+
+
+
+
+
+
 
 
 
@@ -29,14 +40,16 @@ class PaywallScreen extends StatefulWidget {
 }
 
 class _PaywallScreenState extends State<PaywallScreen> {
-  //onPurchaseSuccess
-  bool _isPurchasing = false;
+  late BillingService billingService;
+  List<GooglePlayProductDetails> products = [];
+bool isBillingLoading = true;
   
-  int selectedOption = 0; // 0: none, 1: 12 months, 2: 1 month
-  String currency = 'INR';
-  double exchangeRate = 1.0;
-  double basePrice12M = 1599; // Base INR price
-  double basePrice1M = 149;   // Base INR price
+  //onPurchaseSuccess
+  //final
+   bool _isPurchasing = false;
+  
+  int selectedOption = -1;//0; // 0: none, 1: 12 months, 2: 1 month
+ 
   bool isLoading = true;
 
   TextEditingController feedbackController = TextEditingController();
@@ -44,127 +57,154 @@ class _PaywallScreenState extends State<PaywallScreen> {
  
 
   @override
-  void initState() {
-    super.initState();
-    _initCurrency();
-  }
+void initState() {
+  super.initState();
 
-  Future<void> _initCurrency() async {
-    try {
-      currency = _getDeviceCurrency();
-      exchangeRate = await _fetchExchangeRate(currency);
-    } catch (e) {
-      print("error $e");
-      exchangeRate = 1.0;
-      currency = 'INR';
-    }
-      if (mounted) setState(() => isLoading = false);
-  }
+  billingService = BillingService();
 
-  String _getDeviceCurrency() {
-    final locale = ui.PlatformDispatcher.instance.locale;
-    final countryCode = locale.countryCode ?? 'IN';
+  billingService.init(_handlePurchaseSuccess);
 
-    Map<String, String> countryCurrency = {
-      'IN': 'INR',
-      'US': 'USD',
-      'GB': 'GBP',
-      'EU': 'EUR',
-      'CA': 'CAD',
-      'AU': 'AUD',
-      'SG': 'SGD',
-      'JP': 'JPY',
-      'AE': 'AED',
-    };
+  
 
-    return countryCurrency[countryCode] ?? 'INR';
-  }
+  loadProducts();
+}
 
-  Future<double> _fetchExchangeRate(String currency) async {
-    final response = await http.get(Uri.parse('https://api.exchangerate-api.com/v4/latest/INR'));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return data['rates'][currency] ?? 1.0;
-    } else {
-      throw Exception('Failed to fetch INR-based exchange rate');
-    }
-  }
 
-  String _formatCurrency(double amount) {
-    final format = NumberFormat.currency(
-      name: currency,
-      symbol: NumberFormat.simpleCurrency(name: currency).currencySymbol,
-      decimalDigits: 2,
+List<SubscriptionPlan> getSubscriptionPlans() {
+  final offers = getOffers();
+
+  return offers.map<SubscriptionPlan>((offer) {
+    final pricing = offer.pricingPhases.pricingPhases.first;
+
+    return SubscriptionPlan(
+      basePlanId: offer.basePlanId ?? "",
+      price: pricing.formattedPrice,
+      billingPeriod: pricing.billingPeriod,
+      offerToken: offer.offerToken ?? "",
     );
-    return format.format(amount);
-  }
+  }).toList();
+}
 
+
+
+
+
+
+List<dynamic> getOffers() {
+  
+  if (products.isEmpty) return [];
+
+  final product = products.first;
+
+  return product.productDetails.subscriptionOfferDetails ?? [];
+}
+
+
+
+
+
+
+Future<void> loadProducts() async {
+  try {
+
+    final result = await billingService.getProducts();
+
+    products = result
+        .whereType<GooglePlayProductDetails>()
+        .toList();
+
+    print("Products loaded: ${products.length}");
+
+  } catch (e) {
+
+    print("Billing error: $e");
+
+  } finally {
+
+    if (mounted) {
+      setState(() => isBillingLoading = false);
+    }
+
+  }
+}
+
+  
   String getPlatform() {
     if (Theme.of(context).platform == TargetPlatform.android) return "android";
     if (Theme.of(context).platform == TargetPlatform.iOS) return "ios";
     return "unknown"; //Bydefault we save android as the platform
   }
 
-  Future<void> _purchase(BuildContext context, String productId) async {
 
-          if (_isPurchasing) return;
-          setState((){
-      _isPurchasing = true;
-      isLoading = true;
-          } );
-    bool success= false;
-    final platform = getPlatform();
-    
-    //final licenseProvider = context.read<LicenseProvider>();
+Future<void> _handlePurchaseSuccess(PurchaseDetails purchase) async {
 
-    
-    try{
+  final token =
+      purchase.verificationData.serverVerificationData;
 
-    final expiryDate = DateTime.now().add(
-      Duration(days: productId == "prescriptor_yearly" ? 365 : 30),
+  // final expiryDate =
+  //     DateTime.now().add(const Duration(days: 365));
+
+  final success = await LicenseApiService.activateSubscription(
+    purchase.productID,
+    purchase.purchaseID ?? "",
+    //null,
+    getPlatform(),
+    token,
+  );
+
+  if (!mounted) return;
+
+  if (success) {
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Subscription activated")),
     );
 
-    success = await LicenseApiService.activateSubscription(
-      productId,
-      "txn_dummy",
-      expiryDate,
-      platform,
-      "token_dummy"
+    widget.onSubscriptionActivated();
+  }
+}
+
+
+
+Future<void> _purchase() async {
+
+  if (products.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Subscription unavailable")),
     );
-     if (!mounted) return; // 👈 avoids accessing context after dispose
-    
-    if (success)
-    {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Subscription activated!')));
-      // ✅ Notify parent (AppEntryPoint)
-      widget.onSubscriptionActivated();
-
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Purchase failed. Please try again.')),
-      );
-    }
-
-    if (mounted) setState(() => _isPurchasing = false);
-      
-    } catch (e) {
-
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => isLoading = false);
-    }
-
-
-  
+    return;
   }
 
-   
+  try {
+
+    setState(() {
+      _isPurchasing = true;
+      isLoading = true;
+    });
+    final plans = getSubscriptionPlans();
+    if (plans.isEmpty) return;
+    final selectedPlan = plans[selectedOption];
+
+    final product = products.first;
+
+    await billingService.buy(product,selectedPlan.offerToken);
+
+  } catch (e) {
+
+    print("Purchase error: $e");
+
+  } finally {
+
+    if (mounted) {
+      setState(() {
+        _isPurchasing = false;
+        isLoading = false;
+      });
+    }
+
+  }
+}
+  
 
   Future<void> confirmExit() async {
     final platform = getPlatform();
@@ -231,6 +271,8 @@ setState(() => isLoading = true);
       });
     }
   }
+ 
+
 
   @override
   Widget build(BuildContext context) {
@@ -238,11 +280,9 @@ setState(() => isLoading = true);
     //final licenseProvider = Provider.of<LicenseProvider>(context);
     //final licenseProvider = context.read<LicenseProvider>();
 
-    
+     final plans = getSubscriptionPlans();
 
-    double price12M = double.parse((basePrice12M * exchangeRate).toStringAsFixed(2));
-    double price1M = double.parse((basePrice1M * exchangeRate).toStringAsFixed(2));
-    double perMonth12M = double.parse((price12M / 12).toStringAsFixed(2));
+   
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -325,40 +365,48 @@ setState(() => isLoading = true);
               ),
               const SizedBox(height: 20),
 
-              // 12-month Option
-              _subscriptionCard(
-                title: '12 Months',
-                totalPrice: price12M,
-                perMonth: perMonth12M,
-                isBestSeller: true,
-                isSelected: selectedOption == 1,
-                onTap: () => setState(() => selectedOption = 1),
-              ),
-              const SizedBox(height: 16),
+              
+              
 
-              // 1-month Option
-              _subscriptionCard(
-                title: '1 Month',
-                totalPrice: price1M,
-                perMonth: price1M,
-                isBestSeller: false,
-                isSelected: selectedOption == 2,
-                onTap: () => setState(() => selectedOption = 2),
-              ),
+Column(
+  children: plans.asMap().entries.map((entry) {
+    final index = entry.key;
+    final plan = entry.value;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: _subscriptionCard(
+        title: plan.basePlanId,
+        // totalPrice: 0,
+        // perMonth: 0,
+        priceLabel: plan.price,
+        isBestSeller: plan.basePlanId == "yearly-plan",
+        isSelected: selectedOption == index,
+        onTap: () {
+          setState(() {
+            selectedOption = index;
+          });
+        },
+      ),
+    );
+  }).toList(),
+),
               const SizedBox(height: 30),
 
               // Activate Subscription Button
               SizedBox(
                 width: double.infinity,
                 child: GestureDetector(
-                  onTap: selectedOption == 0
+                  onTap: selectedOption == -1 //0
                       ? null
                       : () async {
-                          if (selectedOption == 1) {
-                            await _purchase(context, "prescriptor_yearly");
-                          } else {
-                            await  _purchase(context, "prescriptor_monthly");
-                          }
+                          // if (selectedOption == 1) {
+                          //   //TODO: pass actual productId based on selection
+                          //   await _purchase(context, "prescriptor_yearly");
+                          // } else {
+                          //   await  _purchase(context, "prescriptor_monthly");
+                          // }
+                          await _purchase();
                         },
                   child: AnimatedContainer(
                     duration: Duration(milliseconds: 300),
@@ -396,7 +444,10 @@ setState(() => isLoading = true);
 SizedBox(
   width: double.infinity,
   child: TextButton(
-    onPressed: widget.onRestorePurchase,
+    //onPressed: widget.onRestorePurchase,
+    onPressed: () async {
+  await billingService.restore();
+},
     child: const Text(
       "Restore Purchase",
       style: TextStyle(
@@ -459,11 +510,15 @@ if (isLoading)
 
   Widget _subscriptionCard({
     required String title,
-    required double totalPrice,
-    required double perMonth,
-    required bool isBestSeller,
-    required bool isSelected,
-    required VoidCallback onTap,
+      required String priceLabel,
+      required bool isBestSeller,
+      required bool isSelected,
+     required VoidCallback onTap,
+    // required double totalPrice,
+    // required double perMonth,
+    // required bool isBestSeller,
+    // required bool isSelected,
+    // required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -514,7 +569,8 @@ if (isLoading)
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    '${_formatCurrency(totalPrice)} • (${_formatCurrency(perMonth)}/month)',
+                   
+                    priceLabel,
                     style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                   ),
                 ],

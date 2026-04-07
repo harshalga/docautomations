@@ -1690,7 +1690,7 @@ static Future<Map<String, dynamic>?> getSubscriptionStatus() async {
 static Future<bool> activateSubscription(
   String productId,
   String transactionId,
-  DateTime expiryDate,
+  //DateTime expiryDate,
   String platform,
   String receiptData,
 ) async {
@@ -1700,7 +1700,7 @@ static Future<bool> activateSubscription(
       data: {
         "productId": productId,
         "transactionId": transactionId,
-        "expiryDate": expiryDate.toIso8601String(),
+    //    "expiryDate": expiryDate.toIso8601String(),
         "platform": platform,
         "receiptData": receiptData,
       },

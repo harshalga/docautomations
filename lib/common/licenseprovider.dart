@@ -319,7 +319,7 @@ class LicenseProvider with ChangeNotifier {
       success = await LicenseApiService.activateSubscription(
         productId,
         transactionId,
-        expiryDate,
+        //expiryDate,
         platform,
         receiptData,
       );
