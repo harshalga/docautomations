@@ -71,6 +71,7 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
         _usernameController.text.trim(),
         _passwordController.text.trim(),
       );
+      if (!mounted) return;
 
       setState(() => _loading = false);
 
@@ -85,6 +86,7 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() => _loading = false);
       
     }

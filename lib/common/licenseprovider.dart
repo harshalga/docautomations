@@ -194,6 +194,7 @@ class LicenseProvider with ChangeNotifier {
   // ============================================================
 
   bool _isLoading = false;
+  bool _statusLoaded = false;
 
   // Trial state
   bool _isTrialActive = false;
@@ -241,36 +242,104 @@ class LicenseProvider with ChangeNotifier {
   // ============================================================
 
   /// Load trial + subscription from server
+  /// 
+  /// 
+  
   Future<void> loadStatus() async {
-    _setLoading(true);
 
-    try {
-      // ------ Trial ------
-      final trial = await LicenseApiService.getTrialStatus();
-      if (trial != null) {
-        _isTrialActive = trial["isTrialActive"] ?? false;
-        _prescriptionCount = trial["prescriptionCount"] ?? 0;
-        _trialEndDate = trial["trialEndDate"] != null
-            ? DateTime.tryParse(trial["trialEndDate"])
-            : null;
-      }
-
-      // ------ Subscription ------
-      final sub = await LicenseApiService.getSubscriptionStatus();
-      if (sub != null) {
-        _isSubscribed = sub["isSubscribed"] ?? false;
-        _subscriptionExpiry = sub["expiryDate"] != null
-            ? DateTime.tryParse(sub["expiryDate"])
-            : null;
-        _productId = sub["productId"];
-      }
-    } catch (e) {
-      if (kDebugMode) print("❌ loadStatus error: $e");
-    } finally {
-      _setLoading(false);
-      notifyListeners(); // 🔥 Single notification
+    if(_statusLoaded)
+    {
+      return;
     }
+
+  final firstLoad = !_statusLoaded;
+
+  if (firstLoad) {
+    _setLoading(true);
   }
+
+  try {
+
+    final results = await Future.wait([
+      LicenseApiService.getTrialStatus(),
+      LicenseApiService.getSubscriptionStatus(),
+    ]);
+
+    final trial = results[0];
+    final sub = results[1];
+
+    if (trial != null) {
+      _isTrialActive = trial["isTrialActive"] ?? false;
+      _prescriptionCount = trial["prescriptionCount"] ?? 0;
+      _trialEndDate = trial["trialEndDate"] != null
+          ? DateTime.tryParse(trial["trialEndDate"])
+          : null;
+    }
+
+    if (sub != null) {
+      _isSubscribed = sub["isSubscribed"] ?? false;
+      _subscriptionExpiry = sub["expiryDate"] != null
+          ? DateTime.tryParse(sub["expiryDate"])
+          : null;
+      _productId = sub["productId"];
+    }
+
+    //_statusLoaded = true;
+
+  } catch (e) {
+
+    if (kDebugMode) {
+      print("❌ loadStatus error: $e");
+    }
+
+  } finally {
+
+    if (firstLoad) {
+      _setLoading(false);
+    }
+
+    notifyListeners();
+  }
+}
+
+  // Future<void> loadStatus() async {
+  //   final firstLoad = !_statusLoaded;
+
+    
+  //   if (firstLoad) {
+  //     _setLoading(true);
+  //   //  notifyListeners(); // Show loading on first load
+  //   }
+
+    
+
+  //   try {
+  //     // ------ Trial ------
+  //     final trial = await LicenseApiService.getTrialStatus();
+  //     if (trial != null) {
+  //       _isTrialActive = trial["isTrialActive"] ?? false;
+  //       _prescriptionCount = trial["prescriptionCount"] ?? 0;
+  //       _trialEndDate = trial["trialEndDate"] != null
+  //           ? DateTime.tryParse(trial["trialEndDate"])
+  //           : null;
+  //     }
+
+  //     // ------ Subscription ------
+  //     final sub = await LicenseApiService.getSubscriptionStatus();
+  //     if (sub != null) {
+  //       _isSubscribed = sub["isSubscribed"] ?? false;
+  //       _subscriptionExpiry = sub["expiryDate"] != null
+  //           ? DateTime.tryParse(sub["expiryDate"])
+  //           : null;
+  //       _productId = sub["productId"];
+  //     }
+  //   } catch (e) {
+  //     if (kDebugMode) print("❌ loadStatus error: $e");
+  //   } finally {
+  //     _setLoading(false);
+  //     notifyListeners(); // 🔥 Single notification
+  //   }
+  // }
 
   Future<void> logout() async {
   // Clear stored license / login data

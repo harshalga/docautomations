@@ -50,7 +50,7 @@ bool isBillingLoading = true;
   
   int selectedOption = -1;//0; // 0: none, 1: 12 months, 2: 1 month
  
-  bool isLoading = true;
+  //bool isLoading = true;
 
   TextEditingController feedbackController = TextEditingController();
   bool feedbackSaved = false;
@@ -64,9 +64,11 @@ void initState() {
 
   billingService.init(_handlePurchaseSuccess);
 
-  
+  Future.microtask(() {
+    loadProducts();
+  });
 
-  loadProducts();
+  
 }
 
 
@@ -74,13 +76,22 @@ List<SubscriptionPlan> getSubscriptionPlans() {
   final offers = getOffers();
 
   return offers.map<SubscriptionPlan>((offer) {
-    final pricing = offer.pricingPhases.pricingPhases.first;
+    if (offer.pricingPhases.isEmpty) {
+      return SubscriptionPlan(
+        basePlanId: offer.basePlanId ?? "",
+        price: "Unavailable",
+        billingPeriod: "",
+        offerToken: offer.offerIdToken ?? "",
+      );
+    }
+
+    final pricing = offer.pricingPhases.first;
 
     return SubscriptionPlan(
       basePlanId: offer.basePlanId ?? "",
       price: pricing.formattedPrice,
       billingPeriod: pricing.billingPeriod,
-      offerToken: offer.offerToken ?? "",
+      offerToken: offer.offerIdToken ?? "",
     );
   }).toList();
 }
@@ -179,7 +190,7 @@ Future<void> _purchase() async {
 
     setState(() {
       _isPurchasing = true;
-      isLoading = true;
+    //  isLoading = true;
     });
     final plans = getSubscriptionPlans();
     if (plans.isEmpty) return;
@@ -198,7 +209,7 @@ Future<void> _purchase() async {
     if (mounted) {
       setState(() {
         _isPurchasing = false;
-        isLoading = false;
+       // isLoading = false;
       });
     }
 
@@ -250,7 +261,7 @@ Future<void> _purchase() async {
       return;
     }
     
-setState(() => isLoading = true);
+//setState(() => isLoading = true);
     // TODO: save feedback to backend with doctorId
     //storeFeedbackBeforeUninstall
     final licenseProvider = context.read<LicenseProvider>();
@@ -266,7 +277,7 @@ setState(() => isLoading = true);
     );
     if (mounted) {
       setState(() {
-        isLoading = false;
+        //isLoading = false;
         feedbackSaved = true;
       });
     }
@@ -279,6 +290,13 @@ setState(() => isLoading = true);
     //final license = context.watch<LicenseProvider>();
     //final licenseProvider = Provider.of<LicenseProvider>(context);
     //final licenseProvider = context.read<LicenseProvider>();
+
+
+//     if (isBillingLoading) {
+//   return const Scaffold(
+//     body: Center(child: CircularProgressIndicator()),
+//   );
+// }
 
      final plans = getSubscriptionPlans();
 
@@ -366,7 +384,23 @@ setState(() => isLoading = true);
               const SizedBox(height: 20),
 
               
-              
+ // ⭐ Small loader while billing products load
+if (isBillingLoading)
+  const Padding(
+    padding: EdgeInsets.symmetric(vertical: 20),
+    child: Column(
+      children: [
+        CircularProgressIndicator(),
+        SizedBox(height: 10),
+        Text(
+          "Loading subscription plans...",
+          style: TextStyle(color: Colors.grey),
+        ),
+      ],
+    ),
+  )
+else
+             
 
 Column(
   children: plans.asMap().entries.map((entry) {
@@ -397,7 +431,7 @@ Column(
               SizedBox(
                 width: double.infinity,
                 child: GestureDetector(
-                  onTap: selectedOption == -1 //0
+                  onTap: (selectedOption == -1 || isBillingLoading)//0
                       ? null
                       : () async {
                           // if (selectedOption == 1) {
@@ -413,7 +447,7 @@ Column(
                     padding: EdgeInsets.symmetric(vertical: 18),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      gradient: selectedOption == 0
+                      gradient: selectedOption == -1
                           ? LinearGradient(colors: [Colors.grey, Colors.grey.shade400])
                           : LinearGradient(colors: [Colors.blueAccent, Colors.lightBlueAccent]),
                       boxShadow: selectedOption == 0
@@ -501,8 +535,8 @@ SizedBox(
         ),
         /// Reusable overlay
         // ✅ Overlay Loader when loading
-if (isLoading)
-    LoadingOverlay(isLoading:isLoading, message: "loading...."),
+// if (isLoading)
+//     LoadingOverlay(isLoading:isLoading, message: "loading...."),
         ],)
       ),
     );

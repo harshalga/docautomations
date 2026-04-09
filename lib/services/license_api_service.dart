@@ -1674,14 +1674,39 @@ static Future<Map<String, dynamic>?> getSubscriptionStatus() async {
     final response =
         await DioClient.instance.get('/api/subscription/status');
 
-    return response.data as Map<String, dynamic>;
-  } catch (e, s) {
+    //return response.data as Map<String, dynamic>;
+    return response.data ?? {
+      "isSubscribed": false,
+      "expiryDate": null,
+      "productId": null,
+    };
+  } 
+  on DioException catch (e) {
+
+  print("STATUS CODE: ${e.response?.statusCode}");
+  print("RESPONSE: ${e.response?.data}");
+  print("ERROR: $e");
+
+
+  rethrow;
+}
+  catch (e, s) {
+
+    debugPrint("Subscription status error: $e");
+
     await LoggerService.error(
       'Failed to fetch subscription status',
       error: e,
       stack: s,
     );
-    return null;
+
+      return {
+    "isSubscribed": false,
+    "expiryDate": null,
+    "productId": null
+  };
+
+//    return null;
   }
 }
 
