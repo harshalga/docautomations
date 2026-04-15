@@ -186,13 +186,67 @@ class _DoctorWelcomeScreenState extends State<DoctorWelcomeScreen> {
                                     textAlign: TextAlign.center,
                                   )
                                 else if (license.isSubscribed)
-                                  const Text(
-                                    "Subscription Active ✅",
-                                    style: TextStyle(
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
+                                  // const Text(
+                                  //   "Subscription Active ✅",
+                                  //   style: TextStyle(
+                                  //     color: Colors.green,
+                                  //     fontWeight: FontWeight.bold,
+                                  //   ),
+                                  // )
+
+ 
+  Column(
+    children: [
+      const Text(
+        "Subscription Active ✅",
+        style: TextStyle(
+          color: Colors.green,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+
+      if (license.subscriptionExpiry != null) ...[
+        const SizedBox(height: 5),
+
+        // ✅ Expiry date
+        Text(
+          "Valid till ${DateFormat('dd MMM yyyy').format(license.subscriptionExpiry!)}",
+          style: TextStyle(
+            color: Colors.green[700],
+            fontSize: 14,
+          ),
+        ),
+
+        const SizedBox(height: 3),
+
+        // ✅ Days remaining (THIS IS WHAT YOU ASKED)
+        Text(
+          (() {
+            final daysLeft = license.subscriptionExpiry!
+                .difference(DateTime.now())
+                .inDays;
+
+            if (daysLeft <= 0) {
+              return "Expired";
+            } else if (daysLeft <= 3) {
+              return "⚠️ Expiring in $daysLeft days";
+            } else {
+              return "Expires in $daysLeft days";
+            }
+          })(),
+          style: TextStyle(
+            color: (license.subscriptionExpiry!
+                        .difference(DateTime.now())
+                        .inDays <= 3)
+                ? Colors.orange
+                : Colors.grey[700],
+            fontSize: 13,
+          ),
+        ),
+      ],
+    ],
+  )
                                 else
                                   Text(
                                     "Trial Active until ${DateFormat('dd/MM/yyyy HH:mm:ss').format(license.trialEndDate!)}",

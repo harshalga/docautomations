@@ -221,6 +221,8 @@ class LicenseProvider with ChangeNotifier {
 
   /// Unified check: whether doctor can generate prescriptions
   bool get canPrescribe {
+    if (isLoading) return false; // prevent early access
+
     if (_isTrialActive) return true;
     if (_isSubscribed && _subscriptionExpiry != null) {
       return _subscriptionExpiry!.isAfter(DateTime.now());
@@ -261,30 +263,35 @@ class LicenseProvider with ChangeNotifier {
   try {
 
     final results = await Future.wait([
-      LicenseApiService.getTrialStatus(),
-      LicenseApiService.getSubscriptionStatus(),
+      LicenseApiService.getTrialStatus()
+     // LicenseApiService.getSubscriptionStatus(),
     ]);
 
     final trial = results[0];
-    final sub = results[1];
+    //final sub = results[1];
 
     if (trial != null) {
-      _isTrialActive = trial["isTrialActive"] ?? false;
-      _prescriptionCount = trial["prescriptionCount"] ?? 0;
-      _trialEndDate = trial["trialEndDate"] != null
-          ? DateTime.tryParse(trial["trialEndDate"])
-          : null;
-    }
+  _isTrialActive = trial["isTrialActive"] ?? false;
 
-    if (sub != null) {
-      _isSubscribed = sub["isSubscribed"] ?? false;
-      _subscriptionExpiry = sub["expiryDate"] != null
-          ? DateTime.tryParse(sub["expiryDate"])
-          : null;
-      _productId = sub["productId"];
-    }
+  _isSubscribed = trial["isSubscribed"] ?? false;
 
-    //_statusLoaded = true;
+  _prescriptionCount = trial["prescriptionCount"] ?? 0;
+
+  _trialEndDate = trial["trialEndDate"] != null
+      ? DateTime.tryParse(trial["trialEndDate"])
+      : null;
+
+  _subscriptionExpiry = trial["expiryDate"] != null
+      ? DateTime.tryParse(trial["expiryDate"])
+      : null;
+}
+
+    
+
+//     print("Trial: $_isTrialActive");
+// print("Subscribed: $_isSubscribed");
+// print("Expiry: $_subscriptionExpiry");
+// print("CanPrescribe: $canPrescribe");
 
   } catch (e) {
 

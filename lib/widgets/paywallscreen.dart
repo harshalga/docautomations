@@ -148,6 +148,11 @@ Future<void> loadProducts() async {
 
 
 Future<void> _handlePurchaseSuccess(PurchaseDetails purchase) async {
+if(!mounted) return;
+print("Purchase success callback triggered");
+  print("Product: ${purchase.productID}");
+  print("Status: ${purchase.status}");
+  
 
   final token =
       purchase.verificationData.serverVerificationData;

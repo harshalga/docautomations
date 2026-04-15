@@ -230,7 +230,7 @@ Future<void> _bootstrap() async {
     });
   }
 
- 
+ setState(() => _state = AppStartupState.loggedIn);
   context.read<LicenseProvider>().loadStatus();
 }
 
@@ -275,12 +275,11 @@ Widget build(BuildContext context) {
     case AppStartupState.loggedIn:
       final license = context.watch<LicenseProvider>();
 
-      // if (license.isLoading) {
-      //   screen = const Scaffold(
-      //     body: Center(child: CircularProgressIndicator()),
-      //   );
-      // } else
-       if (license.canPrescribe) {
+      if (license.isLoading) {
+        screen = const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
+      } else if (license.canPrescribe) {
         screen = Menubar(
           body: const Addprescrip(title: "Patient Diagnosis"),
           onLogout: _logout,
