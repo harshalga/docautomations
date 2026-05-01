@@ -638,11 +638,7 @@
 // }
 
 
-// static Future<void> clearSession() async {
-//   final prefs = await SharedPreferences.getInstance();
-//   await prefs.remove('access_token');
-//   await prefs.remove('refresh_token');
-// }
+
 
 
 // static Future<bool> checkBackendHealth() async {
@@ -1167,6 +1163,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:docautomations/network/dio_client.dart';
+import 'package:docautomations/services/auth_service.dart';
 import 'package:docautomations/services/logger_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1210,11 +1207,7 @@ static Future<void> storeFeedbackBeforeUninstall(String feedback) async {
 }
 
 
-static Future<void> clearSession() async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.remove('access_token');
-  await prefs.remove('refresh_token');
-}
+
 
 
 static Future<bool> checkBackendHealth() async {
@@ -1302,6 +1295,11 @@ static Future<Map<String, dynamic>> registerDoctorOnServer(
     );
 
     final data = response.data;
+
+    await AuthService.saveTokens(
+  accessToken: data["accessToken"],
+  refreshToken: data["refreshToken"],
+);
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("access_token", data["accessToken"]);
@@ -1465,6 +1463,11 @@ static Future<Map<String, String>?> loginDoctor(
     if (_accessToken != null && _refreshToken != null) {
       await prefs.setString("access_token", _accessToken!);
       await prefs.setString("refresh_token", _refreshToken!);
+
+      await AuthService.saveTokens(
+  accessToken: data["accessToken"],
+  refreshToken: data["refreshToken"],
+            );
     }
 
     await prefs.setString("doctor_name", data["doctor"]["name"]);
@@ -1638,6 +1641,7 @@ static Future<bool> isTokenValid(String token) async {
   static Future<void> _logout() async {
      _accessToken = null;
     _refreshToken = null;
+      AuthService.logout();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove("access_token");
   await prefs.remove("refresh_token");
@@ -1664,6 +1668,34 @@ static Future<Map<String, dynamic>?> getTrialStatus() async {
     return null;
   }
 }
+
+/// Check whether email is registered
+  static Future<bool> checkEmailExists(String email) async {
+    try {
+      final Response response = await DioClient.instance.post(
+        "/api/doctor/check-email",
+        data: {
+          "email": email.trim(),
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        if (data is Map<String, dynamic>) {
+          return data["exists"] == true;
+        }
+      }
+
+      return false;
+    } on DioException catch (e) {
+      print("checkEmailExists Dio error: ${e.message}");
+      return false;
+    } catch (e) {
+      print("checkEmailExists error: $e");
+      return false;
+    }
+  }
 
 /// ------------------------
 /// SUBSCRIPTION MANAGEMENT
@@ -1720,6 +1752,10 @@ static Future<bool> activateSubscription(
   String receiptData,
 ) async {
   try {
+    print({
+ 'productId': productId,
+ 'purchaseToken': receiptData,
+});
     await DioClient.instance.post(
       '/api/subscription/activate',
       data: {
@@ -1739,7 +1775,12 @@ static Future<bool> activateSubscription(
       error: e,
       stack: s,
     );
-    return false;
+    //return false;
+    if (e is DioException) {
+       if (e.response?.statusCode == 401) {
+          return false;
+        }}
+ rethrow;
   }
 }
 

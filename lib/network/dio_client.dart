@@ -1,26 +1,172 @@
+// import 'dart:async';
+
+// import 'package:dio/dio.dart';
+// import 'package:docautomations/services/auth_service.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+// import '../services/logger_service.dart';
+
+
+// class _QueuedRequest {
+//   final RequestOptions options;
+// //  final ErrorInterceptorHandler handler;
+
+//   //_QueuedRequest(this.options, this.handler);
+//   _QueuedRequest(this.options);
+// }
+
+// class DioClient {
+//   static Dio? _dio;
+
+//   static bool _isRefreshing = false;
+//   static Completer<void>? _refreshCompleter;
+  
+//   //static final List<RequestOptions> _retryQueue = [];
+//   static final List<_QueuedRequest> _retryQueue = [];
+
+//   static Dio get instance {
+//     _dio ??= _createDio();
+//     return _dio!;
+//   }
+
+//   static Dio _createDio() {
+//     final dio = Dio(
+//       BaseOptions(
+//         baseUrl: 'https://license-server-0zfe.onrender.com',
+//         connectTimeout: const Duration(seconds: 15),
+//         receiveTimeout: const Duration(seconds: 45),
+//         headers: {'Content-Type': 'application/json'},
+//       ),
+//     );
+
+//     dio.interceptors.add(
+//       InterceptorsWrapper(
+//         onRequest: (options, handler) async {
+//           // final prefs = await SharedPreferences.getInstance();
+//           // final token = prefs.getString('access_token');
+//           final token =
+//           await AuthService.getToken();
+
+//           if (token != null) {
+//             options.headers['Authorization'] = 'Bearer $token';
+//           }
+
+//           LoggerService.debug('➡️ ${options.method} ${options.uri}');
+//           handler.next(options);
+//         },
+
+//         onResponse: (response, handler) {
+//           LoggerService.debug(
+//               '⬅️ ${response.statusCode} ${response.requestOptions.uri}');
+//           handler.next(response);
+//         },
+// onError: (DioException e, handler) async {
+
+//   if (e.response?.statusCode == 401) {
+
+//     final requestOptions = e.requestOptions;
+
+//     // Refresh already running → queue request
+//     if (_isRefreshing) {
+//       //_retryQueue.add(_QueuedRequest(requestOptions, handler));
+//       _retryQueue.add(_QueuedRequest(requestOptions));
+//       return;
+//     }
+
+//     _isRefreshing = true;
+
+//     final refreshed = await _refreshToken();
+
+//     _isRefreshing = false;
+
+//     final prefs = await SharedPreferences.getInstance();
+
+//     if (refreshed) {
+
+//       final newToken = prefs.getString('access_token');
+
+//       requestOptions.headers['Authorization'] = 'Bearer $newToken';
+
+//       final response = await dio.fetch(requestOptions);
+
+//       // Retry queued requests
+//       for (final queued in _retryQueue) {
+
+//         queued.options.headers['Authorization'] = 'Bearer $newToken';
+
+//         //final retryResponse = await dio.fetch(queued.options);
+//          dio.fetch(queued.options);
+//         //queued.handler.resolve(retryResponse);
+//       }
+
+//       _retryQueue.clear();
+
+//       return handler.resolve(response);
+
+//     } else {
+
+//       // session invalid
+//       await prefs.remove('access_token');
+//       await prefs.remove('refresh_token');
+
+//     }
+//   }
+
+//   await LoggerService.error(
+//     '❌ API Error',
+//     error: e,
+//     stack: e.stackTrace,
+//   );
+
+//   handler.next(e);
+// }
+      
+//       ),
+//     );
+
+//     return dio;
+//   }
+
+//   static Future<bool> _refreshToken() async {
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final refreshToken = prefs.getString('refresh_token');
+
+//       if (refreshToken == null) return false;
+
+//       final response = await Dio().post(
+//         'https://license-server-0zfe.onrender.com/api/doctor/refresh',
+//         data: {'refreshToken': refreshToken},
+//       );
+
+//       final newToken = response.data['accessToken'];
+
+//       await prefs.setString('access_token', newToken);
+
+//       LoggerService.debug("🔄 Token refreshed");
+
+//       return true;
+//     } catch (e) {
+//       LoggerService.debug("❌ Token refresh failed");
+//       return false;
+//     }
+//   }
+
+//   static Future<void> _logout() async {
+//     final prefs = await SharedPreferences.getInstance();
+//     await prefs.clear();
+//   }
+// }
+
 import 'dart:async';
-
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:docautomations/services/auth_service.dart';
 import '../services/logger_service.dart';
-
-
-class _QueuedRequest {
-  final RequestOptions options;
-//  final ErrorInterceptorHandler handler;
-
-  //_QueuedRequest(this.options, this.handler);
-  _QueuedRequest(this.options);
-}
 
 class DioClient {
   static Dio? _dio;
 
   static bool _isRefreshing = false;
-  static Completer<void>? _refreshCompleter;
-  
-  //static final List<RequestOptions> _retryQueue = [];
-  static final List<_QueuedRequest> _retryQueue = [];
+  static Completer<bool>? _refreshCompleter;
 
   static Dio get instance {
     _dio ??= _createDio();
@@ -33,176 +179,127 @@ class DioClient {
         baseUrl: 'https://license-server-0zfe.onrender.com',
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 45),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+        },
       ),
     );
 
     dio.interceptors.add(
       InterceptorsWrapper(
+        // ===============================
+        // REQUEST
+        // ===============================
         onRequest: (options, handler) async {
-          final prefs = await SharedPreferences.getInstance();
-          final token = prefs.getString('access_token');
+          final token = await AuthService.getToken();
 
-          if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] =
+                'Bearer $token';
           }
 
-          LoggerService.debug('➡️ ${options.method} ${options.uri}');
+          LoggerService.debug(
+            '➡️ ${options.method} ${options.uri}',
+          );
+
           handler.next(options);
         },
 
+        // ===============================
+        // RESPONSE
+        // ===============================
         onResponse: (response, handler) {
           LoggerService.debug(
-              '⬅️ ${response.statusCode} ${response.requestOptions.uri}');
+            '⬅️ ${response.statusCode} ${response.requestOptions.uri}',
+          );
+
           handler.next(response);
         },
-onError: (DioException e, handler) async {
 
-  if (e.response?.statusCode == 401) {
+        // ===============================
+        // ERROR + AUTO REFRESH TOKEN
+        // ===============================
+        onError:
+            (DioException e, handler) async {
+          final status =
+              e.response?.statusCode;
 
-    final requestOptions = e.requestOptions;
+          final path =
+              e.requestOptions.path;
 
-    // Refresh already running → queue request
-    if (_isRefreshing) {
-      //_retryQueue.add(_QueuedRequest(requestOptions, handler));
-      _retryQueue.add(_QueuedRequest(requestOptions));
-      return;
-    }
+          final isRefreshCall =
+              path.contains('/refresh');
 
-    _isRefreshing = true;
+          // --------------------------------
+          // If token expired
+          // --------------------------------
+          if (status == 401 &&
+              !isRefreshCall) {
+            try {
+              // another refresh already running
+              if (_isRefreshing) {
+                await _refreshCompleter
+                    ?.future;
+              } else {
+                _isRefreshing = true;
+                _refreshCompleter =
+                    Completer<bool>();
 
-    final refreshed = await _refreshToken();
+                final refreshed =
+                    await AuthService
+                        .refreshAccessToken();
 
-    _isRefreshing = false;
+                _refreshCompleter
+                    ?.complete(
+                        refreshed);
 
-    final prefs = await SharedPreferences.getInstance();
+                _isRefreshing =
+                    false;
+              }
 
-    if (refreshed) {
+              final success =
+                  await _refreshCompleter!
+                      .future;
 
-      final newToken = prefs.getString('access_token');
+              if (success) {
+                final newToken =
+                    await AuthService
+                        .getToken();
 
-      requestOptions.headers['Authorization'] = 'Bearer $newToken';
+                final request =
+                    e.requestOptions;
 
-      final response = await dio.fetch(requestOptions);
+                request.headers[
+                        'Authorization'] =
+                    'Bearer $newToken';
 
-      // Retry queued requests
-      for (final queued in _retryQueue) {
+                final clonedResponse =
+                    await dio.fetch(
+                        request);
 
-        queued.options.headers['Authorization'] = 'Bearer $newToken';
+                return handler.resolve(
+                    clonedResponse);
+              } else {
+                await AuthService
+                    .logout();
+              }
+            } catch (_) {
+              await AuthService
+                  .logout();
+            }
+          }
 
-        //final retryResponse = await dio.fetch(queued.options);
-         dio.fetch(queued.options);
-        //queued.handler.resolve(retryResponse);
-      }
+          await LoggerService.error(
+            '❌ API Error',
+            error: e,
+            stack: e.stackTrace,
+          );
 
-      _retryQueue.clear();
-
-      return handler.resolve(response);
-
-    } else {
-
-      // session invalid
-      await prefs.remove('access_token');
-      await prefs.remove('refresh_token');
-
-    }
-  }
-
-  await LoggerService.error(
-    '❌ API Error',
-    error: e,
-    stack: e.stackTrace,
-  );
-
-  handler.next(e);
-}
-      //   onError: (DioException e, handler) async {
-      //     if (e.response?.statusCode == 401) {
-      //       final prefs = await SharedPreferences.getInstance();
-
-      //       final requestOptions = e.requestOptions;
-
-      //       // If refresh already happening → queue request
-      //       if (_isRefreshing) {
-      //         _retryQueue.add(requestOptions);
-      //         return;
-      //       }
-
-      //       _isRefreshing = true;
-
-      //       final refreshed = await _refreshToken();
-
-      //       _isRefreshing = false;
-
-      //       if (refreshed) {
-      //         final prefs = await SharedPreferences.getInstance();
-      //         final newToken = prefs.getString('access_token');
-
-      //         // Retry original request
-      //         requestOptions.headers['Authorization'] = 'Bearer $newToken';
-
-      //         final response = await dio.fetch(requestOptions);
-
-      //         // Retry queued requests
-      //         for (final req in _retryQueue) {
-      //           req.headers['Authorization'] = 'Bearer $newToken';
-      //           dio.fetch(req);
-      //         }
-
-      //         _retryQueue.clear();
-
-      //         return handler.resolve(response);
-      //       } else {
-      //        // session invalid
-      // final prefs = await SharedPreferences.getInstance();
-      // await prefs.remove('access_token');
-      // await prefs.remove('refresh_token');
- 
-      //         await _logout();
-      //       }
-      //     }
-
-      //     await LoggerService.error(
-      //       '❌ API Error',
-      //       error: e,
-      //       stack: e.stackTrace,
-      //     );
-
-      //     handler.next(e);
-      //   },
+          handler.next(e);
+        },
       ),
     );
 
     return dio;
-  }
-
-  static Future<bool> _refreshToken() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final refreshToken = prefs.getString('refresh_token');
-
-      if (refreshToken == null) return false;
-
-      final response = await Dio().post(
-        'https://license-server-0zfe.onrender.com/api/doctor/refresh',
-        data: {'refreshToken': refreshToken},
-      );
-
-      final newToken = response.data['accessToken'];
-
-      await prefs.setString('access_token', newToken);
-
-      LoggerService.debug("🔄 Token refreshed");
-
-      return true;
-    } catch (e) {
-      LoggerService.debug("❌ Token refresh failed");
-      return false;
-    }
-  }
-
-  static Future<void> _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
   }
 }

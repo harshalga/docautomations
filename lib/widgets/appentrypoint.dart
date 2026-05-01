@@ -4,6 +4,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:docautomations/network/dio_client.dart';
+import 'package:docautomations/services/auth_service.dart';
 import 'package:docautomations/widgets/AddPrescrip.dart';
 import 'package:docautomations/widgets/DoctorLoginScreen.dart';
 import 'package:docautomations/widgets/SplashScreen.dart';
@@ -89,8 +90,8 @@ if (!backendOk) {
   try {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
-    final token = prefs.getString('access_token');
-
+    //final token = prefs.getString('access_token');
+ final token = await AuthService.getToken();
   //   setState(() {
   //   _state = (token == null || token.isEmpty)
   //       ? AppStartupState.loggedOut
@@ -160,15 +161,7 @@ Future<void> _bootstrap() async {
    
     super.dispose();
   }
-// Future<void> _clearCorruptedSession() async {
-//   await LicenseApiService.clearSession();
 
-//   if (mounted) {
-//     setState(() {
-//       _state = AppStartupState.loggedOut;
-//     });
-//   }
-// }
   
 
 
@@ -193,28 +186,103 @@ Future<void> _bootstrap() async {
         ],
       ),
     );
+if (result != true) return;
+try {
+    // -----------------------------------
+    // Clear JWT / Refresh Token
+    // -----------------------------------
+    await AuthService.logout();
 
-    if (result == true) {
-      if (kIsWeb) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("You can now close this tab.")),
-        );
-      } else if (platform == 'android') {
-        final prefs = await SharedPreferences.getInstance();
-  await prefs.clear();
+    // -----------------------------------
+    // Optional old prefs cleanup
+    // -----------------------------------
+    final prefs =
+        await SharedPreferences
+            .getInstance();
 
-  if (mounted) {
-    setState(() => _state = AppStartupState.loggedOut);
+    await prefs.clear();
+
+    // -----------------------------------
+    // Switch doctor inside app
+    // -----------------------------------
+    if (mounted) {
+      setState(() {
+        _state =
+            AppStartupState
+                .loggedOut;
+                _isRegistering = false;
+      });
+    }
+
+    // -----------------------------------
+    // Optional messages
+    // -----------------------------------
+    if (kIsWeb) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Logged out successfully You can now close this tab.",
+          ),
+        ),
+      );
+    } else if (platform ==
+        "android") {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Switched doctor successfully",
+          ),
+        ),
+      );
+        if (mounted) {
+          setState(() {
+        _state =
+            AppStartupState
+                .loggedOut;
+                _isRegistering = false;
+      });
+    //setState(() => _state = AppStartupState.loggedOut);
 
       }
-
-      
-        //SystemNavigator.pop();
-      } else if (platform == 'ios') {
+    }else if (platform == 'ios') {
         exit(0);
       }
-    }
-    //33434534543543
+
+  } catch (e) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      SnackBar(
+        content: Text(
+          "Logout failed: $e",
+        ),
+      ),
+    );
+  }
+    //3334324234
+  //     if (kIsWeb) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text("You can now close this tab.")),
+  //       );
+  //     } else if (platform == 'android') {
+  //       final prefs = await SharedPreferences.getInstance();
+  // await prefs.clear();
+
+  // if (mounted) {
+  //   setState(() => _state = AppStartupState.loggedOut);
+
+  //     }
+
+      
+  //       //SystemNavigator.pop();
+  //     } else if (platform == 'ios') {
+  //       exit(0);
+  //     }
+    
+
   
 
  

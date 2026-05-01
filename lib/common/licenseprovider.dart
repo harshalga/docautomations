@@ -184,6 +184,7 @@
 // }
 
 
+import 'package:docautomations/services/auth_service.dart';
 import 'package:docautomations/services/license_api_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -352,6 +353,11 @@ class LicenseProvider with ChangeNotifier {
   // Clear stored license / login data
   //_licenseData = null;
   //_isActive = false;
+
+   // -----------------------------------
+    // Clear JWT / Refresh Token
+    // -----------------------------------
+    await AuthService.logout();
 
   // If you use SharedPreferences clear it
    final prefs = await SharedPreferences.getInstance();

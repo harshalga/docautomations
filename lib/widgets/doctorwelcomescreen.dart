@@ -1,5 +1,3 @@
-// 
-
 import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/common/licenseprovider.dart';
 import 'package:docautomations/commonwidget/trialbanner.dart';
@@ -205,6 +203,19 @@ class _DoctorWelcomeScreenState extends State<DoctorWelcomeScreen> {
           fontSize: 16,
         ),
       ),
+
+       // ✅ PLAN DESCRIPTION ADDED HERE
+      // ✅ Show Plan + Description
+      Text(
+        "${info.planDisplayName} • ${info.planDescription}",
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.blueGrey[700],
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+
 
       if (license.subscriptionExpiry != null) ...[
         const SizedBox(height: 5),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
+import 'package:docautomations/services/auth_service.dart';
 import 'package:docautomations/services/billing_service.dart';
 import 'package:docautomations/services/license_api_service.dart';
 import 'package:docautomations/utils/subscriptionplan.dart';
@@ -64,7 +65,17 @@ void initState() {
 
   billingService.init(_handlePurchaseSuccess);
 
-  Future.microtask(() {
+  Future.microtask(() async {
+//Added token check before loading products to prevent unnecessary API calls if user is already logged out
+    final token =
+        await AuthService.getToken();
+
+    if (token == null) {
+      widget.onSwitchDoctor();
+      return;
+    }
+
+
     loadProducts();
   });
 
@@ -156,17 +167,41 @@ print("Purchase success callback triggered");
 
   final token =
       purchase.verificationData.serverVerificationData;
-
-  // final expiryDate =
-  //     DateTime.now().add(const Duration(days: 365));
-
-  final success = await LicenseApiService.activateSubscription(
+bool success = false;
+  try{
+   success = await LicenseApiService.activateSubscription(
     purchase.productID,
     purchase.purchaseID ?? "",
     //null,
     getPlatform(),
     token,
   );
+   } catch (_) {
+    success = false;
+  }
+  // If token expired → refresh & retry
+  if (!success) {
+
+    final refreshed =
+        await AuthService
+            .refreshAccessToken();
+
+    if (refreshed) {
+    try{
+      success =
+          await LicenseApiService
+              .activateSubscription(
+        purchase.productID,
+        purchase.purchaseID ?? "",
+        getPlatform(),
+        token,
+      );
+    } catch (_) {
+      success = false;
+    }
+    }
+  }
+
 
   if (!mounted) return;
 
@@ -177,7 +212,18 @@ print("Purchase success callback triggered");
     );
 
     widget.onSubscriptionActivated();
+  }else {
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Payment received. Activation syncing..."
+        ),
+      ),
+    );
   }
+
 }
 
 
