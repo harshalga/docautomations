@@ -102,7 +102,7 @@ void updateDrugName(String value) {
     notifyListeners();
   }
 
-  void updateFollowupDuration(int value) {
+  void updateFollowupDuration(int? value) {
     followupDuration = value;
     notifyListeners();
   }

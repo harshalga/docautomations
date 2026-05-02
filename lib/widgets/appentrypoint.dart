@@ -354,7 +354,7 @@ Widget build(BuildContext context) {
         );
       } else {
         screen = PaywallScreen(
-          onSubscriptionActivated: confirmExit,
+          onSubscriptionActivated: _onSubscriptionActivated,//confirmExit,
           onMaybeLater: confirmExit,
           onRestorePurchase: _restorePurchase,
           onSwitchDoctor: _logout,
@@ -474,7 +474,18 @@ Future<void> _restorePurchase() async {
     });
   }
 }
+Future<void> _onSubscriptionActivated() async {
+  final license =
+      context.read<LicenseProvider>();
 
+  await license.loadStatus();
+
+  if (!mounted) return;
+
+  setState(() {
+    _state = AppStartupState.loggedIn;
+  });
+}
   Future<void> confirmExit() async {
     final platform = getPlatform();
 

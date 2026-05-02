@@ -63,7 +63,7 @@ void initState() {
 
   billingService = BillingService();
 
-  billingService.init(_handlePurchaseSuccess);
+  billingService.init(_handlePurchaseSuccess,onError: _handlePurchaseFailure,);
 
   Future.microtask(() async {
 //Added token check before loading products to prevent unnecessary API calls if user is already logged out
@@ -158,6 +158,14 @@ Future<void> loadProducts() async {
   }
 
 
+void _handlePurchaseFailure() {
+  if (!mounted) return;
+
+  setState(() {
+    _isPurchasing = false;
+  });
+}
+
 Future<void> _handlePurchaseSuccess(PurchaseDetails purchase) async {
 if(!mounted) return;
 print("Purchase success callback triggered");
@@ -207,13 +215,35 @@ bool success = false;
 
   if (success) {
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Subscription activated")),
-    );
+  //   if (mounted) {
+  //   setState(() {
+  //     _isPurchasing = false;
+  //   });
+  // }
 
-    widget.onSubscriptionActivated();
-  }else {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      backgroundColor: Colors.green,
+      content: Text(        
+        "Subscription activated successfully",
+      ),
+      duration: Duration(seconds: 2),
+    ),
+  );
 
+  await Future.delayed(
+    const Duration(seconds: 1),
+  );
+
+  if (!mounted) return;
+
+  widget.onSubscriptionActivated();
+}else {
+if (mounted) {
+    setState(() {
+      _isPurchasing = false;
+    });
+  }
     ScaffoldMessenger.of(context)
         .showSnackBar(
       const SnackBar(
@@ -257,12 +287,12 @@ Future<void> _purchase() async {
 
   } finally {
 
-    if (mounted) {
-      setState(() {
-        _isPurchasing = false;
-       // isLoading = false;
-      });
-    }
+    // if (mounted) {
+    //   setState(() {
+    //     _isPurchasing = false;
+    //    // isLoading = false;
+    //   });
+    // }
 
   }
 }
@@ -482,7 +512,7 @@ Column(
               SizedBox(
                 width: double.infinity,
                 child: GestureDetector(
-                  onTap: (selectedOption == -1 || isBillingLoading)//0
+                  onTap: (selectedOption == -1 || isBillingLoading || _isPurchasing)//0
                       ? null
                       : () async {
                           // if (selectedOption == 1) {
@@ -498,7 +528,7 @@ Column(
                     padding: EdgeInsets.symmetric(vertical: 18),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      gradient: selectedOption == -1
+                      gradient:(selectedOption == -1 ||  isBillingLoading ||  _isPurchasing)
                           ? LinearGradient(colors: [Colors.grey, Colors.grey.shade400])
                           : LinearGradient(colors: [Colors.blueAccent, Colors.lightBlueAccent]),
                       boxShadow: selectedOption == 0
@@ -588,6 +618,14 @@ SizedBox(
         // ✅ Overlay Loader when loading
 // if (isLoading)
 //     LoadingOverlay(isLoading:isLoading, message: "loading...."),
+
+if (_isPurchasing)
+  LoadingOverlay(
+    isLoading: true,
+    message: "Activating subscription...",
+  ),
+
+
         ],)
       ),
     );

@@ -1,274 +1,9 @@
-// import 'package:docautomations/common/appcolors.dart';
-// import 'package:docautomations/datamodels/prescriptionData.dart';
-// import 'package:flutter/material.dart';
-// import 'package:docautomations/validationhandling/validation.dart';
-// import 'package:docautomations/validationhandling/validator.dart';
-// import 'package:collection/collection.dart';
-
-// class ConsumptionPeriod extends StatefulWidget {
-//   final Prescriptiondata prescriptionData;  // Accept Prescriptiondata from parent
-
-//   const ConsumptionPeriod({super.key, required this.prescriptionData});  // Constructor to accept Prescriptiondata
-
-//   @override
-//   State<ConsumptionPeriod> createState() => ConsumptionPeriodState();
-// }
-
-// typedef PeriodEntry = DropdownMenuEntry<PeriodLabel>;
-
-// enum PeriodLabel {
-//   daysperiod('days', 1),
-//   monthsperiod('months', 2);
-
-//   const PeriodLabel(this.label, this.val);
-//   final String label;
-//   final int val;
-
-//   static final List<PeriodEntry> entries = UnmodifiableListView<PeriodEntry>(
-//     values.map<PeriodEntry>(
-//       (PeriodLabel period) => PeriodEntry(
-//         value: period,
-//         label: period.label,
-//       ),
-//     ),
-//   );
-// }
-
-// class ConsumptionPeriodState extends State<ConsumptionPeriod> {
-//   late TextEditingController periodController;
-//   late TextEditingController durationController;
-//   PeriodLabel? selectedPeriod;
-//   late DateTime now;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     now = DateTime.now();
-    
-//     // Initialize selectedPeriod based on prescriptionData
-//     selectedPeriod = widget.prescriptionData.inDays ? PeriodLabel.daysperiod : PeriodLabel.monthsperiod;
-//     periodController = TextEditingController(text: selectedPeriod!.label);
-//     durationController = TextEditingController(text: widget.prescriptionData.followupDuration?.toString() ?? '');
-//   }
-
-//   @override
-//   void didUpdateWidget(covariant ConsumptionPeriod oldWidget) {
-//     super.didUpdateWidget(oldWidget);
-//     // Reset controllers if model changes
-//     setState(() {
-//       selectedPeriod = widget.prescriptionData.inDays ? PeriodLabel.daysperiod : PeriodLabel.monthsperiod;
-//       periodController.text = selectedPeriod!.label;
-//       durationController.text = widget.prescriptionData.followupDuration?.toString() ?? '';
-//     });
-//   }
-
-//   void _onPeriodSelected(PeriodLabel? period) {
-//     if (period == null) return;
-//     setState(() {
-//       selectedPeriod = period;
-//     });
-//     widget.prescriptionData.updateInDays(selectedPeriod == PeriodLabel.daysperiod);
-//     _updateFollowupDateFromDuration();
-//   }
-
-//   void _onDurationChanged(String value) {
-//     final int? duration = int.tryParse(value);
-//     if (duration != null) {
-//       widget.prescriptionData.updateFollowupDuration(duration);
-//       _updateFollowupDate(duration);
-//     }
-//   }
-
-//   void _updateFollowupDateFromDuration() {
-//     final value = int.tryParse(durationController.text);
-//     if (value != null) {
-//       _updateFollowupDate(value);
-//     }
-//   }
-
-//   void _updateFollowupDate(int duration) {
-//     if (selectedPeriod == PeriodLabel.daysperiod) {
-//       widget.prescriptionData.updateFollowupDate(now.add(Duration(days: duration)));
-//     } else {
-//       final newDate = DateTime(
-//         now.year,
-//         now.month + duration,
-//         now.day,
-//       );
-//       widget.prescriptionData.updateFollowupDate(newDate);
-//     }
-//   }
-
-//   @override
-//   void dispose() {
-//     periodController.dispose();
-//     durationController.dispose();
-//     super.dispose();
-//   }
-
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     return Container(
-// //       padding: const EdgeInsets.all(10),
-// //       decoration: BoxDecoration(
-// //         color: Colors.white,
-// //         borderRadius: BorderRadius.circular(10),
-// //         boxShadow: [
-// //           BoxShadow(
-// //             color: AppColors.secondary.withOpacity(0.3),
-// //             blurRadius: 10,
-// //             offset: Offset.zero,
-// //           ),
-// //         ],
-// //       ),
-// //       child: Column(
-// //   crossAxisAlignment: CrossAxisAlignment.start,
-// //   children: [
-// //     DropdownMenu<PeriodLabel>(
-// //       dropdownMenuEntries: PeriodLabel.entries,
-// //       initialSelection: selectedPeriod,
-// //       controller: periodController,
-// //       requestFocusOnTap: true,
-// //       label: const Text('Select Period'),
-// //       onSelected: _onPeriodSelected,
-// //     ),
-
-// //     const SizedBox(height: 10),
-
-// //     TextFormField(
-// //       controller: durationController,
-// //       decoration: InputDecoration(
-// //         border: const OutlineInputBorder(),
-// //         labelText: ' ${selectedPeriod?.label ?? "days"}',
-// //       ),
-// //       validator: Validator.apply(
-// //         context,
-// //         [
-// //           const RequiredValidation(),
-// //           const NumericValidation(),
-// //           PeriodbasedValidation(selectedlabel: selectedPeriod?.label ?? 'days'),
-// //         ],
-// //       ),
-// //       onChanged: _onDurationChanged,
-// //       keyboardType: TextInputType.number,
-// //     ),
-// //   ],
-// // ),
-
-// //     );
-// //   }
-//   @override
-//  Widget build(BuildContext context) {
-//   return buildPeriodDurationField();
-//  }
-
-// Widget buildPeriodDurationField() {
-//   return Container(
-//     margin: const EdgeInsets.symmetric(vertical: 10),
-//     padding: const EdgeInsets.all(14),
-//     decoration: BoxDecoration(
-//       color: Colors.white,
-//       borderRadius: BorderRadius.circular(16),
-//       boxShadow: [
-//         BoxShadow(
-//           color: AppColors.secondary.withOpacity(0.3),
-//           blurRadius: 12,
-//           offset: const Offset(0, 4),
-//         ),
-//       ],
-//     ),
-//     child: Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           "Select Duration Type",
-//           style: TextStyle(
-//             fontSize: 14,
-//             fontWeight: FontWeight.w600,
-//             color: Colors.grey[800],
-//           ),
-//         ),
-//         const SizedBox(height: 6),
-
-//         DropdownButtonFormField<PeriodLabel>(
-//           value: selectedPeriod,
-//           items: PeriodLabel.values.map((e) {
-//             return DropdownMenuItem<PeriodLabel>(
-//               value: e,
-//               child: Text(e.label), // Use your custom label getter
-//             );
-//           }).toList(),
-//           decoration: InputDecoration(
-//             filled: true,
-//             fillColor: Colors.grey[100],
-//             border: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(12),
-//               borderSide: BorderSide(color: Colors.grey.shade400),
-//             ),
-//             enabledBorder: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(12),
-//               borderSide: BorderSide(color: Colors.grey.shade300),
-//             ),
-//           ),
-//           onChanged: _onPeriodSelected,
-//         ),
-
-//         const SizedBox(height: 20),
-
-//         Text(
-//           "Enter Duration",
-//           style: TextStyle(
-//             fontSize: 14,
-//             fontWeight: FontWeight.w600,
-//             color: Colors.grey[800],
-//           ),
-//         ),
-//         const SizedBox(height: 6),
-
-//         TextFormField(
-//           controller: durationController,
-//           keyboardType: TextInputType.number,
-//           decoration: InputDecoration(
-//             hintText: "Enter number of ${selectedPeriod?.label ?? "days"}",
-//             filled: true,
-//             fillColor: Colors.grey[100],
-//             prefixIcon: const Icon(Icons.timer_outlined),
-//             border: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(12),
-//               borderSide: BorderSide(color: Colors.grey.shade400),
-//             ),
-//             enabledBorder: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(12),
-//               borderSide: BorderSide(color: Colors.grey.shade300),
-//             ),
-//           ),
-//           validator: Validator.apply(
-//             context,
-//             [
-//               const RequiredValidation(),
-//               const NumericValidation(),
-//               PeriodbasedValidation(
-//                 selectedlabel: selectedPeriod?.label ?? 'days',
-//               ),
-//             ],
-//           ),
-//           onChanged: _onDurationChanged,
-//         ),
-//       ],
-//     ),
-//   );
-// }
-
-
-
-// }
-
-
 import 'package:docautomations/common/appcolors.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:flutter/material.dart';
 import 'package:docautomations/validationhandling/validation.dart';
 import 'package:docautomations/validationhandling/validator.dart';
+import 'package:flutter/services.dart';
 
 class ConsumptionPeriod extends StatefulWidget {
   final Prescriptiondata prescriptionData;
@@ -325,6 +60,56 @@ class ConsumptionPeriodState extends State<ConsumptionPeriod> {
 
     // Update model
     widget.prescriptionData.updateInDays(period == PeriodLabel.daysperiod);
+
+    //clear the text field and model duration when switching period type
+final text =
+      durationController.text.trim();
+
+  final value =
+      int.tryParse(text);
+
+  if (value != null) {
+
+    // -----------------------------
+    // If switched to Days
+    // Max = 31
+    // -----------------------------
+    if (period ==
+        PeriodLabel.daysperiod) {
+
+      if (value > 31) {
+        durationController.clear();
+
+        widget.prescriptionData
+            .updateFollowupDuration(
+                null);
+
+        widget.durationFieldKey
+            .currentState
+            ?.reset();
+      }
+
+    }
+
+    // -----------------------------
+    // If switched to Months
+    // Max = 12
+    // -----------------------------
+    else {
+
+      if (value > 12) {
+        durationController.clear();
+
+        widget.prescriptionData
+            .updateFollowupDuration(
+                null);
+
+        widget.durationFieldKey
+            .currentState
+            ?.reset();
+      }
+    }
+  }
 
     _updateFollowupBasedOnInputs();
   }
@@ -451,6 +236,17 @@ DateTime addMonthsSafe(DateTime date, int monthsToAdd) {
             key: widget.durationFieldKey,
             controller: durationController,
             keyboardType: TextInputType.number,
+            inputFormatters: [
+    FilteringTextInputFormatter.digitsOnly,
+
+    // ✅ Dynamic max digits
+    LengthLimitingTextInputFormatter(
+      selectedPeriod ==
+              PeriodLabel.daysperiod
+          ? 2
+          : 2,
+    ),
+  ],
             decoration: InputDecoration(
               hintText: "Enter number of ${selectedPeriod.label}",
               filled: true,
