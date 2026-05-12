@@ -35,7 +35,7 @@ enum AppStartupState {
   offline,
 }
 
-class _AppEntryPointState extends State<AppEntryPoint> {
+class _AppEntryPointState extends State<AppEntryPoint> with WidgetsBindingObserver {
   bool _bootstrapRunning = false;
   bool _isRegistering = false;   // 👈 ADD THIS
 
@@ -46,6 +46,8 @@ AppStartupState _state = AppStartupState.checking;
   @override
   void initState() {
     super.initState();
+      WidgetsBinding.instance.addObserver(this); // 👈 ADD HERE
+
     DioClient.instance;   // initialize dio early
     _bootstrap();
   }
@@ -114,7 +116,7 @@ if (!backendOk) {
 
      // ✅ Just mark logged in
   setState(() => _state = AppStartupState.loggedIn);
-  context.read<LicenseProvider>().loadStatus();
+  await context.read<LicenseProvider>().loadStatus(force: true); // then load license in parallel
   // // ✅ Load license AFTER UI builds
   // Future.microtask(() {
   //   if (mounted) {
@@ -145,20 +147,30 @@ Future<void> _bootstrap() async {
 
   // If still stuck, exit splash safely
   if (_state == AppStartupState.checking) {
-    setState(() => _state = AppStartupState.loggedOut);
-  }
+  setState(() => _state = AppStartupState.offline);
+}
 
   
 }
 
 
 
+@override
+void didChangeAppLifecycleState(AppLifecycleState state) {
+  if (state == AppLifecycleState.resumed) {
+    // 👇 Force refresh subscription when app comes to foreground
+    final provider = context.read<LicenseProvider>();
 
+  if (!provider.isLoading) {
+    provider.loadStatus(force: true);
+  }
+  }
+}
 
 
   @override
   void dispose() {
-   
+   WidgetsBinding.instance.removeObserver(this); // 👈 ADD HERE
     super.dispose();
   }
 
@@ -299,7 +311,7 @@ try {
   }
 
  setState(() => _state = AppStartupState.loggedIn);
-  context.read<LicenseProvider>().loadStatus();
+  context.read<LicenseProvider>().loadStatus(force: true);
 }
 
 void _handleLoginSuccess() {
@@ -310,7 +322,7 @@ void _handleLoginSuccess() {
   }
 
  
-  context.read<LicenseProvider>().loadStatus();
+  context.read<LicenseProvider>().loadStatus(force: true);
 }
 
 
@@ -342,7 +354,13 @@ Widget build(BuildContext context) {
 
     case AppStartupState.loggedIn:
       final license = context.watch<LicenseProvider>();
+// 🔥 ADD LOGS HERE
+print("🔥 STEP 10: UI decision");
 
+  print("🔥 canPrescribe = ${license.canPrescribe}");
+  print("🔥 expiry = ${license.subscriptionExpiry}");
+  print("🔥 isSubscribed = ${license.isSubscribed}");
+  print("🔥 isLoading = ${license.isLoading}");
       if (license.isLoading) {
         screen = const Scaffold(
           body: Center(child: CircularProgressIndicator()),
@@ -466,7 +484,7 @@ Future<void> _restorePurchase() async {
 
   final licenseProvider = context.read<LicenseProvider>();
 
-  await licenseProvider.loadStatus(); // re-check subscription from backend
+  await licenseProvider.loadStatus(force: true); // re-check subscription from backend
 
   if (mounted) {
     setState(() {
@@ -475,13 +493,13 @@ Future<void> _restorePurchase() async {
   }
 }
 Future<void> _onSubscriptionActivated() async {
+  print("🔥 NAVIGATION TRIGGERED not doing any thing ");
   final license =
       context.read<LicenseProvider>();
 
-  await license.loadStatus();
+  await license.loadStatus(force: true);
 
-  if (!mounted) return;
-
+  
   setState(() {
     _state = AppStartupState.loggedIn;
   });

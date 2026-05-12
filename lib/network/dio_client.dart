@@ -268,14 +268,24 @@ class DioClient {
 
                 final request =
                     e.requestOptions;
-
+                request.headers.remove('Authorization');
                 request.headers[
                         'Authorization'] =
                     'Bearer $newToken';
 
-                final clonedResponse =
-                    await dio.fetch(
-                        request);
+                // final clonedResponse =
+                //     await dio.fetch(
+                //         request);
+
+                final clonedResponse = await dio.request(
+  request.path,
+  data: request.data,
+  queryParameters: request.queryParameters,
+  options: Options(
+    method: request.method,
+    headers: request.headers,
+  ),
+);
 
                 return handler.resolve(
                     clonedResponse);

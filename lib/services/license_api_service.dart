@@ -1165,6 +1165,7 @@ import 'package:dio/dio.dart';
 import 'package:docautomations/network/dio_client.dart';
 import 'package:docautomations/services/auth_service.dart';
 import 'package:docautomations/services/logger_service.dart';
+import 'package:docautomations/utils/activation_result.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:docautomations/widgets/doctorinfo.dart';
@@ -1744,7 +1745,7 @@ static Future<Map<String, dynamic>?> getSubscriptionStatus() async {
 
 
 /// Record subscription purchase (DioClient)
-static Future<bool> activateSubscription(
+static Future<ActivationResult> activateSubscription(
   String productId,
   String transactionId,
   //DateTime expiryDate,
@@ -1756,7 +1757,7 @@ static Future<bool> activateSubscription(
  'productId': productId,
  'purchaseToken': receiptData,
 });
-    await DioClient.instance.post(
+   final response = await DioClient.instance.post(
       '/api/subscription/activate',
       data: {
         "productId": productId,
@@ -1766,9 +1767,17 @@ static Future<bool> activateSubscription(
         "receiptData": receiptData,
       },
     );
-
+final subscription = response.data['subscription'];
+final expiryDate = DateTime.parse(
+  subscription['expiryDate'],
+);
+print("🔥 EXPIRY FROM BACKEND: $expiryDate");
     // If we reach here, request succeeded (2xx)
-    return true;
+    return ActivationResult(
+      success: response.data['success'],
+      expiryDate: expiryDate,
+      productId: productId,
+    );
   } catch (e, s) {
     await LoggerService.error(
       'Failed to activate subscription',
@@ -1778,7 +1787,9 @@ static Future<bool> activateSubscription(
     //return false;
     if (e is DioException) {
        if (e.response?.statusCode == 401) {
-          return false;
+          return ActivationResult(
+          success: false,
+        );
         }}
  rethrow;
   }

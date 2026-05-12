@@ -168,22 +168,31 @@ void _handlePurchaseFailure() {
 
 Future<void> _handlePurchaseSuccess(PurchaseDetails purchase) async {
 if(!mounted) return;
-print("Purchase success callback triggered");
-  print("Product: ${purchase.productID}");
-  print("Status: ${purchase.status}");
+
+print("🔥 STEP 1: Purchase success triggered");
+
+print("🔥 productId: ${purchase.productID}");
+print("🔥 purchaseID: ${purchase.purchaseID}");
+
+
+
   
 
   final token =
       purchase.verificationData.serverVerificationData;
 bool success = false;
   try{
-   success = await LicenseApiService.activateSubscription(
+    final activationResult = await LicenseApiService.activateSubscription(
     purchase.productID,
     purchase.purchaseID ?? "",
     //null,
     getPlatform(),
     token,
   );
+
+  success = activationResult.success;
+  print("🔥 STEP 2: activateSubscription result = $success");
+  
    } catch (_) {
     success = false;
   }
@@ -196,7 +205,7 @@ bool success = false;
 
     if (refreshed) {
     try{
-      success =
+       final activationRefreshResult =
           await LicenseApiService
               .activateSubscription(
         purchase.productID,
@@ -204,6 +213,8 @@ bool success = false;
         getPlatform(),
         token,
       );
+
+       success = activationRefreshResult.success;
     } catch (_) {
       success = false;
     }
@@ -211,7 +222,7 @@ bool success = false;
   }
 
 
-  if (!mounted) return;
+  //if (!mounted) return;
 
   if (success) {
 
@@ -231,13 +242,22 @@ bool success = false;
     ),
   );
 
-  await Future.delayed(
-    const Duration(seconds: 1),
-  );
+  // await Future.delayed(
+  //   const Duration(seconds: 1),
+  // );
 
   if (!mounted) return;
-
+   // 👇 VERY IMPORTANT
+  setState(() {
+    _isPurchasing = false;
+  });
+print("STEP 1 success = $success");
+print("STEP 2 calling onSubscriptionActivated");
+if (mounted) {
   widget.onSubscriptionActivated();
+}
+  
+  
 }else {
 if (mounted) {
     setState(() {

@@ -1,189 +1,3 @@
-// import 'package:docautomations/services/license_api_service.dart';
-// import 'package:flutter/foundation.dart';
-
-
-// class LicenseProvider with ChangeNotifier {
-
-
-//   // =======================
-//   // State variables
-//   // =======================
-//   bool _isLoading = false;
-
-//   // Trial state
-//   bool _isTrialActive = false;
-//   int _prescriptionCount = 0;
-//   DateTime? _trialEndDate;
-
-//   // Subscription state
-//   bool _isSubscribed = false;
-//   DateTime? _subscriptionExpiry;
-//   String? _productId;
-
-//   // =======================
-//   // Getters
-//   // =======================
-
-//   bool get isLoading => _isLoading;
-
-//   set isLoading(bool value) {        // ✅ public setter
-//     _isLoading = value;
-//     notifyListeners();
-//   }
-
-//   bool get isTrialActive => _isTrialActive;
-//   int get prescriptionCount => _prescriptionCount;
-//   DateTime? get trialEndDate => _trialEndDate;
-
-//   bool get isSubscribed => _isSubscribed;
-//   DateTime? get subscriptionExpiry => _subscriptionExpiry;
-//   String? get productId => _productId;
-
-//   /// Unified check: whether doctor can generate prescriptions
-//   bool get canPrescribe {
-//     if (_isTrialActive) return true;
-//     if (_isSubscribed && _subscriptionExpiry != null) {
-//       return _subscriptionExpiry!.isAfter(DateTime.now());
-//     }
-//     return false;
-//   }
-
-//   /// 🔄 Call this when app starts
-//   /// trial/subscription status automatically refreshes when the app opens (or comes back from background)
-//   // Future<void> init() async {
-//   //   try {
-//   //     print("LicenseProvider init called!");
-//   //   await loadStatus();
-//   //   print("LicenseProvider init after loadStatus ");
-//   //   }
-//   //   catch(e,st)
-//   //   {debugPrint("LicenseProvider init error: $e\n$st");}
-//   // }
-
-//   // /// 🔄 Refresh periodically or on lifecycle resume
-//   // /// trial/subscription status automatically refreshes when the app opens (or comes back from background)
-//   // Future<void> refreshStatus() async {
-//   //   await loadStatus();
-//   // }
-
-
-// // =======================
-//   // Actions
-//   // =======================
-
-//   /// Load both trial + subscription status from server
-//   /// Load trial + subscription status together
-//   Future<void> loadStatus() async {
-//      _isLoading = true;
-//     notifyListeners();
-//     try {
-//     final trial = await LicenseApiService.getTrialStatus();
-//     if (trial != null) {
-//       _isTrialActive = trial["isTrialActive"] ?? false;
-//       _prescriptionCount = trial["prescriptionCount"] ?? 0;
-//       _trialEndDate = trial["trialEndDate"] != null
-//           ? DateTime.tryParse(trial["trialEndDate"])
-//           : null;
-//     }
-
-//     final sub = await LicenseApiService.getSubscriptionStatus();
-//     if (sub != null) {
-//       _isSubscribed = sub["isSubscribed"] ?? false;
-//       _subscriptionExpiry = sub["expiryDate"] != null
-//           ? DateTime.tryParse(sub["expiryDate"])
-//           : null;
-//       _productId = sub["productId"];
-//     }
-//     }
-//     catch(e)
-//      {
-//       if (kDebugMode) {
-//         print("❌ Error loading license status: $e");
-//       }
-//     } finally {
-//       _isLoading = false;
-//       notifyListeners();
-//     }
-//   }
-//   //Save the feedback 
-// Future<void> saveFeedback(String feedback) async {
-// isLoading  = true;
-//     //notifyListeners();
-//      try {
-//      await LicenseApiService.storeFeedbackBeforeUninstall(feedback);
-    
-//     } catch (e) {
-//       if (kDebugMode) {
-//         print("❌ Error incrementing prescription: $e");
-//       }
-//     } finally {
-//       isLoading = false;
-//       //notifyListeners();
-//     }
-// }
-
-//   /// Increment prescription count (trial usage)
-//   Future<void> incrementPrescription() async {
-//      _isLoading = true;
-//     notifyListeners();
-//      try {
-//     final int? prescCount = await LicenseApiService.incrementPrescriptionCount();
-//     if (prescCount!=null) {
-//       _prescriptionCount=prescCount;
-//       // trial may expire after increment
-//       await loadStatus();
-//     }
-//     } catch (e) {
-//       if (kDebugMode) {
-//         print("❌ Error incrementing prescription: $e");
-//       }
-//     } finally {
-//       _isLoading = false;
-//       notifyListeners();
-//     }
-//   }
-
-//   /// Activate subscription (after backend verifies purchase)
-//   Future<bool> activateSubscription(
-//       String productId, String transactionId, DateTime expiryDate,String platform,String receiptData )  async {
-//     bool success = false;
-//          _isLoading = true;
-//     notifyListeners();
-//      try {
-//      success = await LicenseApiService.activateSubscription(
-//       productId,
-//       transactionId,
-//       expiryDate,
-//       platform,
-//       receiptData
-//     );
-//     if (success) {
-//       await loadStatus();
-//     }
-//     return success;
-//     } catch (e) {
-//       if (kDebugMode) {
-//         print("❌ Error activating subscription: $e");
-//         return false;
-//       }
-//     } finally {
-//       _isLoading = false;
-//       notifyListeners();
-//       return success;
-//     }
-//   }
-
-//   // /// Simple helper to check if user can generate prescriptions
-//   // bool get canPrescribe {
-//   //   if (_isTrialActive) return true;
-//   //   if (_isSubscribed && _subscriptionExpiry != null) {
-//   //     return _subscriptionExpiry!.isAfter(DateTime.now());
-//   //   }
-//   //   return false;
-//   // }
-// }
-
-
 import 'package:docautomations/services/auth_service.dart';
 import 'package:docautomations/services/license_api_service.dart';
 import 'package:flutter/foundation.dart';
@@ -196,6 +10,7 @@ class LicenseProvider with ChangeNotifier {
 
   bool _isLoading = false;
   bool _statusLoaded = false;
+  bool _isFetching = false;
 
   // Trial state
   bool _isTrialActive = false;
@@ -224,9 +39,11 @@ class LicenseProvider with ChangeNotifier {
   bool get canPrescribe {
     if (isLoading) return false; // prevent early access
 
+    final now = DateTime.now().toUtc(); // 🔥 FIX
+
     if (_isTrialActive) return true;
     if (_isSubscribed && _subscriptionExpiry != null) {
-      return _subscriptionExpiry!.isAfter(DateTime.now());
+      return _subscriptionExpiry!.toUtc().isAfter(now);
     }
     return false;
   }
@@ -248,107 +65,179 @@ class LicenseProvider with ChangeNotifier {
   /// 
   /// 
   
-  Future<void> loadStatus() async {
+//   Future<void> loadStatus() async {
 
-    if(_statusLoaded)
-    {
-      return;
-    }
+//     if(_statusLoaded)
+//     {
+//       return;
+//     }
 
-  final firstLoad = !_statusLoaded;
+//   final firstLoad = !_statusLoaded;
 
-  if (firstLoad) {
-    _setLoading(true);
-  }
+//   if (firstLoad) {
+//     _setLoading(true);
+//   }
 
-  try {
+//   try {
 
-    final results = await Future.wait([
-      LicenseApiService.getTrialStatus()
-     // LicenseApiService.getSubscriptionStatus(),
-    ]);
+//     final results = await Future.wait([
+//       LicenseApiService.getTrialStatus()
+//      // LicenseApiService.getSubscriptionStatus(),
+//     ]);
 
-    final trial = results[0];
-    //final sub = results[1];
+//     final trial = results[0];
+//     //final sub = results[1];
 
-    if (trial != null) {
-  _isTrialActive = trial["isTrialActive"] ?? false;
+//     if (trial != null) {
+//   _isTrialActive = trial["isTrialActive"] ?? false;
 
-  _isSubscribed = trial["isSubscribed"] ?? false;
+//   _isSubscribed = trial["isSubscribed"] ?? false;
 
-  _prescriptionCount = trial["prescriptionCount"] ?? 0;
+//   _prescriptionCount = trial["prescriptionCount"] ?? 0;
 
-  _trialEndDate = trial["trialEndDate"] != null
-      ? DateTime.tryParse(trial["trialEndDate"])
-      : null;
+//   _trialEndDate = trial["trialEndDate"] != null
+//       ? DateTime.tryParse(trial["trialEndDate"])
+//       : null;
 
-  _subscriptionExpiry = trial["expiryDate"] != null
-      ? DateTime.tryParse(trial["expiryDate"])
-      : null;
-}
+//   _subscriptionExpiry = trial["expiryDate"] != null
+//       ? DateTime.tryParse(trial["expiryDate"])
+//       : null;
+// }
 
     
 
-//     print("Trial: $_isTrialActive");
-// print("Subscribed: $_isSubscribed");
-// print("Expiry: $_subscriptionExpiry");
-// print("CanPrescribe: $canPrescribe");
+// //     print("Trial: $_isTrialActive");
+// // print("Subscribed: $_isSubscribed");
+// // print("Expiry: $_subscriptionExpiry");
+// // print("CanPrescribe: $canPrescribe");
 
-  } catch (e) {
+//   } catch (e) {
 
-    if (kDebugMode) {
-      print("❌ loadStatus error: $e");
+//     if (kDebugMode) {
+//       print("❌ loadStatus error: $e");
+//     }
+
+//   } finally {
+
+//     if (firstLoad) {
+//       _setLoading(false);
+//     }
+
+//     notifyListeners();
+//   }
+// }
+
+// Future<void> loadStatus({bool force = false}) async {
+
+//   if (_statusLoaded && !force) return;
+
+//   _setLoading(true);
+//   notifyListeners();
+
+//   try {
+
+//     final trial = await LicenseApiService.getTrialStatus();
+//     final sub   = await LicenseApiService.getSubscriptionStatus();
+
+//     if (trial != null) {
+//       _isTrialActive = trial["isTrialActive"] ?? false;
+//       _prescriptionCount = trial["prescriptionCount"] ?? 0;
+//       _trialEndDate = trial["trialEndDate"] != null
+//           ? DateTime.tryParse(trial["trialEndDate"])
+//           : null;
+//     }
+
+//     if (sub != null) {
+//       _isSubscribed = sub["isSubscribed"] ?? false;
+//       _subscriptionExpiry = sub["expiryDate"] != null
+//           ? DateTime.tryParse(sub["expiryDate"])
+//           : null;
+//       _productId = sub["productId"];
+//     }
+
+//     _statusLoaded = true;
+
+//   } catch (e) {
+//     print(e);
+//   } finally {
+//     _setLoading(false);
+//     notifyListeners();
+//   }
+// }
+
+
+Future<void> loadStatus({bool force = false}) async {
+  print("🔥 STEP 6: loadStatus called (force = $force)");
+  if (_isFetching) return;
+
+  if (_statusLoaded && !force) return;
+
+  _isFetching = true;
+
+  _setLoading(true);
+  //notifyListeners();
+
+  try {
+   var  trial = await LicenseApiService.getTrialStatus();
+   var  sub   = await LicenseApiService.getSubscriptionStatus();
+
+   print("🔥 STEP 7: SUB RESPONSE = $sub");
+print("SUB RESPONSE: $sub");
+
+// 🔥 If failed → retry with refreshed token
+  if (trial == null || sub == null) {
+
+    final refreshed =
+        await AuthService.refreshAccessToken();
+
+    if (refreshed) {
+      trial = await LicenseApiService.getTrialStatus();
+      sub   = await LicenseApiService.getSubscriptionStatus();
+    }
+  }
+    if (trial != null) {
+      _isTrialActive = trial["isTrialActive"] ?? false;
+      _prescriptionCount = trial["prescriptionCount"] ?? 0;
+      _trialEndDate = trial["trialEndDate"] != null
+          ? DateTime.tryParse(trial["trialEndDate"])?.toUtc()
+          : null;
     }
 
+    if (sub != null) {
+      final expiry = sub["expiryDate"];
+      // 🚨 Detect invalid / stale response
+  if (sub["isSubscribed"] == false && expiry != null) {
+    final parsed = DateTime.tryParse(expiry);
+    if (parsed != null && parsed.isBefore(DateTime.now().toUtc())) {
+      print("⚠️ Stale subscription detected, forcing refresh...");
+    }
+  }
+
+      _isSubscribed = sub["isSubscribed"] ?? false;
+      _subscriptionExpiry = expiry != null
+          ? DateTime.tryParse(expiry)?.toUtc()
+          : null;
+
+          print("🔥 STEP 8: Parsed values:");
+print("   isSubscribed = $_isSubscribed");
+print("   expiry = $_subscriptionExpiry");
+
+      _productId = sub["productId"];
+    }
+
+    _statusLoaded = true;
+
+    print("🔥 STEP 9: loadStatus finished");
+
+  } catch (e,stack) {
+    print("❌ loadStatus error: $e");
+  print(stack);
   } finally {
-
-    if (firstLoad) {
-      _setLoading(false);
-    }
-
+    _isFetching = false; // 🔥 IMPORTANT
+    _setLoading(false);
     notifyListeners();
   }
 }
-
-  // Future<void> loadStatus() async {
-  //   final firstLoad = !_statusLoaded;
-
-    
-  //   if (firstLoad) {
-  //     _setLoading(true);
-  //   //  notifyListeners(); // Show loading on first load
-  //   }
-
-    
-
-  //   try {
-  //     // ------ Trial ------
-  //     final trial = await LicenseApiService.getTrialStatus();
-  //     if (trial != null) {
-  //       _isTrialActive = trial["isTrialActive"] ?? false;
-  //       _prescriptionCount = trial["prescriptionCount"] ?? 0;
-  //       _trialEndDate = trial["trialEndDate"] != null
-  //           ? DateTime.tryParse(trial["trialEndDate"])
-  //           : null;
-  //     }
-
-  //     // ------ Subscription ------
-  //     final sub = await LicenseApiService.getSubscriptionStatus();
-  //     if (sub != null) {
-  //       _isSubscribed = sub["isSubscribed"] ?? false;
-  //       _subscriptionExpiry = sub["expiryDate"] != null
-  //           ? DateTime.tryParse(sub["expiryDate"])
-  //           : null;
-  //       _productId = sub["productId"];
-  //     }
-  //   } catch (e) {
-  //     if (kDebugMode) print("❌ loadStatus error: $e");
-  //   } finally {
-  //     _setLoading(false);
-  //     notifyListeners(); // 🔥 Single notification
-  //   }
-  // }
-
   Future<void> logout() async {
   // Clear stored license / login data
   //_licenseData = null;
@@ -369,7 +258,7 @@ class LicenseProvider with ChangeNotifier {
 
   /// Increment prescription count (trial usage)
   Future<void> incrementPrescription() async {
-    _setLoading(true);
+    //_setLoading(true);
 
     try {
       final count = await LicenseApiService.incrementPrescriptionCount();
@@ -382,42 +271,52 @@ class LicenseProvider with ChangeNotifier {
     } catch (e) {
       if (kDebugMode) print("❌ incrementPrescription error: $e");
     } finally {
-      _setLoading(false);
+     // _setLoading(false);
       notifyListeners(); // 🔥 One notify
     }
   }
 
-  /// Activate subscription after purchase
-  Future<bool> activateSubscription(
-      String productId,
-      String transactionId,
-      DateTime expiryDate,
-      String platform,
-      String receiptData) async {
-    _setLoading(true);
-    bool success = false;
+//   /// Activate subscription after purchase //TODO: Culprit
+//   Future<bool> activateSubscription(
+//       String productId,
+//       String transactionId,
+//       DateTime expiryDate,
+//       String platform,
+//       String receiptData) async {
+//     //_setLoading(true);
+//     bool success = false;
+// print("🔥 STEP 3: Calling backend activateSubscription");
+//     try {
+//       final activationResult = await LicenseApiService.activateSubscription(
+//         productId,
+//         transactionId,
+//         //expiryDate,
+//         platform,
+//         receiptData,
+//       );
+// print("🔥 STEP 4: activateSubscription success = $success");
 
-    try {
-      success = await LicenseApiService.activateSubscription(
-        productId,
-        transactionId,
-        //expiryDate,
-        platform,
-        receiptData,
-      );
+//       if (activationResult.success) {
+//         print("🔥 STEP 5: Calling loadStatus from activateSubscription");
 
-      if (success) {
-        await loadStatus(); // loadStatus notifies ONCE
-      }
-    } catch (e) {
-      if (kDebugMode) print("❌ activateSubscription error: $e");
-    } finally {
-      _setLoading(false);
-      notifyListeners(); // ONE notify
-    }
+//         // 🔥 ADD THIS DELAY (CRITICAL)
+//   //await Future.delayed(const Duration(milliseconds: 700));
+//   _subscriptionExpiry = activationResult.expiryDate;
+//   _productId = activationResult.productId;
+// _isSubscribed = activationResult.success && _subscriptionExpiry != null && _subscriptionExpiry!.isAfter(DateTime.now().toUtc());
+//     //    await loadStatus(force: true); // loadStatus notifies ONCE
 
-    return success;
-  }
+      
+//       }
+//     } catch (e) {
+//       if (kDebugMode) print("❌ activateSubscription error: $e");
+//     } finally {
+//      // _setLoading(false);
+//       notifyListeners(); // ONE notify
+//     }
+
+//     return success;
+//   }
 
   /// Save feedback before uninstall
   Future<void> saveFeedback(String feedback) async {
