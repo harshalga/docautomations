@@ -178,6 +178,21 @@ Future<void> loadStatus({bool force = false}) async {
   //notifyListeners();
 
   try {
+    // 🚨 ADD THIS HERE
+    final token = await AuthService.getToken();
+
+    if (token == null || token.isEmpty) {
+
+      print("⛔ No token — skipping loadStatus");
+
+      _isFetching = false;
+      _setLoading(false);
+      notifyListeners();
+
+      return;
+    }
+
+    // ✅ SAFE TO CALL APIs NOW
    var  trial = await LicenseApiService.getTrialStatus();
    var  sub   = await LicenseApiService.getSubscriptionStatus();
 

@@ -112,7 +112,9 @@ List<SubscriptionPlan> getSubscriptionPlans() {
 
 
 
-List<dynamic> getOffers() {
+//List<dynamic> getOffers() {
+List<SubscriptionOfferDetailsWrapper> getOffers() {
+
   
   if (products.isEmpty) return [];
 
@@ -541,6 +543,10 @@ Column(
                           // } else {
                           //   await  _purchase(context, "prescriptor_monthly");
                           // }
+                          if (selectedOption < 0 ||
+                                    selectedOption >= plans.length) {
+                                      return;
+          }
                           await _purchase();
                         },
                   child: AnimatedContainer(

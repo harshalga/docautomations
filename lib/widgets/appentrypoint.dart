@@ -92,31 +92,19 @@ if (!backendOk) {
   try {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
-    //final token = prefs.getString('access_token');
- final token = await AuthService.getToken();
-  //   setState(() {
-  //   _state = (token == null || token.isEmpty)
-  //       ? AppStartupState.loggedOut
-  //       : AppStartupState.loggedIn;
-  // });
-
-  //   await context.read<LicenseProvider>().loadStatus();
+  
+    final token = await AuthService.getToken();
+  
 
   if (token == null || token.isEmpty) {
       setState(() => _state = AppStartupState.loggedOut);
       return;
     }
 
-    // // ✅ WAIT for license status
-    //// await context.read<LicenseProvider>().loadStatus();
-
-    //// if (!mounted) return;
-
-    //// setState(() => _state = AppStartupState.loggedIn);
-
-     // ✅ Just mark logged in
-  setState(() => _state = AppStartupState.loggedIn);
   await context.read<LicenseProvider>().loadStatus(force: true); // then load license in parallel
+
+  if (!mounted) return;
+  setState(() => _state = AppStartupState.loggedIn);
   // // ✅ Load license AFTER UI builds
   // Future.microtask(() {
   //   if (mounted) {
@@ -155,15 +143,36 @@ Future<void> _bootstrap() async {
 
 
 
+// @override
+// void didChangeAppLifecycleState(AppLifecycleState state) {
+//   if (state == AppLifecycleState.resumed) {
+//     // 👇 Force refresh subscription when app comes to foreground
+//     final provider = context.read<LicenseProvider>();
+
+//   if (!provider.isLoading) {
+//     provider.loadStatus(force: true);
+//   }
+//   }
+// }
+
 @override
-void didChangeAppLifecycleState(AppLifecycleState state) {
+void didChangeAppLifecycleState(AppLifecycleState state) async {
+
   if (state == AppLifecycleState.resumed) {
-    // 👇 Force refresh subscription when app comes to foreground
+
+    final token = await AuthService.getToken();
+
+    // 🚨 Prevent API calls after logout
+    if (token == null || token.isEmpty) {
+      print("⛔ Skipping loadStatus — no token");
+      return;
+    }
+
     final provider = context.read<LicenseProvider>();
 
-  if (!provider.isLoading) {
-    provider.loadStatus(force: true);
-  }
+    if (!provider.isLoading) {
+      provider.loadStatus(force: true);
+    }
   }
 }
 
@@ -300,32 +309,59 @@ try {
  
 }
 
-  void _onRegistered(DoctorInfo info) async {
+//   void _onRegistered(DoctorInfo info) async {
+//   await _saveDoctorToLocal(info);
+
+//   if (mounted) {
+//     setState(() {
+//       _isRegistering = false;
+//       _state = AppStartupState.loggedIn;
+//     });
+//   }
+
+//  setState(() => _state = AppStartupState.loggedIn);
+//   context.read<LicenseProvider>().loadStatus(force: true);
+// }
+
+Future<void> _onRegistered(DoctorInfo info) async {
+
   await _saveDoctorToLocal(info);
 
-  if (mounted) {
-    setState(() {
-      _isRegistering = false;
-      _state = AppStartupState.loggedIn;
-    });
-  }
+  final provider = context.read<LicenseProvider>();
 
- setState(() => _state = AppStartupState.loggedIn);
-  context.read<LicenseProvider>().loadStatus(force: true);
+  await provider.loadStatus(force: true);
+
+  if (!mounted) return;
+
+  setState(() {
+    _isRegistering = false;
+    _state = AppStartupState.loggedIn;
+  });
 }
 
-void _handleLoginSuccess() {
-  if (mounted) {
-    setState(() {
-      _state = AppStartupState.loggedIn;
-    });
-  }
+// void _handleLoginSuccess() {
+//   if (mounted) {
+//     setState(() {
+//       _state = AppStartupState.loggedIn;
+//     });
+//   }
 
  
-  context.read<LicenseProvider>().loadStatus(force: true);
+//   context.read<LicenseProvider>().loadStatus(force: true);
+// }
+
+Future<void> _handleLoginSuccess() async {
+
+  final provider = context.read<LicenseProvider>();
+
+  await provider.loadStatus(force: true);
+
+  if (!mounted) return;
+
+  setState(() {
+    _state = AppStartupState.loggedIn;
+  });
 }
-
-
 @override
 Widget build(BuildContext context) {
 
@@ -357,10 +393,7 @@ Widget build(BuildContext context) {
 // 🔥 ADD LOGS HERE
 print("🔥 STEP 10: UI decision");
 
-  print("🔥 canPrescribe = ${license.canPrescribe}");
-  print("🔥 expiry = ${license.subscriptionExpiry}");
-  print("🔥 isSubscribed = ${license.isSubscribed}");
-  print("🔥 isLoading = ${license.isLoading}");
+ 
       if (license.isLoading) {
         screen = const Scaffold(
           body: Center(child: CircularProgressIndicator()),
