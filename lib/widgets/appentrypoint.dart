@@ -52,32 +52,7 @@ AppStartupState _state = AppStartupState.checking;
     _bootstrap();
   }
 
-// Future<void> _runStartup() async {
 
-//   final backendOk = await LicenseApiService.checkBackendHealth();
-
-//   if (!mounted) return;
-
-//   if (!backendOk) {
-//     setState(() => _state = AppStartupState.offline);
-//     return;
-//   }
-
-//   final prefs = await SharedPreferences.getInstance();
-
-//   if (!mounted) return;
-
-//   final token = prefs.getString('access_token');
-
-//   if (token == null || token.isEmpty) {
-//     setState(() => _state = AppStartupState.loggedOut);
-//     return;
-//   }
-
-//   setState(() => _state = AppStartupState.loggedIn);
-
-//   context.read<LicenseProvider>().loadStatus();
-// }
 
 Future<void> _runStartup() async {
 final backendOk = await LicenseApiService.checkBackendHealth();
@@ -143,17 +118,7 @@ Future<void> _bootstrap() async {
 
 
 
-// @override
-// void didChangeAppLifecycleState(AppLifecycleState state) {
-//   if (state == AppLifecycleState.resumed) {
-//     // 👇 Force refresh subscription when app comes to foreground
-//     final provider = context.read<LicenseProvider>();
 
-//   if (!provider.isLoading) {
-//     provider.loadStatus(force: true);
-//   }
-//   }
-// }
 
 @override
 void didChangeAppLifecycleState(AppLifecycleState state) async {
@@ -283,25 +248,7 @@ try {
       ),
     );
   }
-    //3334324234
-  //     if (kIsWeb) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text("You can now close this tab.")),
-  //       );
-  //     } else if (platform == 'android') {
-  //       final prefs = await SharedPreferences.getInstance();
-  // await prefs.clear();
 
-  // if (mounted) {
-  //   setState(() => _state = AppStartupState.loggedOut);
-
-  //     }
-
-      
-  //       //SystemNavigator.pop();
-  //     } else if (platform == 'ios') {
-  //       exit(0);
-  //     }
     
 
   
@@ -309,19 +256,7 @@ try {
  
 }
 
-//   void _onRegistered(DoctorInfo info) async {
-//   await _saveDoctorToLocal(info);
 
-//   if (mounted) {
-//     setState(() {
-//       _isRegistering = false;
-//       _state = AppStartupState.loggedIn;
-//     });
-//   }
-
-//  setState(() => _state = AppStartupState.loggedIn);
-//   context.read<LicenseProvider>().loadStatus(force: true);
-// }
 
 Future<void> _onRegistered(DoctorInfo info) async {
 
@@ -339,16 +274,7 @@ Future<void> _onRegistered(DoctorInfo info) async {
   });
 }
 
-// void _handleLoginSuccess() {
-//   if (mounted) {
-//     setState(() {
-//       _state = AppStartupState.loggedIn;
-//     });
-//   }
 
- 
-//   context.read<LicenseProvider>().loadStatus(force: true);
-// }
 
 Future<void> _handleLoginSuccess() async {
 
@@ -432,49 +358,7 @@ print("🔥 STEP 10: UI decision");
 );
 }
 
-//   @override
-// Widget build(BuildContext context) {
 
-//   switch (_state) {
-
-//     case AppStartupState.checking:
-//       return const SplashScreen();
-
-//     case AppStartupState.offline:
-//       return _offlineScreen();
-
-//     case AppStartupState.loggedOut:
-//       if (_isRegistering) {
-//         return DoctorRegisterScreen(onRegistered: _onRegistered);
-//       }
-
-//       return DoctorLoginScreen(
-//         onLoginSuccess: _handleLoginSuccess,
-//         onRegisterTap: () => setState(() => _isRegistering = true),
-//       );
-
-//     case AppStartupState.loggedIn:
-//       final license = context.watch<LicenseProvider>();
-
-//       if (license.isLoading) {
-//         return const Scaffold(
-//           body: Center(child: CircularProgressIndicator()),
-//         );
-//       }
-
-//       if (license.canPrescribe) {
-//         return Menubar(
-//           body: const Addprescrip(title: "Patient Diagnosis"),
-//           onLogout: _logout,
-//         );
-//       }
-
-//       return PaywallScreen(
-//         onSubscriptionActivated: confirmExit,
-//         onMaybeLater: confirmExit,
-//       );
-//   }
-// }
 
 Widget _offlineScreen() {
   return Scaffold(

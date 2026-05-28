@@ -165,58 +165,7 @@ Future<void> _pickImage() async {
 
 
 
-  // Future<void> _submit() async {
-
-  //   final isValid = _formKey.currentState!.validate();
-
-  // if (!isValid) {
-  //   await _scrollToFirstError();
-  //   return;
-  // }
-  // else  {
-  //     setState(() => _isLoading = true); // ✅ start loader
-
-  //     final updatedInfo = DoctorInfo(
-  //       name: _nameController.text,
-  //       specialization: _specController.text,
-  //       clinicName: _clinicNameController.text,
-  //       clinicAddress: _clinicAddressController.text,
-  //       contact: _contactController.text,
-  //       loginEmail: _loginEmailController.text.trim().toLowerCase(),
-  //       password: "", // not needed in edit
-  //       logoBase64: _logoBase64,
-  //       printLetterhead: _printLetterhead,
-  //       prescriptionCount:widget.doctorInfo.prescriptionCount,
-  //       licensedOnDate:widget.doctorInfo.licensedOnDate,
-  //       nextRenewalDate:widget.doctorInfo.nextRenewalDate,
-  //       firstTimeRegistrationDate:widget.doctorInfo.firstTimeRegistrationDate,
-        
-  //     );
-
-  //     final success = await LicenseApiService.updateDoctorOnServer(updatedInfo);
-
-  //     setState(() => _isLoading = false); // ✅ stop loader
-
-  //     if (success) {
-  //       final prefs = await SharedPreferences.getInstance();
-  // await prefs.setString("doctor_profile", jsonEncode(updatedInfo.toJson())); 
-
-  //       widget.onUpdated(updatedInfo);
-
-  //      await _showSuccessPopup();  // 👈 show dialog first
-
-      
-
-  //       // ScaffoldMessenger.of(context).showSnackBar(
-  //       //   const SnackBar(content: Text("Doctor info updated successfully")),
-  //       // );
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text("Error updating doctor info")),
-  //       );
-  //     }
-  //   }
-  // }
+  
 
 
 Future<void> _submit() async {
