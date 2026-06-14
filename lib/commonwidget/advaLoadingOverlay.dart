@@ -21,7 +21,7 @@ class AdvaLoadingOverlay extends StatelessWidget {
           IgnorePointer(
             ignoring: false, // block touches
             child: Container(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

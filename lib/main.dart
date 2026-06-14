@@ -152,7 +152,7 @@ class MyApp extends StatelessWidget {
           seedColor: const Color.fromARGB(255, 72, 194, 188),
           brightness: Brightness.light,
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           color: Color.fromARGB(255, 13, 192, 162),
         ),
         textTheme: TextTheme(

@@ -152,7 +152,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
+                    color: AppColors.primary.withValues(alpha: 0.3),
                     blurRadius: 6,
                     offset: const Offset(0, 4),
                   )
@@ -198,7 +198,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondary.withOpacity(0.2),
+            color: AppColors.secondary.withValues(alpha: 0.2),
             blurRadius: 12,
             offset: const Offset(0, 3),
           ),
@@ -330,7 +330,7 @@ class MedicineSwitchState extends State<MedicineSwitch> {
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: AppColors.secondary.withOpacity(0.2),
+                          color: AppColors.secondary.withValues(alpha: 0.2),
                           blurRadius: 6,
                           offset: const Offset(0, 3),
                         )

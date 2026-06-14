@@ -47,7 +47,7 @@ class _PrintPreviewScreenState extends State<PrintPreviewScreen> {
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.25),
+            color: AppColors.primary.withValues(alpha: 0.25),
             blurRadius: 15,
             offset: Offset.zero,
           ),

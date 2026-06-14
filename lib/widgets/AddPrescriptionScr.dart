@@ -487,7 +487,7 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
         borderRadius: BorderRadius.circular(40),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
             blurRadius: 20,
           )
         ],

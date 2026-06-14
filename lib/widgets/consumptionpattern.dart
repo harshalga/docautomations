@@ -56,7 +56,7 @@ class ConsumptionPatternState extends State<ConsumptionPattern> {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondary.withOpacity(0.3),
+            color: AppColors.secondary.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: Offset.zero,
           ),

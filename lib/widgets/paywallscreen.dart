@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:ui' as ui;
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
 import 'package:docautomations/services/auth_service.dart';
 import 'package:docautomations/services/billing_service.dart';
@@ -9,8 +7,6 @@ import 'package:docautomations/utils/subscriptionplan.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:docautomations/common/licenseprovider.dart'; // ✅ make sure this import is correct
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -561,7 +557,7 @@ Column(
                           ? []
                           : [
                               BoxShadow(
-                                color: Colors.blueAccent.withOpacity(0.3),
+                                color: Colors.blueAccent.withValues(alpha: 0.3),
                                 blurRadius: 12,
                                 offset: Offset(0, 6),
                               ),

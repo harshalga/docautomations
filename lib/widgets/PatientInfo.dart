@@ -154,7 +154,7 @@ class PatientinfoState extends State<Patientinfo>
             valueListenable: gender,
             builder: (context, value, _) {
               return DropdownButtonFormField<String>(
-                value: value,
+                initialValue: value,
                 decoration: const InputDecoration(labelText: "Gender"),
                 onChanged: (newValue) {
                   gender.value = newValue!;
