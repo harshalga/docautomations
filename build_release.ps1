@@ -17,8 +17,8 @@ New-Item -ItemType Directory -Force -Path $destFolder | Out-Null
 # Destination file
 $dest = "$destFolder/DocAutomations_v$version.aab"
 
-# Move file
-Move-Item $src $dest -Force
+# copy file
+Copy-Item $src $dest -Force
 
 Write-Host ""
 Write-Host "✅ Build completed"
