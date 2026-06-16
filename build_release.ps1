@@ -2,6 +2,12 @@
 #flutter build appbundle 
 flutter build appbundle --split-debug-info=build/symbols
 
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "❌ Flutter build failed"
+    exit 1
+}
+
 # Read version from pubspec.yaml
 $pubspec = Get-Content pubspec.yaml
 $versionLine = $pubspec | Select-String "^version:"
@@ -16,6 +22,11 @@ New-Item -ItemType Directory -Force -Path $destFolder | Out-Null
 
 # Destination file
 $dest = "$destFolder/DocAutomations_v$version.aab"
+
+if (!(Test-Path $src)) {
+    Write-Host "❌ AAB file not found: $src"
+    exit 1
+}
 
 # copy file
 Copy-Item $src $dest -Force
