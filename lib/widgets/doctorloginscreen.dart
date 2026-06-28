@@ -402,6 +402,7 @@ import 'package:docautomations/widgets/forgot_password_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:docautomations/validationhandling/validation.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DoctorLoginScreen extends StatefulWidget {
   final VoidCallback onLoginSuccess;
@@ -433,6 +434,30 @@ class _DoctorLoginScreenState
 
   String? _usernameError;
   String? _passwordError;
+
+
+Future<void> _openDemoVideo() async {
+  // Replace with your actual YouTube video ID
+  const String videoId = "https://youtu.be/ZsmBEu_lzKw";
+
+  final Uri youtubeApp =
+      Uri.parse("vnd.youtube://$videoId");
+
+  final Uri youtubeWeb =
+      Uri.parse("https://youtu.be/$videoId");
+
+  if (await canLaunchUrl(youtubeApp)) {
+    await launchUrl(
+      youtubeApp,
+      mode: LaunchMode.externalApplication,
+    );
+  } else {
+    await launchUrl(
+      youtubeWeb,
+      mode: LaunchMode.externalApplication,
+    );
+  }
+}
 
   // ==========================
   // VALIDATION
@@ -864,6 +889,30 @@ SizedBox(
 //     ),
 //   ),
 // ),
+
+const SizedBox(height: 12),
+
+Card(
+  color: Colors.red.shade50,
+  child: ListTile(
+    leading: const Icon(
+      Icons.play_circle_fill,
+      color: Colors.red,
+      size: 36,
+    ),
+    title: const Text(
+      "Watch App Demo",
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    subtitle: const Text(
+      "See how to create prescriptions in just 2 minutes",
+    ),
+    trailing: const Icon(Icons.arrow_forward_ios),
+    onTap: _openDemoVideo,
+  ),
+),
 const SizedBox(height: 10),
 
 Card(

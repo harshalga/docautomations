@@ -1161,6 +1161,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:docautomations/network/dio_client.dart';
 import 'package:docautomations/services/auth_service.dart';
@@ -1501,6 +1502,32 @@ static Future<Map<String, String>?> loginDoctor(
   }
 }
 
+
+static Future<Uint8List?> fetchDoctorLogo() async {
+  try {
+    
+ final response = await DioClient.instance.get('/api/doctor/logo' ,
+      options: Options(
+        responseType: ResponseType.bytes,
+      ),
+    );
+    
+
+    if (response.statusCode == 200) {
+      return Uint8List.fromList(response.data as List<int>);
+    }
+
+    return null;
+  } catch (e,s) {
+    await LoggerService.error(
+      'Failed to fetch doctor logo',
+      error: e,
+      stack: s,
+    );
+
+    return null;
+  }
+}
 
   /// ✅ Fetch current doctor (DioClient)
 static Future<DoctorInfo?> fetchCurrentDoctor() async {

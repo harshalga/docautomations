@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:docautomations/common/appcolors.dart';
+import 'package:docautomations/common/appconstants.dart';
 import 'package:docautomations/common/licenseprovider.dart';
 import 'package:docautomations/common/medicineType.dart';
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
 import 'package:docautomations/commonwidget/trialbanner.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
 import 'package:docautomations/services/license_api_service.dart';
+import 'package:docautomations/services/logo_service.dart';
 import 'package:docautomations/widgets/AddPrescription.dart';
 import 'package:docautomations/widgets/PatientInfo.dart';
 import 'package:docautomations/widgets/doctorinfo.dart';
@@ -161,23 +163,19 @@ final GlobalKey<FormFieldState<String>> _ageFieldKey =
       }
     }
 
+  //logo
+  // -----------------------------
+  // Load Logo (LogoService handles
+  // cache + download automatically)
+  // -----------------------------
+    final logoBytes = await LogoService.getLogo();  
+
     if (!mounted) return;
     setState(() {
       _doctorInfo = doctor;
+      _doctorLogo = logoBytes; // Use the bytes from LogoService    
       if (doctor != null) {
-      _printLetterhead = doctor.printLetterhead ?? true ;
-      
-      if (doctor.logoBase64 != null && doctor.logoBase64!.isNotEmpty) {
-       // _doctorLogo =  base64Decode(doctor.logoBase64!);
-       final base64String = doctor.logoBase64!;
-
-        // Remove prefix safely
-        final cleaned = base64String.contains(',')
-            ? base64String.split(',')[1]
-            : base64String;
-
-        _doctorLogo = base64Decode(cleaned);   // <-- Pure bytes for MemoryImage
-      }
+      _printLetterhead = doctor.printLetterhead ?? true ;     
       }
     });
   }
@@ -192,6 +190,223 @@ final GlobalKey<FormFieldState<String>> _ageFieldKey =
       _canGenerateNext = false;
     });
   }
+
+///old generatePrescriptionPdf function with signature below the line in the footer
+///void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
+//   setState(() => _isLoading = true);
+
+//   final p = _patientInfoKey.currentState!;
+//   final pdf = pw.Document();
+
+//   final fontRegular =
+//       pw.Font.ttf(await rootBundle.load("assets/fonts/Roboto-Regular.ttf"));
+//   final fontBold =
+//       pw.Font.ttf(await rootBundle.load("assets/fonts/Roboto-Bold.ttf"));
+
+//   final theme = pw.ThemeData.withFont(
+//     base: fontRegular,
+//     bold: fontBold,
+//   );
+
+//   final name = p.tabNameController.text;
+//   final age = p.ageController.text;
+//   final gender = p.gender.value;
+//   final complaints = p.keyComplaintcontroller.text;
+//   final exam = p.examinationcontroller.text;
+//   final diagnosis = p.diagnoscontroller.text;
+//   final remarks = p.remarkscontroller.text;
+//   final nextDate = p.followupDatecontroller.text;
+
+//   final formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+
+//   pdf.addPage(
+//     pw.MultiPage(
+//       theme: theme,
+//       pageFormat: PdfPageFormat.a4,
+//       margin: const pw.EdgeInsets.all(24),
+
+//       // ---------------- HEADER ----------------
+//       header: (context) {
+//         if (!_printLetterhead) {
+//           return pw.Column(
+//             children: [
+//               pw.SizedBox(height: 100),
+//               pw.Divider(),
+//             ],
+//           );
+//         }
+
+//         return pw.Column(
+//           crossAxisAlignment: pw.CrossAxisAlignment.start,
+//           children: [
+//             pw.Row(
+//               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+//               children: [
+//                 pw.Column(
+//                   crossAxisAlignment: pw.CrossAxisAlignment.start,
+//                   children: [
+//                     pw.Text(
+//                       "Dr. ${doctorInfo.name}",
+//                       style: pw.TextStyle(
+//                           fontSize: 20, fontWeight: pw.FontWeight.bold),
+//                     ),
+//                     pw.SizedBox(height: 2),
+//                     pw.Text(doctorInfo.specialization),
+//                     pw.Text(doctorInfo.clinicAddress),
+//                     pw.Text("Contact: ${doctorInfo.contact}"),
+//                   ],
+//                 ),
+//                 if (_doctorLogo != null)
+//                   pw.Container(
+//                     width: 60,
+//                     height: 60,
+//                     child: pw.Image(pw.MemoryImage(_doctorLogo!)),
+//                   ),
+//               ],
+//             ),
+//             pw.SizedBox(height: 10),
+//             pw.Divider(),
+//           ],
+//         );
+//       },
+
+//       // ---------------- FOOTER ----------------
+//       footer: (context) => pw.Column(
+//   children: [
+//     pw.Divider(),
+
+//     pw.Center(
+//       child: pw.Text(
+//         "Page ${context.pageNumber} of ${context.pagesCount}",
+//         style: const pw.TextStyle(fontSize: 10),
+//       ),
+//     ),
+
+//     if (context.pageNumber == context.pagesCount)
+//       pw.Align(
+//         alignment: pw.Alignment.centerRight,
+//         child: pw.Padding(
+//           padding: const pw.EdgeInsets.only(top: 8),
+//           child: pw.Text(
+//             "Signature",
+//             style: pw.TextStyle(
+//               fontSize: 14,
+//               fontWeight: pw.FontWeight.bold,
+//             ),
+//           ),
+//         ),
+//       ),
+//   ],
+// ),
+
+
+
+//       // ---------------- BODY ----------------
+//       build: (context) => [
+//         pw.Align(
+//           alignment: pw.Alignment.centerRight,
+//           child: pw.Text(
+//             "Date: $formattedDate",
+//             style:
+//                 pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+//           ),
+//         ),
+
+//         pw.SizedBox(height: 20),
+
+//         pw.Text("Patient Information",
+//             style:
+//                 pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+//         pw.SizedBox(height: 5),
+//         pw.Text("Patient Name: $name"),
+//         pw.Text("Age: $age"),
+//         pw.Text("Gender: $gender"),
+//         pw.SizedBox(height: 10),
+
+//         _section("Chief Complaints", complaints),
+//         _section("Findings of Examination", exam),
+//         _section("Diagnosis", diagnosis),
+//         _section("Remarks", remarks),
+//         _section("Next Follow Up Date", nextDate),
+
+//         pw.SizedBox(height: 20),
+
+//         // ---------------- MEDICINE TABLE ----------------
+//         pw.Text("Prescribed Medicines",
+//             style:
+//                 pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+//         pw.SizedBox(height: 10),
+
+//         _prescriptions.isEmpty
+//     ? pw.Text("No medicines added.")
+//     : pw.TableHelper.fromTextArray(
+//         border: pw.TableBorder.all(),
+//         headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
+//         headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 11),
+//         cellStyle: const pw.TextStyle(fontSize: 10),
+
+//         // 👇 ADD THIS HERE
+//         columnWidths: {
+//           0: const pw.FlexColumnWidth(3.5), // Medicine (wider for long names)
+//           1: const pw.FlexColumnWidth(1.4), // Freq.
+//           2: const pw.FlexColumnWidth(2.0), // Consumption
+//           3: const pw.FlexColumnWidth(1.5), // Duration
+//           4: const pw.FlexColumnWidth(2.0), // Consume Till Date
+//           5: const pw.FlexColumnWidth(2.2), // Remarks
+//         },
+
+//         headers: [
+//           "Medicine",
+//           "Freq.",
+//           "Consumption",
+//           "Duration",
+//           "Consume Till Date",
+//           "Remarks",
+//         ],
+
+//         data: _prescriptions.map((med) {
+//           final isTablet = med.isTablet;
+//           final unit = _unitForType(med.medicineType.toString());
+//           final doseValue = med.drugUnit?.toString() ?? "";
+//           final unitValue =
+//               (med.medicineType == "Ointment" || med.medicineType == "Others")
+//                   ? ""
+//                   : unit;
+
+//           final consumption =
+//               isTablet ? (med.isBeforeFood ? "Before Food" : "After Food") : "NA";
+
+//           return [
+//             "${med.medicineType} ${med.drugName} $doseValue $unitValue",
+//             med.toBitList(4).join(" - "),
+//             consumption,
+//             "${med.followupDuration} ${med.inDays ? 'Days' : 'Months'}",
+//             DateFormat('dd/MM/yyyy').format(med.followupdate),
+//             med.remarks,
+//           ];
+//         }).toList(),
+//       ),
+
+//       ],
+//     ),
+//   );
+
+//   final pdfBytes = await pdf.save();
+//   await LicenseApiService.incrementPrescriptionCount();
+
+//   if (!mounted) return;
+
+//   Navigator.push(
+//     context,
+//     MaterialPageRoute(
+//       builder: (_) => PrintPreviewScreen(pdfBytes: pdfBytes),
+//     ),
+//   );
+
+//   setState(() => _isLoading = false);
+// }
+///
+
 
 void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
   setState(() => _isLoading = true);
@@ -217,6 +432,12 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
   final diagnosis = p.diagnoscontroller.text;
   final remarks = p.remarkscontroller.text;
   final nextDate = p.followupDatecontroller.text;
+  final qrCode = pw.BarcodeWidget(
+  barcode: pw.Barcode.qrCode(),
+  data:  AppConstants.playStoreUrl,
+  width: 60,
+  height: 60,
+);
 
   final formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
 
@@ -272,33 +493,139 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
       },
 
       // ---------------- FOOTER ----------------
-      footer: (context) => pw.Column(
-  children: [
-    pw.Divider(),
+//      footer: (context) => pw.Column(
+//   children: [
 
-    pw.Center(
-      child: pw.Text(
-        "Page ${context.pageNumber} of ${context.pagesCount}",
-        style: const pw.TextStyle(fontSize: 10),
-      ),
-    ),
+//     if (context.pageNumber == context.pagesCount)
+//       pw.Align(
+//         alignment: pw.Alignment.centerRight,
+//         child: pw.Column(
+//           children: [
+
+//             // Blank space for actual signature
+//             pw.SizedBox(height: 35),
+
+//             pw.Container(
+//               width: 140,
+//               child: pw.Divider(thickness: 1),
+//             ),
+
+//             pw.Text(
+//               "Doctor's Signature",
+//               style: const pw.TextStyle(fontSize: 10),
+//             ),
+
+//             pw.SizedBox(height: 10),
+//           ],
+//         ),
+//       ),
+
+//     pw.Divider(),
+
+//     pw.Center(
+//       child: pw.Text(
+//         "Page ${context.pageNumber} of ${context.pagesCount}",
+//         style: const pw.TextStyle(fontSize: 10),
+//       ),
+//     ),
+//   ],
+// ),
+
+footer: (context) => pw.Column(
+  children: [
+
+    // ============================================================
+    // Doctor Signature (Prescription ends here)
+    // ============================================================
 
     if (context.pageNumber == context.pagesCount)
       pw.Align(
         alignment: pw.Alignment.centerRight,
-        child: pw.Padding(
-          padding: const pw.EdgeInsets.only(top: 8),
-          child: pw.Text(
-            "Signature",
-            style: pw.TextStyle(
-              fontSize: 14,
-              fontWeight: pw.FontWeight.bold,
+        child: pw.Column(
+          children: [
+
+            pw.SizedBox(height: 35),
+
+            pw.Container(
+              width: 140,
+              child: pw.Divider(thickness: 1),
             ),
-          ),
+
+            pw.Text(
+              "Doctor's Signature",
+              style: const pw.TextStyle(fontSize: 10),
+            ),
+
+            pw.SizedBox(height: 8),
+          ],
         ),
       ),
+
+    // Divider separating prescription from advertisement
+    pw.Divider(),
+
+    // ============================================================
+    // Advertisement (Last page only)
+    // ============================================================
+
+    if (context.pageNumber == context.pagesCount)
+      pw.Container(
+        padding: const pw.EdgeInsets.symmetric(vertical: 6),
+        child: pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.center,
+          children: [
+
+            qrCode,
+
+            pw.SizedBox(width: 12),
+
+            pw.Expanded(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+
+                  pw.Text(
+                    "Digitally generated using Prescriptor®",
+                    style: pw.TextStyle(
+                      fontSize: 10,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.blue700,
+                    ),
+                  ),
+
+                  pw.SizedBox(height: 2),
+
+                  pw.Text(
+                    "Helping healthcare professionals create clear, professional and paper-efficient prescriptions.",
+                    style: const pw.TextStyle(fontSize: 8),
+                  ),
+
+                  pw.Text(
+                    "Have your doctor scan the QR code to download the Prescriptor App.",
+                    style: const pw.TextStyle(fontSize: 8),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+
+    pw.Divider(),
+
+    // ============================================================
+    // Page Number
+    // ============================================================
+
+    pw.Center(
+      child: pw.Text(
+        "Page ${context.pageNumber} of ${context.pagesCount}",
+        style: const pw.TextStyle(fontSize: 9),
+      ),
+    ),
   ],
 ),
+//------footer ends here
 
 
 

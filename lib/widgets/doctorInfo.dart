@@ -1,6 +1,29 @@
 
 
+class DoctorLogo {
 
+  final String imageData;
+  final String mimeType;
+
+  const DoctorLogo({
+    required this.imageData,
+    required this.mimeType,
+  });
+
+  Map<String, dynamic> toJson() => {
+    "imageData": imageData,
+    "mimeType": mimeType,
+  };
+
+  factory DoctorLogo.fromJson(Map<String, dynamic> json) {
+    return DoctorLogo(
+      imageData: json["imageData"] ?? "",
+      mimeType: json["mimeType"] ?? "image/png",
+    );
+  }
+
+
+}
 
 class DoctorInfo {
   final String name;
@@ -8,7 +31,7 @@ class DoctorInfo {
   final String clinicName;
   final String clinicAddress;
   final String contact;
-  final String? logoBase64;
+  final DoctorLogo? logo;
   final String loginEmail;
   final String? password;
 
@@ -32,7 +55,7 @@ class DoctorInfo {
     required this.contact,
     required this.loginEmail,
     this.password,
-    this.logoBase64,
+    this.logo,
     this.printLetterhead = true,
     this.prescriptionCount = 0,
     this.licensedOnDate,
@@ -52,7 +75,7 @@ class DoctorInfo {
         'contact': contact,
         'loginEmail': loginEmail,
         if (password != null) 'password': password,
-        'logoBase64': logoBase64,
+        'logo': logo?.toJson(),
         'printLetterhead': printLetterhead,
         'prescriptionCount': prescriptionCount,
         'licensedOnDate': licensedOnDate?.toIso8601String(),
@@ -74,7 +97,7 @@ class DoctorInfo {
       contact: json['contact'] ?? '',
       loginEmail: json['loginEmail'] ?? '',
       password: json['password'],
-      logoBase64: json['logoBase64'],
+      logo:  null,
       printLetterhead: json['printLetterhead'] ?? true,
       prescriptionCount: json['prescriptionCount'] ?? 0,
       licensedOnDate: json['licensedOnDate'] != null
@@ -103,7 +126,7 @@ class DoctorInfo {
     String? contact,
     String? loginEmail,
     String? password,
-    String? logoBase64,
+    DoctorLogo? logo,
     bool? printLetterhead,
     int? prescriptionCount,
     DateTime? licensedOnDate,
@@ -122,7 +145,7 @@ class DoctorInfo {
       contact: contact ?? this.contact,
       loginEmail: loginEmail ?? this.loginEmail,
       password: password ?? this.password,
-      logoBase64: logoBase64 ?? this.logoBase64,
+      logo: logo ?? this.logo,
       printLetterhead: printLetterhead ?? this.printLetterhead,
       prescriptionCount: prescriptionCount ?? this.prescriptionCount,
       licensedOnDate: licensedOnDate ?? this.licensedOnDate,

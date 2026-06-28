@@ -9,6 +9,8 @@ import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:typed_data';
+import 'package:docautomations/services/logo_service.dart';
 
 class DoctorWelcomeScreen extends StatefulWidget {
   const DoctorWelcomeScreen({super.key});
@@ -19,12 +21,58 @@ class DoctorWelcomeScreen extends StatefulWidget {
 
 class _DoctorWelcomeScreenState extends State<DoctorWelcomeScreen> {
   String _appVersion = "";
+  Uint8List? _doctorLogo;
+
+  late Future<DoctorInfo> _doctorFuture;
 
   @override
   void initState() {
     super.initState();
+     _doctorFuture = _loadInfo();
     _loadVersion();
+    _loadLogo();
+
   }
+Future<void> _openDemoPlaylist() async {
+  const String playlistId = "https://youtu.be/ZsmBEu_lzKw";
+  //ifyou wanrt to open a specific playlist, you can use the following format:
+  // "https://www.youtube.com/playlist?list=$playlistId",
+  final Uri playlistUrl = Uri.parse(
+    playlistId,
+  );
+
+  try {
+    final launched = await launchUrl(
+      playlistUrl,
+      mode: LaunchMode.externalApplication,
+    );
+
+    if (!launched) {
+      throw Exception();
+    }
+  } catch (_) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Unable to open YouTube.",
+        ),
+      ),
+    );
+  }
+}
+
+Future<void> _loadLogo() async {
+  final logo = await LogoService.getLogo();
+
+  if (!mounted) return;
+
+  setState(() {
+    _doctorLogo = logo;
+  });
+}
+
 
   Future<void> _loadVersion() async {
     try {
@@ -58,7 +106,7 @@ class _DoctorWelcomeScreenState extends State<DoctorWelcomeScreen> {
     return Consumer<LicenseProvider>(
       builder: (context, license, child) {
         return FutureBuilder<DoctorInfo>(
-          future: _loadInfo(),
+          future: _doctorFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Scaffold(
@@ -127,19 +175,62 @@ class _DoctorWelcomeScreenState extends State<DoctorWelcomeScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Center(child: displayDoctorImage(info.logoBase64)),
+                                Center(child: displayDoctorImage(imageBytes: _doctorLogo)),
                                 const SizedBox(height: 20),
-                                Text(
-                                 "Dr.${info.name}",
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(info.specialization),
-                                Text(info.clinicName),
-                                Text(info.clinicAddress),
-                                Text(info.contact),
+                                // Text(
+                                //  "Dr.${info.name}",
+                                //   style: const TextStyle(
+                                //     fontSize: 24,
+                                //     fontWeight: FontWeight.bold,
+                                //   ),
+                                // ),
+                                // Text(info.specialization),
+                                // Text(info.clinicName),
+                                // Text(info.clinicAddress),
+                                // Text(info.contact),
+
+                                SizedBox(
+  width: double.infinity,
+  child: Column(
+    children: [
+      Text(
+        "Dr. ${info.name}",
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+
+      const SizedBox(height: 4),
+
+      Text(
+        info.specialization,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 16),
+      ),
+
+      Text(
+        info.clinicName,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+
+      Text(
+        info.clinicAddress,
+        textAlign: TextAlign.center,
+      ),
+
+      Text(
+        info.contact,
+        textAlign: TextAlign.center,
+      ),
+    ],
+  ),
+),
                                 const SizedBox(height: 20),
                                 const Divider(),
                                 const SizedBox(height: 10),
@@ -267,6 +358,32 @@ class _DoctorWelcomeScreenState extends State<DoctorWelcomeScreen> {
                                     ),
                                   ),
                                 
+ const SizedBox(height: 20),
+
+Card(
+  color: Colors.red.shade50,
+  elevation: 2,
+  child: ListTile(
+    leading: const CircleAvatar(
+      backgroundColor: Colors.red,
+      child: Icon(
+        Icons.play_arrow_rounded,
+        color: Colors.white,
+      ),
+    ),
+    title: const Text(
+      "Watch App Demo",
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    subtitle: const Text(
+      "Watch 2-minute videos to learn prescriptions, printing, sharing and subscriptions.",
+    ),
+    trailing: const Icon(Icons.open_in_new),
+    onTap: _openDemoPlaylist,
+  ),
+),
  const SizedBox(height: 30),
 
                   // ✅ Contact Us Section — App-themed design
