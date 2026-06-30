@@ -133,7 +133,7 @@ Future<void> loadProducts() async {
         .whereType<GooglePlayProductDetails>()
         .toList();
 
-    print("Products loaded: ${products.length}");
+    
 
   } catch (e) {
 
@@ -167,10 +167,10 @@ void _handlePurchaseFailure() {
 Future<void> _handlePurchaseSuccess(PurchaseDetails purchase) async {
 if(!mounted) return;
 
-print("🔥 STEP 1: Purchase success triggered");
 
-print("🔥 productId: ${purchase.productID}");
-print("🔥 purchaseID: ${purchase.purchaseID}");
+
+
+
 
 
 
@@ -189,7 +189,7 @@ bool success = false;
   );
 
   success = activationResult.success;
-  print("🔥 STEP 2: activateSubscription result = $success");
+
   
    } catch (_) {
     success = false;
@@ -249,8 +249,7 @@ bool success = false;
   setState(() {
     _isPurchasing = false;
   });
-print("STEP 1 success = $success");
-print("STEP 2 calling onSubscriptionActivated");
+
 if (mounted) {
   widget.onSubscriptionActivated();
 }
@@ -337,9 +336,9 @@ Future<void> _purchase() async {
     );
 
     if (result == true) {
-      print("inside result $result");
+
       if (kIsWeb) {
-        print("inside kisweb");
+
         // Web: just show message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("You can now close the browser tab.")),
@@ -366,7 +365,7 @@ Future<void> _purchase() async {
     final licenseProvider = context.read<LicenseProvider>();
     await licenseProvider.saveFeedback(feedback);
 
-    print("Feedback submitted: ${feedbackController.text}");
+    
 
 
     

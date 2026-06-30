@@ -27,24 +27,7 @@ class Prescriptiondata extends ChangeNotifier {
     this.remarks = '',
     this.medicineType ,
   }) : followupdate = followupdate ?? DateTime.now();
-//  late bool isTablet ;
-//  late String drugName;
-//  late bool isMeasuredInMg;
-//  late int drugUnit;
-//  late int freqBitField;
-// // late BitField morning;
-// // late BitField afternoon;
-// // late BitField evening;
-// // late BitField night;
-//  late bool isBeforeFood;
-//  late bool inDays;
-//  late int  followupDuration;//followupduration;
-//  late DateTime followupdate;
-//  late String remarks;
 
-
-
-// Prescriptiondata({this.freqBitField =0}); // Default: no toggles selected
 
 void updateIsTablet(bool isTabletVal)
 {
@@ -72,25 +55,7 @@ void updateDrugName(String value) {
     notifyListeners();
   }
 
-  // void updateMorning(BitField value) {
-  //   morning = value;
-  //   notifyListeners();
-  // }
-
-  // void updateAfternoon(BitField value) {
-  //   afternoon = value;
-  //   notifyListeners();
-  // }
-
-  // void updateEvening(BitField value) {
-  //   evening = value;
-  //   notifyListeners();
-  // }
-
-  // void updateNight(BitField value) {
-  //   night = value;
-  //   notifyListeners();
-  // }
+  
 
   void updateIsBeforeFood(bool value) {
     isBeforeFood = value;
