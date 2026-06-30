@@ -615,6 +615,7 @@ import 'package:docautomations/common/licenseprovider.dart';
 // 🔹 import reusable loader
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
 import 'package:docautomations/commonwidget/trialbanner.dart';
+import 'package:docautomations/services/logo_service.dart';
 import 'package:docautomations/validationhandling/validation.dart';
 import 'package:docautomations/validationhandling/validator.dart';
 import 'package:docautomations/widgets/doctorwelcomescreen.dart';
@@ -666,7 +667,8 @@ class _DoctorMasterScrState extends State<DoctorMasterScr> {
   final _emailKey = GlobalKey<FormFieldState>();
 
 
-  DoctorLogo? _logo;
+  DoctorLogo? _logoToUpload; // New field to hold the logo to upload
+  Uint8List? _logobytes;
   
   int? _logoSizeBytes;
   int? _logoWidth;
@@ -681,6 +683,7 @@ class _DoctorMasterScrState extends State<DoctorMasterScr> {
   void initState() {
     super.initState();
     _seedControllers(widget.doctorInfo);
+    _loadLogo();
   }
 
   @override
@@ -688,10 +691,29 @@ class _DoctorMasterScrState extends State<DoctorMasterScr> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.doctorInfo != widget.doctorInfo) {
       _seedControllers(widget.doctorInfo);
+      _loadLogo();
       setState(() {});
     }
   }
+Future<void> _loadLogo() async {
+  try {
 
+   
+    final logo = await LogoService.getLogo();
+   
+
+    if (!mounted || logo == null) return;
+
+    setState(() {
+      _logobytes = logo;
+      _logoToUpload=null;
+    });
+   
+  } catch (e) {
+    debugPrint("Failed to load logo: $e");
+     
+  }
+}
   void _seedControllers(DoctorInfo d) {
     _nameController = TextEditingController(text: d.name);
     _specController = TextEditingController(text: d.specialization);
@@ -700,7 +722,6 @@ class _DoctorMasterScrState extends State<DoctorMasterScr> {
     _contactController = TextEditingController(text: d.contact);
     _loginEmailController = TextEditingController(text: d.loginEmail);
     _originalEmail = d.loginEmail.trim().toLowerCase();
-    _logo= d.logo;
     _printLetterhead = d.printLetterhead;
   }
 
@@ -724,10 +745,7 @@ void _showError(String message) {
   );
 }
 
-String? get _logoPreviewBase64 {
-  if (_logo == null) return null;
-  return "data:${_logo!.mimeType};base64,${_logo!.imageData}";
-}
+
 
 
 Future<void> _pickImage() async {
@@ -849,7 +867,8 @@ Future<void> _pickImage() async {
    
 
     setState(() {
-      _logo= DoctorLogo(imageData: rawBase64, mimeType: mimeType);
+      _logoToUpload= DoctorLogo(imageData: rawBase64, mimeType: mimeType);
+      _logobytes = Uint8List.fromList(compressed);
       _logoSizeBytes = compressed.length;
     });
 
@@ -911,7 +930,7 @@ Future<void> _submit() async {
         contact: _contactController.text,
         loginEmail: _loginEmailController.text.trim().toLowerCase(),
         password: "", // not needed in edit
-        logo: _logo,
+        logo: _logoToUpload,
         printLetterhead: _printLetterhead,
         prescriptionCount:widget.doctorInfo.prescriptionCount,
         licensedOnDate:widget.doctorInfo.licensedOnDate,
@@ -927,7 +946,8 @@ Future<void> _submit() async {
       if (success) {
         final prefs = await SharedPreferences.getInstance();
   await prefs.setString("doctor_profile", jsonEncode(updatedInfo.toJson())); 
-
+          LogoService.clearLogo();
+          LogoService.cacheLogo(_logobytes!);
         widget.onUpdated(updatedInfo);
 
        await _showSuccessPopup();  // 👈 show dialog first
@@ -1142,7 +1162,7 @@ if (_logoSizeBytes != null)
 //End of info for logo selection
         const SizedBox(height: 10),
 
-        displayDoctorImage(base64Image: _logoPreviewBase64),
+        displayDoctorImage (imageBytes: _logobytes ),
 
         const SizedBox(height: 20),
 

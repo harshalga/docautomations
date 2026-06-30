@@ -438,7 +438,7 @@ class _DoctorLoginScreenState
 
 Future<void> _openDemoVideo() async {
   // Replace with your actual YouTube video ID
-  const String videoId = "https://youtu.be/ZsmBEu_lzKw";
+  const String videoId = "ZsmBEu_lzKw";
 
   final Uri youtubeApp =
       Uri.parse("vnd.youtube://$videoId");

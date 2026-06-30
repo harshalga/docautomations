@@ -160,6 +160,7 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:docautomations/services/auth_service.dart';
+import 'package:docautomations/utils/app_config.dart';
 import '../services/logger_service.dart';
 
 class DioClient {
@@ -172,11 +173,11 @@ class DioClient {
     _dio ??= _createDio();
     return _dio!;
   }
-
+//"https://license-server-0zfe.onrender.com";
   static Dio _createDio() {
     final dio = Dio(
       BaseOptions(
-        baseUrl: 'https://license-server-0zfe.onrender.com',
+        baseUrl: AppConfig.baseUrl,
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 45),
         headers: {

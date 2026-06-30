@@ -1,7 +1,10 @@
 # Build Flutter AAB
 #flutter build appbundle 
-flutter build appbundle --split-debug-info=build/symbols
-
+#flutter build appbundle --split-debug-info=build/symbols
+# Build Flutter AAB (Production)
+flutter build appbundle `
+    --dart-define=BASE_URL=https://license-server-0zfe.onrender.com `
+    --split-debug-info=build/symbols
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Flutter build failed"
@@ -15,7 +18,7 @@ $version = $versionLine.ToString().Split(" ")[1]
 
 # File paths
 $src = "build/app/outputs/bundle/release/app-release.aab"
-$destFolder = "builds"
+$destFolder = "builds_prod"
 
 # Create folder if not exists
 New-Item -ItemType Directory -Force -Path $destFolder | Out-Null

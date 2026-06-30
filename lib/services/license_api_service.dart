@@ -1167,12 +1167,14 @@ import 'package:docautomations/network/dio_client.dart';
 import 'package:docautomations/services/auth_service.dart';
 import 'package:docautomations/services/logger_service.dart';
 import 'package:docautomations/utils/activation_result.dart';
+import 'package:docautomations/utils/app_config.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:docautomations/widgets/doctorinfo.dart';
 
 class LicenseApiService {
-  static const String baseUrl = "https://license-server-0zfe.onrender.com";
+  //"https://license-server-0zfe.onrender.com";
+  static const String baseUrl =  AppConfig.baseUrl;  
 
 
  static String? _accessToken;

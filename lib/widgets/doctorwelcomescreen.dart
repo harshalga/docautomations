@@ -64,6 +64,7 @@ Future<void> _openDemoPlaylist() async {
 }
 
 Future<void> _loadLogo() async {
+  
   final logo = await LogoService.getLogo();
 
   if (!mounted) return;
