@@ -42,25 +42,55 @@ class _DoctorLoginScreenState
   String? _passwordError;
 
 
-Future<void> _openDemoVideo() async {
-  // Replace with your actual YouTube video ID
-  const String videoId = "ZsmBEu_lzKw";
+// Future<void> _openDemoVideo() async {
+//   // Replace with your actual YouTube video ID
+//   const String videoId = "ZsmBEu_lzKw";
 
-  final Uri youtubeApp =
-      Uri.parse("vnd.youtube://$videoId");
+//   // Replace with your actual playlist ID
+//   const String playlistId = "PLLikLK39r_Zo";
 
-  final Uri youtubeWeb =
-      Uri.parse("https://youtu.be/$videoId");
+//   final Uri youtubeApp =
+//    Uri.parse("https://www.youtube.com/playlist?list=$playlistId");
+//       //Uri.parse("vnd.youtube://$videoId");
 
-  if (await canLaunchUrl(youtubeApp)) {
-    await launchUrl(
-      youtubeApp,
+//   final Uri youtubeWeb =
+//       Uri.parse("https://youtu.be/$videoId");
+
+//   if (await canLaunchUrl(youtubeApp)) {
+//     await launchUrl(
+//       youtubeApp,
+//       mode: LaunchMode.externalApplication,
+//     );
+//   } else {
+//     await launchUrl(
+//       youtubeWeb,
+//       mode: LaunchMode.externalApplication,
+//     );
+//   }
+// }
+
+Future<void> _openDemoPlaylist() async {
+  const String playlistUrl =
+      "https://www.youtube.com/playlist?list=PLLikLK39r_Zo";
+
+  final Uri uri = Uri.parse(playlistUrl);
+
+  try {
+    final launched = await launchUrl(
+      uri,
       mode: LaunchMode.externalApplication,
     );
-  } else {
-    await launchUrl(
-      youtubeWeb,
-      mode: LaunchMode.externalApplication,
+
+    if (!launched) {
+      throw Exception("Unable to launch YouTube.");
+    }
+  } catch (_) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Unable to open YouTube."),
+      ),
     );
   }
 }
@@ -516,7 +546,7 @@ Card(
       "See how to create prescriptions in just 2 minutes",
     ),
     trailing: const Icon(Icons.arrow_forward_ios),
-    onTap: _openDemoVideo,
+    onTap: _openDemoPlaylist,
   ),
 ),
 const SizedBox(height: 10),

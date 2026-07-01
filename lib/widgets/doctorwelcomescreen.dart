@@ -34,11 +34,11 @@ class _DoctorWelcomeScreenState extends State<DoctorWelcomeScreen> {
 
   }
 Future<void> _openDemoPlaylist() async {
-  const String playlistId = "https://youtu.be/ZsmBEu_lzKw";
+  const String playlistId = "PLLikLK39r_Zo";// "https://youtu.be/ZsmBEu_lzKw";
   //ifyou wanrt to open a specific playlist, you can use the following format:
   // "https://www.youtube.com/playlist?list=$playlistId",
   final Uri playlistUrl = Uri.parse(
-    playlistId,
+    "https://www.youtube.com/playlist?list=$playlistId",
   );
 
   try {
