@@ -32,6 +32,7 @@ dependencies:
   dio: ^5.0.0
   sentry_flutter: ^9.7.0
   get: ^4.6.1
+  mobile_scanner: ^5.2.3
 
 dev_dependencies:
   flutter_test:

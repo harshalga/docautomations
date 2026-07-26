@@ -9,6 +9,7 @@ import 'package:docautomations/widgets/AddPrescrip.dart';
 import 'package:docautomations/widgets/DoctorLoginScreen.dart';
 import 'package:docautomations/widgets/SplashScreen.dart';
 import 'package:docautomations/widgets/doctorinfo.dart';
+import 'package:docautomations/widgets/patientsearchscreen.dart';
 import 'package:docautomations/widgets/paywallscreen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -326,7 +327,7 @@ print("🔥 STEP 10: UI decision");
         );
       } else if (license.canPrescribe) {
         screen = Menubar(
-          body: const Addprescrip(title: "Patient Diagnosis"),
+          body: const PatientSearchScreen(), //const Addprescrip(title: "Patient Diagnosis"),
           onLogout: _logout,
         );
       } else {

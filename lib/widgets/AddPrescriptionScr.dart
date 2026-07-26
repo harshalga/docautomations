@@ -452,7 +452,7 @@ void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
         if (!_printLetterhead) {
           return pw.Column(
             children: [
-              pw.SizedBox(height: 100),
+              pw.SizedBox(height: 160),
               pw.Divider(),
             ],
           );
