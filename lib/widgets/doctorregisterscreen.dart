@@ -498,7 +498,7 @@ if (_logoSizeBytes != null)
         ),
 
         Text(
-          "Dimensions: ${_logoWidth} × ${_logoHeight}",
+          "Dimensions: $_logoWidth × $_logoHeight",
         ),
 
         const Text(

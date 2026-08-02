@@ -2,6 +2,7 @@
 import 'package:docautomations/widgets/AddPrescrip.dart';
 import 'package:docautomations/widgets/doctormaster.dart';
 import 'package:docautomations/widgets/doctorwelcomescreen.dart';
+import 'package:docautomations/widgets/patientsearchscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import  'package:docautomations/widgets/sharelogsscreen.dart';
@@ -169,6 +170,17 @@ String doctorName = ""; // store doctor name here
                 setState(() {
                   currentBody = const DoctorWelcomeScreen();
                   isHome = true;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info, size: 26),
+              title: const Text("Find Patient", style: TextStyle(fontSize: 20)),
+              onTap: () {
+                setState(() {
+                  currentBody = const PatientSearchScreen(title: "Find Patient");
+                  isHome = false;
                 });
                 Navigator.pop(context);
               },

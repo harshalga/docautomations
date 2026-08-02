@@ -1,5 +1,6 @@
 import 'package:docautomations/common/licenseprovider.dart';
 import 'package:docautomations/commonwidget/trialbanner.dart';
+import 'package:docautomations/widgets/AddPrescrip.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
@@ -68,9 +69,20 @@ class _PatientSearchScreenState extends State<PatientSearchScreen> {
   }
 
   void _newPatient() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('New patient registration will open here.')),
-    );
+    //TODO: Need to call the Diagnosis screen with the new patient creation flow. 
+
+    Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (_) => const Addprescrip(
+      title: "Diagnosis",
+      mode: PatientMode.newPatient,
+    ),
+  ),
+);
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(content: Text('New patient registration will open here.')),
+    // );
   }
 
   @override

@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:docautomations/datamodels/master/country.dart';
+import 'package:docautomations/datamodels/response/doctor_profile.dart';
 import 'package:docautomations/network/dio_client.dart';
 import 'package:docautomations/services/auth_service.dart';
 import 'package:docautomations/services/logger_service.dart';
@@ -364,6 +366,123 @@ static Future<DoctorInfo?> fetchCurrentDoctor() async {
   }
 }
 
+
+Future<List<Country>> fetchCountriesFromServer() async {
+  try {
+    final response = await DioClient.instance.get(
+      '/api/doctor/countries',
+    );
+
+    if (response.data == null) {
+      return [];
+    }
+
+    final List<dynamic> countriesJson =
+        response.data["data"] as List<dynamic>;
+
+    return countriesJson
+        .map(
+          (json) => Country.fromJson(
+            json as Map<String, dynamic>,
+          ),
+        )
+        .toList();
+  } catch (e, s) {
+    await LoggerService.error(
+      'Failed to fetch countries',
+      error: e,
+      stack: s,
+    );
+
+    if (e is DioException &&
+        e.response?.statusCode == 401) {
+      await _logout();
+    }
+
+    return [];
+  }
+}
+
+Future<List<int>> downloadDoctorLogo() async {
+  try {
+    final response = await DioClient.instance.get(
+      '/api/doctor/logo',
+      options: Options(
+        responseType: ResponseType.bytes,
+      ),
+    );
+
+    return List<int>.from(response.data);
+  } catch (e, s) {
+    await LoggerService.error(
+      'Failed to download doctor logo.',
+      error: e,
+      stack: s,
+    );
+
+    if (e is DioException &&
+        e.response?.statusCode == 401) {
+      await _logout();
+    }
+
+    rethrow;
+  }
+}
+
+Future<List<int>> downloadDoctorSignature() async {
+  try {
+    final response = await DioClient.instance.get(
+      '/api/doctor/signature',
+      options: Options(
+        responseType: ResponseType.bytes,
+      ),
+    );
+
+    return List<int>.from(response.data);
+  } catch (e, s) {
+    await LoggerService.error(
+      'Failed to download doctor signature.',
+      error: e,
+      stack: s,
+    );
+
+    if (e is DioException &&
+        e.response?.statusCode == 401) {
+      await _logout();
+    }
+
+    rethrow;
+  }
+}
+
+Future<DoctorProfile> fetchDoctorProfileFromServer() async {
+  try {
+    final response = await DioClient.instance.get(
+      '/api/doctor/getDoctorProfile',
+    );
+
+    if (response.data == null) {
+      return null;
+    }
+
+    return DoctorProfile.fromJson(
+      response.data["data"]  as Map<String, dynamic>,
+    );
+  } catch (e, s) {
+    await LoggerService.error(
+      'Failed to fetch doctor profile',
+      error: e,
+      stack: s,
+    );
+
+    if (e is DioException &&
+        e.response?.statusCode == 401) {
+      await _logout();
+    }
+
+    return null;
+  }
+}
 
 
 
