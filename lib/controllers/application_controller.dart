@@ -1,11 +1,28 @@
-import 'package:docautomations/datamodels/master/country.dart';
-import 'package:docautomations/datamodels/response/doctor_profile.dart';
 import 'package:flutter/material.dart';
 
-class ApplicationController extends ChangeNotifier {
-  DoctorProfile? _doctorProfile;
+import 'package:docautomations/application/application_bootstrapper.dart';
+import 'package:docautomations/datamodels/master/master_data.dart';
 
-  List<Country> _countries = [];
+class ApplicationController extends ChangeNotifier {
+  //---------------------------------------------------------------------------
+  // Dependencies
+  //---------------------------------------------------------------------------
+
+  final ApplicationBootstrapper initializer;
+
+  //---------------------------------------------------------------------------
+  // Constructor
+  //---------------------------------------------------------------------------
+
+  ApplicationController({
+    required this.initializer,
+  });
+
+  //---------------------------------------------------------------------------
+  // State
+  //---------------------------------------------------------------------------
+
+  MasterData? _masterData;
 
   bool _initialized = false;
 
@@ -13,13 +30,19 @@ class ApplicationController extends ChangeNotifier {
 
   String? _errorMessage;
 
-  //-------------------------------------------------------------
+  //---------------------------------------------------------------------------
   // Getters
-  //-------------------------------------------------------------
+  //---------------------------------------------------------------------------
 
-  DoctorProfile? get doctorProfile => _doctorProfile;
+  MasterData get masterData {
+    if (_masterData == null) {
+      throw StateError(
+        "ApplicationController has not been initialized.",
+      );
+    }
 
-  List<Country> get countries => List.unmodifiable(_countries);
+    return _masterData!;
+  }
 
   bool get initialized => _initialized;
 
@@ -27,12 +50,16 @@ class ApplicationController extends ChangeNotifier {
 
   String? get errorMessage => _errorMessage;
 
-  //-------------------------------------------------------------
-  // Initialization
-  //-------------------------------------------------------------
+  //---------------------------------------------------------------------------
+  // Initialize
+  //---------------------------------------------------------------------------
 
-  Future<void> initialize() async {
-    if (_initialized) return;
+  Future<void> initialize({
+    bool forceRefresh = false,
+  }) async {
+    if (_initialized && !forceRefresh) {
+      return;
+    }
 
     _loading = true;
     _errorMessage = null;
@@ -40,7 +67,10 @@ class ApplicationController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _loadMasters();
+      _masterData =
+          await initializer.initialize(
+        forceRefresh: forceRefresh,
+      );
 
       _initialized = true;
     } catch (e) {
@@ -52,65 +82,28 @@ class ApplicationController extends ChangeNotifier {
     }
   }
 
-  //-------------------------------------------------------------
-  // Load Masters
-  //-------------------------------------------------------------
+  //---------------------------------------------------------------------------
+  // Refresh
+  //---------------------------------------------------------------------------
 
-  Future<void> _loadMasters() async {
-    //
-    // Step 1
-    // Load DoctorProfile from local cache
-    //
-
-    // _doctorProfile =
-    //     await LocalStorageService.loadDoctorProfile();
-
-    //
-    // Step 2
-    // Load Countries from cache
-    //
-
-    // _countries =
-    //     await LocalStorageService.loadCountries();
-
-    //
-    // Step 3
-    // Refresh from server if required
-    //
-
-    // await _refreshMasters();
+  Future<void> refresh() async {
+    await initialize(
+      forceRefresh: true,
+    );
   }
 
-  //-------------------------------------------------------------
-  // Refresh from Server
-  //-------------------------------------------------------------
-
-  Future<void> refreshMasters() async {
-    //
-    // TODO
-    //
-    // _doctorProfile =
-    //      await DoctorApiService.getDoctorProfile();
-    //
-    // _countries =
-    //      await MasterApiService.getCountries();
-    //
-    // await LocalStorageService.saveDoctorProfile(_doctorProfile!);
-    // await LocalStorageService.saveCountries(_countries);
-    //
-    // notifyListeners();
-  }
-
-  //-------------------------------------------------------------
+  //---------------------------------------------------------------------------
   // Clear
-  //-------------------------------------------------------------
+  //---------------------------------------------------------------------------
 
   Future<void> clear() async {
-    _doctorProfile = null;
+    await initializer.clearCache();
 
-    _countries.clear();
+    _masterData = null;
 
     _initialized = false;
+
+    _loading = false;
 
     _errorMessage = null;
 
