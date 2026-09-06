@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:docautomations/services/license_api_service.dart';
+import 'package:docautomations/services/doctor_api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LogoService {

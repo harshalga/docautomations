@@ -6,7 +6,7 @@ import 'package:docautomations/common/medicineType.dart';
 import 'package:docautomations/commonwidget/loadingOverlay.dart';
 import 'package:docautomations/commonwidget/trialbanner.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
-import 'package:docautomations/services/license_api_service.dart';
+import 'package:docautomations/services/doctor_api_service.dart';
 import 'package:docautomations/services/logo_service.dart';
 import 'package:docautomations/widgets/AddPrescription.dart';
 import 'package:docautomations/widgets/PatientInfo.dart';

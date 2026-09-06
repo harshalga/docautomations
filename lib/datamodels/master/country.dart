@@ -13,7 +13,7 @@ class Country {
 
   factory Country.fromJson(Map<String, dynamic> json) {
     return Country(
-      id: json["_id"] ?? "",
+      id: json["_id"]?.toString() ?? "",
       countryCode: json["countryCode"] ?? "",
       countryName: json["countryName"] ?? "",
     );

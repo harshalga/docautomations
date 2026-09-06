@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 
 import 'package:docautomations/common/licenseprovider.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
-import 'package:docautomations/services/license_api_service.dart';
+import 'package:docautomations/services/doctor_api_service.dart';
 import 'package:docautomations/widgets/Addprescrip.dart';
 import 'package:docautomations/widgets/doctorinfo.dart';
 import 'package:docautomations/services/logo_service.dart';

@@ -1,39 +1,78 @@
 class OperationResult {
 
-     final bool success;
+  //===========================================================================
+  // Properties
+  //===========================================================================
 
-     final String message;
+  final bool success;
 
-//---------------------------------------------------------------------------
+  final String message;
+
+  final dynamic data;
+
+
+  //===========================================================================
   // Constructor
-  //---------------------------------------------------------------------------
+  //===========================================================================
 
-  const OperationResult({
+  const OperationResult._({
+
     required this.success,
-    this.message = '',
+
+    required this.message,
+
+    this.data,
+
   });
 
-     //---------------------------------------------------------------------------
-  // Factory Methods
-  //---------------------------------------------------------------------------
 
-  factory OperationResult.success([
-    String message = '',
-  ]) {
-    return OperationResult(
+  //===========================================================================
+  // Success
+  //===========================================================================
+
+  factory OperationResult.success(
+
+    String message, {
+
+    dynamic data,
+
+  }) {
+
+    return OperationResult._(
+
       success: true,
+
       message: message,
+
+      data: data,
+
     );
+
   }
+
+
+  //===========================================================================
+  // Failure
+  //===========================================================================
 
   factory OperationResult.failure(
-    String message,
-  ) {
-    return OperationResult(
-      success: false,
-      message: message,
-    );
-  }
 
+    String message, {
+
+    dynamic data,
+
+  }) {
+
+    return OperationResult._(
+
+      success: false,
+
+      message: message,
+
+      data: data,
+
+    );
+
+  }
 
 }

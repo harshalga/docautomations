@@ -1,453 +1,1101 @@
 
 
 
-import 'dart:async';
-import 'dart:io';
-import 'package:docautomations/network/dio_client.dart';
-import 'package:docautomations/services/auth_service.dart';
-import 'package:docautomations/widgets/AddPrescrip.dart';
-import 'package:docautomations/widgets/DoctorLoginScreen.dart';
-import 'package:docautomations/widgets/SplashScreen.dart';
-import 'package:docautomations/widgets/doctorinfo.dart';
-import 'package:docautomations/widgets/patientsearchscreen.dart';
-import 'package:docautomations/widgets/paywallscreen.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:docautomations/widgets/doctorregisterscreen.dart';
-import 'package:docautomations/widgets/menubar.dart';
-import 'package:docautomations/services/license_api_service.dart';
-import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:docautomations/common/licenseprovider.dart';
-import 'package:provider/provider.dart';
+// import 'dart:async';
+// import 'dart:io';
+// import 'package:docautomations/network/dio_client.dart';
+// import 'package:docautomations/services/auth_service.dart';
+// import 'package:docautomations/widgets/AddPrescrip.dart';
+// import 'package:docautomations/widgets/DoctorLoginScreen.dart';
+// import 'package:docautomations/widgets/SplashScreen.dart';
+// import 'package:docautomations/widgets/doctorinfo.dart';
+// import 'package:docautomations/widgets/patientsearchscreen.dart';
+// import 'package:docautomations/widgets/paywallscreen.dart';
+// import 'package:flutter/foundation.dart';
+// import 'package:flutter/material.dart';
+// import 'package:docautomations/widgets/doctorregisterscreen.dart';
+// import 'package:docautomations/widgets/menubar.dart';
+// import 'package:docautomations/services/license_api_service.dart';
+// import 'package:flutter/services.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:docautomations/common/licenseprovider.dart';
+// import 'package:provider/provider.dart';
 
-class AppEntryPoint extends StatefulWidget {
-  const AppEntryPoint({super.key});
+// class AppEntryPoint extends StatefulWidget {
+//   const AppEntryPoint({super.key});
 
-  @override
-  State<AppEntryPoint> createState() => _AppEntryPointState();
-}
-
-
-enum AppStartupState {
-  checking,
-  loggedOut,
-  loggedIn,
-  offline,
-}
-
-class _AppEntryPointState extends State<AppEntryPoint> with WidgetsBindingObserver {
-  bool _bootstrapRunning = false;
-  bool _isRegistering = false;   // 👈 ADD THIS
-
-  
-AppStartupState _state = AppStartupState.checking;
-  
-
-  @override
-  void initState() {
-    super.initState();
-      WidgetsBinding.instance.addObserver(this); // 👈 ADD HERE
-
-    DioClient.instance;   // initialize dio early
-    _bootstrap();
-  }
+//   @override
+//   State<AppEntryPoint> createState() => _AppEntryPointState();
+// }
 
 
+// enum AppStartupState {
+//   checking,
+//   loggedOut,
+//   loggedIn,
+//   offline,
+// }
 
-Future<void> _runStartup() async {
-final backendOk = await LicenseApiService.checkBackendHealth();
-
-if (!mounted) return;
-
-if (!backendOk) {
-  setState(() => _state = AppStartupState.offline);
-  return;
-}
-
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    if (!mounted) return;
-  
-    final token = await AuthService.getToken();
-  
-
-  if (token == null || token.isEmpty) {
-      setState(() => _state = AppStartupState.loggedOut);
-      return;
-    }
-
-  await context.read<LicenseProvider>().loadStatus(force: true); // then load license in parallel
-
-  if (!mounted) return;
-  setState(() => _state = AppStartupState.loggedIn);
-  // // ✅ Load license AFTER UI builds
-  // Future.microtask(() {
-  //   if (mounted) {
-  //     context.read<LicenseProvider>().loadStatus();
-  //   }
-  // });
-
-  } catch (_) {
-    if (mounted)
-    {    setState(() => _state = AppStartupState.loggedOut);
-    }
-  }
-}
-
-
-Future<void> _bootstrap() async {
-  
- if (_bootstrapRunning) return; // prevent duplicate runs
-  _bootstrapRunning = true;
-  
-
-  await Future.any([
-    _runStartup(),
-    Future.delayed(const Duration(seconds: 8)),
-  ]);
-
-  if (!mounted) return;
-
-  // If still stuck, exit splash safely
-  if (_state == AppStartupState.checking) {
-  setState(() => _state = AppStartupState.offline);
-}
+// class _AppEntryPointState extends State<AppEntryPoint> with WidgetsBindingObserver {
+//   bool _bootstrapRunning = false;
+//   bool _isRegistering = false;   // 👈 ADD THIS
 
   
-}
+// AppStartupState _state = AppStartupState.checking;
+  
+
+//   @override
+//   void initState() {
+//     super.initState();
+//       WidgetsBinding.instance.addObserver(this); // 👈 ADD HERE
+
+//     DioClient.instance;   // initialize dio early
+//     _bootstrap();
+//   }
+
+
+
+// Future<void> _runStartup() async {
+// final backendOk = await LicenseApiService.checkBackendHealth();
+
+// if (!mounted) return;
+
+// if (!backendOk) {
+//   setState(() => _state = AppStartupState.offline);
+//   return;
+// }
+
+//   try {
+//     final prefs = await SharedPreferences.getInstance();
+//     if (!mounted) return;
+  
+//     final token = await AuthService.getToken();
+  
+
+//   if (token == null || token.isEmpty) {
+//       setState(() => _state = AppStartupState.loggedOut);
+//       return;
+//     }
+
+//   await context.read<LicenseProvider>().loadStatus(force: true); // then load license in parallel
+
+//   if (!mounted) return;
+//   setState(() => _state = AppStartupState.loggedIn);
+//   // // ✅ Load license AFTER UI builds
+//   // Future.microtask(() {
+//   //   if (mounted) {
+//   //     context.read<LicenseProvider>().loadStatus();
+//   //   }
+//   // });
+
+//   } catch (_) {
+//     if (mounted)
+//     {    setState(() => _state = AppStartupState.loggedOut);
+//     }
+//   }
+// }
+
+
+// Future<void> _bootstrap() async {
+  
+//  if (_bootstrapRunning) return; // prevent duplicate runs
+//   _bootstrapRunning = true;
+  
+
+//   await Future.any([
+//     _runStartup(),
+//     Future.delayed(const Duration(seconds: 8)),
+//   ]);
+
+//   if (!mounted) return;
+
+//   // If still stuck, exit splash safely
+//   if (_state == AppStartupState.checking) {
+//   setState(() => _state = AppStartupState.offline);
+// }
+
+  
+// }
 
 
 
 
 
-@override
-void didChangeAppLifecycleState(AppLifecycleState state) async {
+// @override
+// void didChangeAppLifecycleState(AppLifecycleState state) async {
 
-  if (state == AppLifecycleState.resumed) {
+//   if (state == AppLifecycleState.resumed) {
 
-    final token = await AuthService.getToken();
+//     final token = await AuthService.getToken();
 
-    // 🚨 Prevent API calls after logout
-    if (token == null || token.isEmpty) {
-      print("⛔ Skipping loadStatus — no token");
-      return;
-    }
+//     // 🚨 Prevent API calls after logout
+//     if (token == null || token.isEmpty) {
+//       print("⛔ Skipping loadStatus — no token");
+//       return;
+//     }
 
-    final provider = context.read<LicenseProvider>();
+//     final provider = context.read<LicenseProvider>();
 
-    if (!provider.isLoading) {
-      provider.loadStatus(force: true);
-    }
-  }
-}
+//     if (!provider.isLoading) {
+//       provider.loadStatus(force: true);
+//     }
+//   }
+// }
 
 
-  @override
-  void dispose() {
-   WidgetsBinding.instance.removeObserver(this); // 👈 ADD HERE
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//    WidgetsBinding.instance.removeObserver(this); // 👈 ADD HERE
+//     super.dispose();
+//   }
 
   
 
 
  
 
-  // -------------------------------------------------------------
-  // LOGOUT
-  // -------------------------------------------------------------
-  void _logout() async {
+//   // -------------------------------------------------------------
+//   // LOGOUT
+//   // -------------------------------------------------------------
+//   void _logout() async {
 
 
- final platform = getPlatform();
+//  final platform = getPlatform();
 
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Switch Doctor / Logout"),
-        content: const Text("Are you sure you want to switch doctor or logout?"),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("No")),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Yes")),
-        ],
-      ),
-    );
-if (result != true) return;
-try {
-    // -----------------------------------
-    // Clear JWT / Refresh Token
-    // -----------------------------------
-    await AuthService.logout();
+//     final result = await showDialog<bool>(
+//       context: context,
+//       builder: (context) => AlertDialog(
+//         title: const Text("Switch Doctor / Logout"),
+//         content: const Text("Are you sure you want to switch doctor or logout?"),
+//         actions: [
+//           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("No")),
+//           TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Yes")),
+//         ],
+//       ),
+//     );
+// if (result != true) return;
+// try {
+//     // -----------------------------------
+//     // Clear JWT / Refresh Token
+//     // -----------------------------------
+//     await AuthService.logout();
 
-    // -----------------------------------
-    // Optional old prefs cleanup
-    // -----------------------------------
-    final prefs =
-        await SharedPreferences
-            .getInstance();
+//     // -----------------------------------
+//     // Optional old prefs cleanup
+//     // -----------------------------------
+//     final prefs =
+//         await SharedPreferences
+//             .getInstance();
 
-    await prefs.clear();
+//     await prefs.clear();
 
-    // -----------------------------------
-    // Switch doctor inside app
-    // -----------------------------------
-    if (mounted) {
-      setState(() {
-        _state =
-            AppStartupState
-                .loggedOut;
-                _isRegistering = false;
-      });
-    }
+//     // -----------------------------------
+//     // Switch doctor inside app
+//     // -----------------------------------
+//     if (mounted) {
+//       setState(() {
+//         _state =
+//             AppStartupState
+//                 .loggedOut;
+//                 _isRegistering = false;
+//       });
+//     }
 
-    // -----------------------------------
-    // Optional messages
-    // -----------------------------------
-    if (kIsWeb) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Logged out successfully You can now close this tab.",
-          ),
-        ),
-      );
-    } else if (platform ==
-        "android") {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Switched doctor successfully",
-          ),
-        ),
-      );
-        if (mounted) {
-          setState(() {
-        _state =
-            AppStartupState
-                .loggedOut;
-                _isRegistering = false;
-      });
-    //setState(() => _state = AppStartupState.loggedOut);
+//     // -----------------------------------
+//     // Optional messages
+//     // -----------------------------------
+//     if (kIsWeb) {
+//       ScaffoldMessenger.of(context)
+//           .showSnackBar(
+//         const SnackBar(
+//           content: Text(
+//             "Logged out successfully You can now close this tab.",
+//           ),
+//         ),
+//       );
+//     } else if (platform ==
+//         "android") {
+//       ScaffoldMessenger.of(context)
+//           .showSnackBar(
+//         const SnackBar(
+//           content: Text(
+//             "Switched doctor successfully",
+//           ),
+//         ),
+//       );
+//         if (mounted) {
+//           setState(() {
+//         _state =
+//             AppStartupState
+//                 .loggedOut;
+//                 _isRegistering = false;
+//       });
+//     //setState(() => _state = AppStartupState.loggedOut);
 
-      }
-    }else if (platform == 'ios') {
-        exit(0);
-      }
+//       }
+//     }else if (platform == 'ios') {
+//         exit(0);
+//       }
 
-  } catch (e) {
-    if (!mounted) return;
+//   } catch (e) {
+//     if (!mounted) return;
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      SnackBar(
-        content: Text(
-          "Logout failed: $e",
-        ),
-      ),
-    );
-  }
+//     ScaffoldMessenger.of(context)
+//         .showSnackBar(
+//       SnackBar(
+//         content: Text(
+//           "Logout failed: $e",
+//         ),
+//       ),
+//     );
+//   }
 
     
 
   
 
  
-}
+// }
 
 
 
-Future<void> _onRegistered(DoctorInfo info) async {
+// Future<void> _onRegistered(DoctorInfo info) async {
 
-  await _saveDoctorToLocal(info);
+//   await _saveDoctorToLocal(info);
 
-  final provider = context.read<LicenseProvider>();
+//   final provider = context.read<LicenseProvider>();
 
-  await provider.loadStatus(force: true);
+//   await provider.loadStatus(force: true);
 
-  if (!mounted) return;
+//   if (!mounted) return;
 
-  setState(() {
-    _isRegistering = false;
-    _state = AppStartupState.loggedIn;
-  });
-}
+//   setState(() {
+//     _isRegistering = false;
+//     _state = AppStartupState.loggedIn;
+//   });
+// }
 
 
 
-Future<void> _handleLoginSuccess() async {
+// Future<void> _handleLoginSuccess() async {
 
-  final provider = context.read<LicenseProvider>();
+//   final provider = context.read<LicenseProvider>();
 
-  await provider.loadStatus(force: true);
+//   await provider.loadStatus(force: true);
 
-  if (!mounted) return;
+//   if (!mounted) return;
 
-  setState(() {
-    _state = AppStartupState.loggedIn;
-  });
-}
-@override
-Widget build(BuildContext context) {
+//   setState(() {
+//     _state = AppStartupState.loggedIn;
+//   });
+// }
+// @override
+// Widget build(BuildContext context) {
 
-  Widget screen;
+//   Widget screen;
 
-  switch (_state) {
+//   switch (_state) {
 
-    case AppStartupState.checking:
-      screen = const SplashScreen();
-      break;
+//     case AppStartupState.checking:
+//       screen = const SplashScreen();
+//       break;
 
-    case AppStartupState.offline:
-      screen = _offlineScreen();
-      break;
+//     case AppStartupState.offline:
+//       screen = _offlineScreen();
+//       break;
 
-    case AppStartupState.loggedOut:
-      if (_isRegistering) {
-        screen = DoctorRegisterScreen(onRegistered: _onRegistered);
-      } else {
-        screen = DoctorLoginScreen(
-          onLoginSuccess: _handleLoginSuccess,
-          onRegisterTap: () => setState(() => _isRegistering = true),
-        );
-      }
-      break;
+//     case AppStartupState.loggedOut:
+//       if (_isRegistering) {
+//         screen = DoctorRegisterScreen(onRegistered: _onRegistered);
+//       } else {
+//         screen = DoctorLoginScreen(
+//           onLoginSuccess: _handleLoginSuccess,
+//           onRegisterTap: () => setState(() => _isRegistering = true),
+//         );
+//       }
+//       break;
 
-    case AppStartupState.loggedIn:
-      final license = context.watch<LicenseProvider>();
-// 🔥 ADD LOGS HERE
-print("🔥 STEP 10: UI decision");
+//     case AppStartupState.loggedIn:
+//       final license = context.watch<LicenseProvider>();
+// // 🔥 ADD LOGS HERE
+// print("🔥 STEP 10: UI decision");
 
  
-      if (license.isLoading) {
-        screen = const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        );
-      } else if (license.canPrescribe) {
-        screen = Menubar(
-          body: const PatientSearchScreen(), //const Addprescrip(title: "Patient Diagnosis"),
-          onLogout: _logout,
-        );
-      } else {
-        screen = PaywallScreen(
-          onSubscriptionActivated: _onSubscriptionActivated,//confirmExit,
-          onMaybeLater: confirmExit,
-          onRestorePurchase: _restorePurchase,
-          onSwitchDoctor: _logout,
-        );
-      }
-      break;
-  }
+//       if (license.isLoading) {
+//         screen = const Scaffold(
+//           body: Center(child: CircularProgressIndicator()),
+//         );
+//       } else if (license.canPrescribe) {
+//         screen = Menubar(
+//           body: const PatientSearchScreen(), //const Addprescrip(title: "Patient Diagnosis"),
+//           onLogout: _logout,
+//         );
+//       } else {
+//         screen = PaywallScreen(
+//           onSubscriptionActivated: _onSubscriptionActivated,//confirmExit,
+//           onMaybeLater: confirmExit,
+//           onRestorePurchase: _restorePurchase,
+//           onSwitchDoctor: _logout,
+//         );
+//       }
+//       break;
+//   }
 
- return AnimatedSwitcher(
-  duration: const Duration(milliseconds: 400),
-  transitionBuilder: (child, animation) {
-    return FadeTransition(
-      opacity: animation,
-      child: SlideTransition(
-        position: Tween(
-          begin: const Offset(0, 0.05),
-          end: Offset.zero,
-        ).animate(animation),
-        child: child,
-      ),
-    );
-  },
-  child: screen,
-);
-}
+//  return AnimatedSwitcher(
+//   duration: const Duration(milliseconds: 400),
+//   transitionBuilder: (child, animation) {
+//     return FadeTransition(
+//       opacity: animation,
+//       child: SlideTransition(
+//         position: Tween(
+//           begin: const Offset(0, 0.05),
+//           end: Offset.zero,
+//         ).animate(animation),
+//         child: child,
+//       ),
+//     );
+//   },
+//   child: screen,
+// );
+// }
 
 
 
-Widget _offlineScreen() {
-  return Scaffold(
-    body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.wifi_off, size: 64),
-          const SizedBox(height: 16),
-          const Text("No internet connection"),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-              _state = AppStartupState.checking ;
-              _bootstrapRunning = false; // allow retry
-              });
+// Widget _offlineScreen() {
+//   return Scaffold(
+//     body: Center(
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           const Icon(Icons.wifi_off, size: 64),
+//           const SizedBox(height: 16),
+//           const Text("No internet connection"),
+//           const SizedBox(height: 24),
+//           ElevatedButton(
+//             onPressed: () {
+//               setState(() {
+//               _state = AppStartupState.checking ;
+//               _bootstrapRunning = false; // allow retry
+//               });
               
-              _bootstrap();
-            },
-            child: const Text("Retry"),
-          ),
-        ],
-      ),
-    ),
-  );
-}
+//               _bootstrap();
+//             },
+//             child: const Text("Retry"),
+//           ),
+//         ],
+//       ),
+//     ),
+//   );
+// }
 
-  Future<void> _saveDoctorToLocal(DoctorInfo info) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('doctor_username', info.name);
-  }
+//   Future<void> _saveDoctorToLocal(DoctorInfo info) async {
+//     final prefs = await SharedPreferences.getInstance();
+//     await prefs.setString('doctor_username', info.name);
+//   }
 
-  String getPlatform() {
-    if (Theme.of(context).platform == TargetPlatform.android) return "android";
-    if (Theme.of(context).platform == TargetPlatform.iOS) return "ios";
-    return "unknown";
-  }
-Future<void> _restorePurchase() async {
+//   String getPlatform() {
+//     if (Theme.of(context).platform == TargetPlatform.android) return "android";
+//     if (Theme.of(context).platform == TargetPlatform.iOS) return "ios";
+//     return "unknown";
+//   }
+// Future<void> _restorePurchase() async {
 
-  final licenseProvider = context.read<LicenseProvider>();
+//   final licenseProvider = context.read<LicenseProvider>();
 
-  await licenseProvider.loadStatus(force: true); // re-check subscription from backend
+//   await licenseProvider.loadStatus(force: true); // re-check subscription from backend
 
-  if (mounted) {
-    setState(() {
-      _state = AppStartupState.loggedIn;
-    });
-  }
-}
-Future<void> _onSubscriptionActivated() async {
-  print("🔥 NAVIGATION TRIGGERED not doing any thing ");
-  final license =
-      context.read<LicenseProvider>();
+//   if (mounted) {
+//     setState(() {
+//       _state = AppStartupState.loggedIn;
+//     });
+//   }
+// }
+// Future<void> _onSubscriptionActivated() async {
+//   print("🔥 NAVIGATION TRIGGERED not doing any thing ");
+//   final license =
+//       context.read<LicenseProvider>();
 
-  await license.loadStatus(force: true);
+//   await license.loadStatus(force: true);
 
   
-  setState(() {
-    _state = AppStartupState.loggedIn;
-  });
-}
-  Future<void> confirmExit() async {
-    final platform = getPlatform();
+//   setState(() {
+//     _state = AppStartupState.loggedIn;
+//   });
+// }
+//   Future<void> confirmExit() async {
+//     final platform = getPlatform();
 
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Exit App"),
-        content: const Text("Are you sure you want to exit?"),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("No")),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Yes")),
-        ],
-      ),
+//     final result = await showDialog<bool>(
+//       context: context,
+//       builder: (context) => AlertDialog(
+//         title: const Text("Exit App"),
+//         content: const Text("Are you sure you want to exit?"),
+//         actions: [
+//           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("No")),
+//           TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Yes")),
+//         ],
+//       ),
+//     );
+
+//     if (result == true) {
+//       if (kIsWeb) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(content: Text("You can now close this tab.")),
+//         );
+//       } else if (platform == 'android') {
+        
+//         SystemNavigator.pop();
+//       } else if (platform == 'ios') {
+//         exit(0);
+//       }
+//     }
+//   }
+// }
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
+import 'package:docautomations/application/application_bootstrapper.dart';
+import 'package:docautomations/multiprovider/authentication_provider.dart';
+
+import 'package:docautomations/widgets/SplashScreen.dart';
+import 'package:docautomations/widgets/DoctorLoginScreen.dart';
+import 'package:docautomations/widgets/doctorregisterscreen.dart';
+import 'package:docautomations/widgets/menubar.dart';
+import 'package:docautomations/widgets/patientsearchscreen.dart';
+
+class AppEntryPoint extends StatefulWidget {
+
+  const AppEntryPoint({
+    super.key,
+  });
+
+  @override
+  State<AppEntryPoint> createState() =>
+      _AppEntryPointState();
+
+}
+
+class _AppEntryPointState
+    extends State<AppEntryPoint> {
+
+  //===========================================================================
+  // Registration State
+  //===========================================================================
+
+  bool _isRegistering = false;
+
+  //===========================================================================
+  // Bootstrap State
+  //===========================================================================
+
+  bool _isBootstrapping = false;
+
+  bool _bootstrapCompleted = false;
+
+  String? _bootstrapError;
+
+  //===========================================================================
+  // Initialize
+  //===========================================================================
+
+  @override
+  void initState() {
+
+    super.initState();
+
+    WidgetsBinding.instance
+        .addPostFrameCallback(
+      (_) {
+
+        _initializeAuthentication();
+
+      },
     );
 
-    if (result == true) {
-      if (kIsWeb) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("You can now close this tab.")),
-        );
-      } else if (platform == 'android') {
-        
-        SystemNavigator.pop();
-      } else if (platform == 'ios') {
-        exit(0);
-      }
-    }
   }
+
+  //===========================================================================
+  // Initialize Authentication
+  //===========================================================================
+
+  Future<void> _initializeAuthentication() async {
+
+    final authenticationProvider =
+        context.read<AuthenticationProvider>();
+
+    await authenticationProvider.initialize();
+
+    //---------------------------------------------------------
+    // If already authenticated, bootstrap application
+    //---------------------------------------------------------
+
+    if (!mounted) {
+      return;
+    }
+
+    if (authenticationProvider.isAuthenticated) {
+
+      await _bootstrapApplication();
+
+    }
+
+  }
+
+  //===========================================================================
+  // Bootstrap Application
+  //
+  // Loads:
+  //
+  // Doctor Profile
+  // Countries
+  // Doctor Logo
+  // Doctor Signature
+  //
+  //===========================================================================
+
+  Future<void> _bootstrapApplication() async {
+
+    //---------------------------------------------------------
+    // Prevent duplicate bootstrap
+    //---------------------------------------------------------
+
+    if (_isBootstrapping) {
+      return;
+    }
+
+    if (_bootstrapCompleted) {
+      return;
+    }
+
+    setState(() {
+
+      _isBootstrapping = true;
+
+      _bootstrapError = null;
+
+    });
+
+    try {
+
+      final bootstrapper =
+          context.read<ApplicationBootstrapper>();
+
+      await bootstrapper.initialize();
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+
+        _bootstrapCompleted = true;
+
+      });
+
+    }
+    catch (error) {
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+
+        _bootstrapError =
+            "Unable to load application data.";
+
+      });
+
+    }
+    finally {
+
+      if (mounted) {
+
+        setState(() {
+
+          _isBootstrapping = false;
+
+        });
+
+      }
+
+    }
+
+  }
+
+  //===========================================================================
+  // Login Success
+  //===========================================================================
+
+  Future<void> _handleLoginSuccess() async {
+
+    //---------------------------------------------------------
+    // AuthenticationProvider should already be authenticated
+    //---------------------------------------------------------
+
+    setState(() {
+
+      _bootstrapCompleted = false;
+
+      _bootstrapError = null;
+
+    });
+
+    await _bootstrapApplication();
+
+  }
+
+  //===========================================================================
+  // Registration Success
+  //===========================================================================
+
+  Future<void> _onRegistered(
+    dynamic doctorInfo,
+  ) async {
+
+    setState(() {
+
+      _isRegistering = false;
+
+    });
+
+    //---------------------------------------------------------
+    // After registration, doctor should login
+    //---------------------------------------------------------
+
+    if (mounted) {
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+
+        const SnackBar(
+
+          content: Text(
+            "Registration successful. Please login.",
+          ),
+
+        ),
+
+      );
+
+    }
+
+  }
+
+  //===========================================================================
+  // Logout
+  //===========================================================================
+
+  Future<void> _logout() async {
+
+    final result =
+        await showDialog<bool>(
+
+      context: context,
+
+      builder: (context) {
+
+        return AlertDialog(
+
+          title: const Text(
+            "Switch Doctor / Logout",
+          ),
+
+          content: const Text(
+            "Are you sure you want to logout?",
+          ),
+
+          actions: [
+
+            TextButton(
+
+              onPressed: () {
+
+                Navigator.pop(
+                  context,
+                  false,
+                );
+
+              },
+
+              child: const Text(
+                "No",
+              ),
+
+            ),
+
+            TextButton(
+
+              onPressed: () {
+
+                Navigator.pop(
+                  context,
+                  true,
+                );
+
+              },
+
+              child: const Text(
+                "Yes",
+              ),
+
+            ),
+
+          ],
+
+        );
+
+      },
+
+    );
+
+    if (result != true) {
+      return;
+    }
+
+    //---------------------------------------------------------
+    // Logout
+    //---------------------------------------------------------
+
+    final authenticationProvider =
+        context.read<AuthenticationProvider>();
+
+    await authenticationProvider.logout();
+
+    //---------------------------------------------------------
+    // Clear Application Cache
+    //---------------------------------------------------------
+
+    try {
+
+      final bootstrapper =
+          context.read<ApplicationBootstrapper>();
+
+      await bootstrapper.clearCache();
+
+    }
+    catch (_) {
+
+      // Cache cleanup should not block logout.
+
+    }
+
+    //---------------------------------------------------------
+    // Reset Local State
+    //---------------------------------------------------------
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+
+      _bootstrapCompleted = false;
+
+      _bootstrapError = null;
+
+      _isRegistering = false;
+
+    });
+
+  }
+
+  //===========================================================================
+  // Retry Bootstrap
+  //===========================================================================
+
+  Future<void> _retryBootstrap() async {
+
+    setState(() {
+
+      _bootstrapCompleted = false;
+
+      _bootstrapError = null;
+
+    });
+
+    await _bootstrapApplication();
+
+  }
+
+  //===========================================================================
+  // Build
+  //===========================================================================
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
+
+    final authentication =
+        context.watch<AuthenticationProvider>();
+
+    //-------------------------------------------------------------------------
+    // Authentication Loading
+    //-------------------------------------------------------------------------
+
+    if (authentication.isLoading &&
+        !authentication.isAuthenticated) {
+
+      return const SplashScreen();
+
+    }
+
+    //-------------------------------------------------------------------------
+    // Authentication Error
+    //-------------------------------------------------------------------------
+
+    if (authentication.errorMessage != null &&
+        !authentication.isAuthenticated) {
+
+      return _authenticationErrorScreen(
+        authentication.errorMessage!,
+      );
+
+    }
+
+    //-------------------------------------------------------------------------
+    // Logged Out
+    //-------------------------------------------------------------------------
+
+    if (!authentication.isAuthenticated) {
+
+      if (_isRegistering) {
+
+        return DoctorRegisterScreen(
+
+          onRegistered:
+              _onRegistered,
+
+        );
+
+      }
+
+      return DoctorLoginScreen(
+
+        onLoginSuccess:
+            _handleLoginSuccess,
+
+        onRegisterTap: () {
+
+          setState(() {
+
+            _isRegistering = true;
+
+          });
+
+        },
+
+      );
+
+    }
+
+    //-------------------------------------------------------------------------
+    // Bootstrap Running
+    //-------------------------------------------------------------------------
+
+    if (_isBootstrapping) {
+
+      return const SplashScreen();
+
+    }
+
+    //-------------------------------------------------------------------------
+    // Bootstrap Error
+    //-------------------------------------------------------------------------
+
+    if (_bootstrapError != null) {
+
+      return _bootstrapErrorScreen();
+
+    }
+
+    //-------------------------------------------------------------------------
+    // Bootstrap Not Completed
+    //-------------------------------------------------------------------------
+
+    if (!_bootstrapCompleted) {
+
+      return const SplashScreen();
+
+    }
+
+    //-------------------------------------------------------------------------
+    // Main Application
+    //-------------------------------------------------------------------------
+
+    return Menubar(
+
+      body:
+          const PatientSearchScreen(),
+
+      onLogout:
+          _logout,
+
+    );
+
+  }
+
+  //===========================================================================
+  // Authentication Error Screen
+  //===========================================================================
+
+  Widget _authenticationErrorScreen(
+    String message,
+  ) {
+
+    return Scaffold(
+
+      body: Center(
+
+        child: Padding(
+
+          padding:
+              const EdgeInsets.all(
+            24,
+          ),
+
+          child: Column(
+
+            mainAxisAlignment:
+                MainAxisAlignment.center,
+
+            children: [
+
+              const Icon(
+
+                Icons.error_outline,
+
+                size: 64,
+
+              ),
+
+              const SizedBox(
+                height: 16,
+              ),
+
+              Text(
+
+                message,
+
+                textAlign:
+                    TextAlign.center,
+
+              ),
+
+              const SizedBox(
+                height: 24,
+              ),
+
+              ElevatedButton(
+
+                onPressed:
+                    _initializeAuthentication,
+
+                child: const Text(
+                  "Retry",
+                ),
+
+              ),
+
+            ],
+
+          ),
+
+        ),
+
+      ),
+
+    );
+
+  }
+
+  //===========================================================================
+  // Bootstrap Error Screen
+  //===========================================================================
+
+  Widget _bootstrapErrorScreen() {
+
+    return Scaffold(
+
+      body: Center(
+
+        child: Padding(
+
+          padding:
+              const EdgeInsets.all(
+            24,
+          ),
+
+          child: Column(
+
+            mainAxisAlignment:
+                MainAxisAlignment.center,
+
+            children: [
+
+              const Icon(
+
+                Icons.cloud_off,
+
+                size: 64,
+
+              ),
+
+              const SizedBox(
+                height: 16,
+              ),
+
+              Text(
+
+                _bootstrapError ??
+                    "Unable to load application.",
+
+                textAlign:
+                    TextAlign.center,
+
+              ),
+
+              const SizedBox(
+                height: 24,
+              ),
+
+              ElevatedButton(
+
+                onPressed:
+                    _retryBootstrap,
+
+                child: const Text(
+                  "Retry",
+                ),
+
+              ),
+
+            ],
+
+          ),
+
+        ),
+
+      ),
+
+    );
+
+  }
+
+  //===========================================================================
+  // Dispose
+  //===========================================================================
+
+  @override
+  void dispose() {
+
+    super.dispose();
+
+  }
+
 }

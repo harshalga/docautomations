@@ -1,14 +1,14 @@
 import 'package:docautomations/common/operation_result.dart';
-import 'package:docautomations/datamodels/master/image_asset.dart';
+
 import 'package:docautomations/services/image/image_service.dart';
 import 'package:docautomations/services/image/procesed_image.dart';
 import 'package:flutter/foundation.dart';
-import '../../datamodels/master/doctor_logo.dart';
+
 import 'package:docautomations/controllers/application_controller.dart';
 import 'package:docautomations/datamodels/master/country.dart';
 import 'package:docautomations/datamodels/request/doctor_registration_request.dart';
 import 'package:docautomations/repositories/doctor_repository.dart';
-import 'package:docautomations/services/image/procesed_image.dart';
+
 
 class DoctorRegistrationController
     extends ChangeNotifier {
@@ -30,6 +30,7 @@ class DoctorRegistrationController
   DoctorRegistrationController({
     required this.repository,
     required this.applicationController,
+    required this.imageService,
   });
 
   //---------------------------------------------------------------------------
@@ -90,12 +91,12 @@ class DoctorRegistrationController
     if (_countries.isNotEmpty) {
 
       _selectedCountry =
-          _countries.first;
+          null;
 
       _request =
           _request.copyWith(
         countryId:
-            _selectedCountry!.id,
+            '',
       );
     }
 
@@ -477,17 +478,20 @@ void reset() {
 
   _errorMessage = null;
 
-  if (_countries.isNotEmpty) {
 
-    _selectedCountry =
-        _countries.first;
+  _selectedCountry = null;
 
-    _request =
-        _request.copyWith(
-      countryId:
-          _selectedCountry!.id,
-    );
-  }
+  // if (_countries.isNotEmpty) {
+
+  //   _selectedCountry =
+  //       null;
+
+  //   _request =
+  //       _request.copyWith(
+  //     countryId:
+  //         '',
+  //   );
+  // }
 
   notifyListeners();
 }

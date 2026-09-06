@@ -137,60 +137,54 @@
 // }
 
 
+
 import 'package:docautomations/datamodels/master/country.dart';
-import 'package:docautomations/services/license_api_service.dart';
+import 'package:docautomations/services/reference_data_api_service.dart';
 import 'package:docautomations/storage/local_storage_service.dart';
 
 class ReferenceDataRepository {
-  //---------------------------------------------------------------------------
-  // Dependencies
-  //---------------------------------------------------------------------------
 
-  final LicenseApiService apiService;
-
+  final ReferenceDataApiService apiService;
   final LocalStorageService localStorage;
-
-  //---------------------------------------------------------------------------
-  // Constructor
-  //---------------------------------------------------------------------------
 
   const ReferenceDataRepository({
     required this.apiService,
     required this.localStorage,
   });
 
-  //===========================================================================
-  // Countries
-  //===========================================================================
+  //-------------------------------------------------------------------------
+  // Fetch Countries
+  //-------------------------------------------------------------------------
 
   Future<List<Country>> fetchCountries({
     bool forceRefresh = false,
   }) async {
 
-    //-------------------------------------------------------
-    // Local Cache
-    //-------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Try Local Cache First
+    //-------------------------------------------------------------------------
 
     if (!forceRefresh) {
 
-      final cached =
+      final cachedCountries =
           await localStorage.loadCountries();
 
-      if (cached.isNotEmpty) {
-        return cached;
+      if (cachedCountries.isNotEmpty) {
+        return cachedCountries;
       }
+
     }
 
-    //-------------------------------------------------------
-    // Server
-    //-------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Fetch From Server
+    //-------------------------------------------------------------------------
 
     final countries =
-        await apiService.fetchCountriesFromServer();
+        await apiService.fetchCountries();
 
-    //-------------------------------------------------------
-    // Cache
-    //-------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Save To Local Cache
+    //-------------------------------------------------------------------------
 
     await localStorage.saveCountries(
       countries,
@@ -199,21 +193,27 @@ class ReferenceDataRepository {
     return countries;
   }
 
-  //===========================================================================
+  //-------------------------------------------------------------------------
   // Refresh Countries
-  //===========================================================================
+  //-------------------------------------------------------------------------
 
-  Future<List<Country>> refreshCountries() {
-    return fetchCountries(
+  Future<List<Country>> refreshCountries() async {
+
+    return await fetchCountries(
       forceRefresh: true,
     );
+
   }
 
-  //===========================================================================
-  // Clear Cache
-  //===========================================================================
+  //-------------------------------------------------------------------------
+  // Clear Country Cache
+  //-------------------------------------------------------------------------
 
   Future<void> clearCache() async {
+
     await localStorage.clearCountries();
+
   }
+
 }
+
