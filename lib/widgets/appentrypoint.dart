@@ -451,21 +451,19 @@
 //     }
 //   }
 // }
-import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:docautomations/application/application_bootstrapper.dart';
-import 'package:docautomations/multiprovider/authentication_provider.dart';
+import 'package:docautomations/providers/authentication_provider.dart';
 
 import 'package:docautomations/widgets/SplashScreen.dart';
 import 'package:docautomations/widgets/DoctorLoginScreen.dart';
 import 'package:docautomations/widgets/doctorregisterscreen.dart';
 import 'package:docautomations/widgets/menubar.dart';
 import 'package:docautomations/widgets/patientsearchscreen.dart';
+
 
 class AppEntryPoint extends StatefulWidget {
 
@@ -479,6 +477,7 @@ class AppEntryPoint extends StatefulWidget {
 
 }
 
+
 class _AppEntryPointState
     extends State<AppEntryPoint> {
 
@@ -487,6 +486,7 @@ class _AppEntryPointState
   //===========================================================================
 
   bool _isRegistering = false;
+
 
   //===========================================================================
   // Bootstrap State
@@ -498,6 +498,7 @@ class _AppEntryPointState
 
   String? _bootstrapError;
 
+
   //===========================================================================
   // Initialize
   //===========================================================================
@@ -507,8 +508,7 @@ class _AppEntryPointState
 
     super.initState();
 
-    WidgetsBinding.instance
-        .addPostFrameCallback(
+    WidgetsBinding.instance.addPostFrameCallback(
       (_) {
 
         _initializeAuthentication();
@@ -517,6 +517,7 @@ class _AppEntryPointState
     );
 
   }
+
 
   //===========================================================================
   // Initialize Authentication
@@ -529,9 +530,9 @@ class _AppEntryPointState
 
     await authenticationProvider.initialize();
 
-    //---------------------------------------------------------
+    //-------------------------------------------------------------------------
     // If already authenticated, bootstrap application
-    //---------------------------------------------------------
+    //-------------------------------------------------------------------------
 
     if (!mounted) {
       return;
@@ -544,6 +545,7 @@ class _AppEntryPointState
     }
 
   }
+
 
   //===========================================================================
   // Bootstrap Application
@@ -559,9 +561,9 @@ class _AppEntryPointState
 
   Future<void> _bootstrapApplication() async {
 
-    //---------------------------------------------------------
+    //-------------------------------------------------------------------------
     // Prevent duplicate bootstrap
-    //---------------------------------------------------------
+    //-------------------------------------------------------------------------
 
     if (_isBootstrapping) {
       return;
@@ -597,7 +599,7 @@ class _AppEntryPointState
       });
 
     }
-    catch (error) {
+    catch (_) {
 
       if (!mounted) {
         return;
@@ -627,15 +629,20 @@ class _AppEntryPointState
 
   }
 
+
   //===========================================================================
   // Login Success
   //===========================================================================
 
   Future<void> _handleLoginSuccess() async {
 
-    //---------------------------------------------------------
+    //-------------------------------------------------------------------------
     // AuthenticationProvider should already be authenticated
-    //---------------------------------------------------------
+    //-------------------------------------------------------------------------
+
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
 
@@ -648,6 +655,7 @@ class _AppEntryPointState
     await _bootstrapApplication();
 
   }
+
 
   //===========================================================================
   // Registration Success
@@ -663,28 +671,24 @@ class _AppEntryPointState
 
     });
 
-    //---------------------------------------------------------
+    //-------------------------------------------------------------------------
     // After registration, doctor should login
-    //---------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-    if (mounted) {
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-
-        const SnackBar(
-
-          content: Text(
-            "Registration successful. Please login.",
-          ),
-
-        ),
-
-      );
-
+    if (!mounted) {
+      return;
     }
 
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Registration successful. Please login.",
+        ),
+      ),
+    );
+
   }
+
 
   //===========================================================================
   // Logout
@@ -694,9 +698,7 @@ class _AppEntryPointState
 
     final result =
         await showDialog<bool>(
-
       context: context,
-
       builder: (context) {
 
         return AlertDialog(
@@ -750,25 +752,26 @@ class _AppEntryPointState
         );
 
       },
-
     );
 
     if (result != true) {
       return;
     }
 
-    //---------------------------------------------------------
+
+    //-------------------------------------------------------------------------
     // Logout
-    //---------------------------------------------------------
+    //-------------------------------------------------------------------------
 
     final authenticationProvider =
         context.read<AuthenticationProvider>();
 
     await authenticationProvider.logout();
 
-    //---------------------------------------------------------
+
+    //-------------------------------------------------------------------------
     // Clear Application Cache
-    //---------------------------------------------------------
+    //-------------------------------------------------------------------------
 
     try {
 
@@ -784,9 +787,10 @@ class _AppEntryPointState
 
     }
 
-    //---------------------------------------------------------
+
+    //-------------------------------------------------------------------------
     // Reset Local State
-    //---------------------------------------------------------
+    //-------------------------------------------------------------------------
 
     if (!mounted) {
       return;
@@ -804,11 +808,16 @@ class _AppEntryPointState
 
   }
 
+
   //===========================================================================
   // Retry Bootstrap
   //===========================================================================
 
   Future<void> _retryBootstrap() async {
+
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
 
@@ -822,6 +831,7 @@ class _AppEntryPointState
 
   }
 
+
   //===========================================================================
   // Build
   //===========================================================================
@@ -834,6 +844,7 @@ class _AppEntryPointState
     final authentication =
         context.watch<AuthenticationProvider>();
 
+
     //-------------------------------------------------------------------------
     // Authentication Loading
     //-------------------------------------------------------------------------
@@ -844,6 +855,7 @@ class _AppEntryPointState
       return const SplashScreen();
 
     }
+
 
     //-------------------------------------------------------------------------
     // Authentication Error
@@ -857,6 +869,7 @@ class _AppEntryPointState
       );
 
     }
+
 
     //-------------------------------------------------------------------------
     // Logged Out
@@ -894,6 +907,7 @@ class _AppEntryPointState
 
     }
 
+
     //-------------------------------------------------------------------------
     // Bootstrap Running
     //-------------------------------------------------------------------------
@@ -903,6 +917,7 @@ class _AppEntryPointState
       return const SplashScreen();
 
     }
+
 
     //-------------------------------------------------------------------------
     // Bootstrap Error
@@ -914,6 +929,7 @@ class _AppEntryPointState
 
     }
 
+
     //-------------------------------------------------------------------------
     // Bootstrap Not Completed
     //-------------------------------------------------------------------------
@@ -923,6 +939,7 @@ class _AppEntryPointState
       return const SplashScreen();
 
     }
+
 
     //-------------------------------------------------------------------------
     // Main Application
@@ -939,6 +956,7 @@ class _AppEntryPointState
     );
 
   }
+
 
   //===========================================================================
   // Authentication Error Screen
@@ -967,11 +985,8 @@ class _AppEntryPointState
             children: [
 
               const Icon(
-
                 Icons.error_outline,
-
                 size: 64,
-
               ),
 
               const SizedBox(
@@ -1014,6 +1029,7 @@ class _AppEntryPointState
 
   }
 
+
   //===========================================================================
   // Bootstrap Error Screen
   //===========================================================================
@@ -1039,11 +1055,8 @@ class _AppEntryPointState
             children: [
 
               const Icon(
-
                 Icons.cloud_off,
-
                 size: 64,
-
               ),
 
               const SizedBox(
@@ -1087,6 +1100,7 @@ class _AppEntryPointState
 
   }
 
+
   //===========================================================================
   // Dispose
   //===========================================================================
@@ -1099,3 +1113,4 @@ class _AppEntryPointState
   }
 
 }
+

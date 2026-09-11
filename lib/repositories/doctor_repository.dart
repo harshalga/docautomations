@@ -136,6 +136,7 @@
 //   }
 // }
 
+
 import 'package:docautomations/common/operation_result.dart';
 
 import 'package:docautomations/datamodels/master/doctor_master.dart';
@@ -184,6 +185,7 @@ class DoctorRepository {
         request,
       );
 
+
       if (response["success"] == true) {
 
         return OperationResult.success(
@@ -191,11 +193,12 @@ class DoctorRepository {
           response["message"] ??
               "Doctor registered successfully.",
 
-          response["data"],
+          data: response["data"],
 
         );
 
       }
+
 
       return OperationResult.failure(
 
@@ -257,6 +260,7 @@ class DoctorRepository {
 
       );
 
+
       if (response["success"] == true) {
 
         return OperationResult.success(
@@ -264,11 +268,12 @@ class DoctorRepository {
           response["message"] ??
               "Doctor profile updated successfully.",
 
-          response["data"],
+          data: response["data"],
 
         );
 
       }
+
 
       return OperationResult.failure(
 
@@ -297,7 +302,7 @@ class DoctorRepository {
 
     required List<int> bytes,
 
-    required String fileName,
+    required String mimeType,
 
   }) async {
 
@@ -308,9 +313,10 @@ class DoctorRepository {
 
         bytes: bytes,
 
-        fileName: fileName,
+        mimeType: mimeType,
 
       );
+
 
       if (response["success"] == true) {
 
@@ -319,11 +325,12 @@ class DoctorRepository {
           response["message"] ??
               "Doctor logo uploaded successfully.",
 
-          response["data"],
+          data: response["data"],
 
         );
 
       }
+
 
       return OperationResult.failure(
 
@@ -374,7 +381,7 @@ class DoctorRepository {
 
     required List<int> bytes,
 
-    required String fileName,
+    required String mimeType,
 
   }) async {
 
@@ -385,9 +392,10 @@ class DoctorRepository {
 
         bytes: bytes,
 
-        fileName: fileName,
+        mimeType: mimeType,
 
       );
+
 
       if (response["success"] == true) {
 
@@ -396,11 +404,12 @@ class DoctorRepository {
           response["message"] ??
               "Doctor signature uploaded successfully.",
 
-          response["data"],
+          data: response["data"],
 
         );
 
       }
+
 
       return OperationResult.failure(
 
@@ -443,3 +452,4 @@ class DoctorRepository {
   }
 
 }
+

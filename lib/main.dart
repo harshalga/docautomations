@@ -111,14 +111,31 @@
 // }
 // //===========================================================================
 
+
 import 'dart:async';
 import 'dart:ui';
 
 import 'package:docautomations/application/application_bootstrapper.dart';
+
 import 'package:docautomations/providers/authentication_provider.dart';
+
 import 'package:docautomations/datamodels/prescriptionData.dart';
+
+import 'package:docautomations/device_assets/asset_manager.dart';
+
+import 'package:docautomations/network/dio_client.dart';
+
+import 'package:docautomations/repositories/doctor_repository.dart';
+import 'package:docautomations/repositories/reference_data_repository.dart';
+
+import 'package:docautomations/services/doctor_api_service.dart';
+import 'package:docautomations/services/reference_data_api_service.dart';
+
+import 'package:docautomations/storage/local_storage_service.dart';
+
 import 'package:docautomations/services/local_file_logger.dart';
 import 'package:docautomations/services/logger_service.dart';
+
 import 'package:docautomations/widgets/appentrypoint.dart';
 
 import 'package:flutter/foundation.dart';
@@ -126,23 +143,25 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+
 Future<void> main() async {
 
   runZonedGuarded<Future<void>>(
 
     () async {
 
-      //----------------------------------------------------------
+      //========================================================================
       // Flutter Initialization
-      //----------------------------------------------------------
+      //========================================================================
 
       WidgetsFlutterBinding.ensureInitialized();
 
       BindingBase.debugZoneErrorsAreFatal = true;
 
-      //----------------------------------------------------------
+
+      //========================================================================
       // Flutter Errors
-      //----------------------------------------------------------
+      //========================================================================
 
       FlutterError.onError = (
 
@@ -164,9 +183,10 @@ Future<void> main() async {
 
       };
 
-      //----------------------------------------------------------
+
+      //========================================================================
       // Platform Errors
-      //----------------------------------------------------------
+      //========================================================================
 
       PlatformDispatcher.instance.onError = (
 
@@ -195,9 +215,10 @@ Future<void> main() async {
 
       };
 
-      //----------------------------------------------------------
+
+      //========================================================================
       // Initialize Local Logger
-      //----------------------------------------------------------
+      //========================================================================
 
       try {
 
@@ -211,9 +232,10 @@ Future<void> main() async {
 
       }
 
-      //----------------------------------------------------------
+
+      //========================================================================
       // Initialize Logger Service
-      //----------------------------------------------------------
+      //========================================================================
 
       try {
 
@@ -231,9 +253,96 @@ Future<void> main() async {
 
       }
 
-      //----------------------------------------------------------
+
+      //========================================================================
+      // Application Dependencies
+      //
+      // These objects form the dependency graph for the application.
+      // They are created once and shared through Provider.
+      //========================================================================
+
+      final localStorage =
+          const LocalStorageService();
+
+
+      final assetManager =
+          AssetManager();
+
+
+      //========================================================================
+      // API Services
+      //
+      // Both API services automatically use DioClient.instance when no
+      // Dio instance is supplied.
+      //========================================================================
+
+      final doctorApiService =
+          DoctorApiService();
+
+
+      final referenceDataApiService =
+          ReferenceDataApiService();
+
+
+      //========================================================================
+      // Repositories
+      //========================================================================
+
+      final doctorRepository =
+          DoctorRepository(
+
+        apiService:
+            doctorApiService,
+
+      );
+
+
+      final referenceDataRepository =
+          ReferenceDataRepository(
+
+        apiService:
+            referenceDataApiService,
+
+        localStorage:
+            localStorage,
+
+      );
+
+
+      //========================================================================
+      // Application Bootstrapper
+      //
+      // Responsible for loading:
+      //
+      // - Doctor profile
+      // - Countries
+      // - Doctor logo
+      // - Doctor signature
+      // - Local cached master data
+      //
+      //========================================================================
+
+      final applicationBootstrapper =
+          ApplicationBootstrapper(
+
+        doctorRepository:
+            doctorRepository,
+
+        referenceDataRepository:
+            referenceDataRepository,
+
+        assetManager:
+            assetManager,
+
+        localStorage:
+            localStorage,
+
+      );
+
+
+      //========================================================================
       // Start Application
-      //----------------------------------------------------------
+      //========================================================================
 
       runApp(
 
@@ -241,9 +350,9 @@ Future<void> main() async {
 
           providers: [
 
-            //----------------------------------------------------
+            //------------------------------------------------------------------
             // Authentication
-            //----------------------------------------------------
+            //------------------------------------------------------------------
 
             ChangeNotifierProvider(
 
@@ -252,27 +361,70 @@ Future<void> main() async {
 
             ),
 
-            //----------------------------------------------------
+
+            //------------------------------------------------------------------
+            // Doctor Repository
+            //------------------------------------------------------------------
+
+            Provider<DoctorRepository>.value(
+
+              value:
+                  doctorRepository,
+
+            ),
+
+
+            //------------------------------------------------------------------
+            // Reference Data Repository
+            //------------------------------------------------------------------
+
+            Provider<ReferenceDataRepository>.value(
+
+              value:
+                  referenceDataRepository,
+
+            ),
+
+
+            //------------------------------------------------------------------
+            // Asset Manager
+            //------------------------------------------------------------------
+
+            Provider<AssetManager>.value(
+
+              value:
+                  assetManager,
+
+            ),
+
+
+            //------------------------------------------------------------------
+            // Local Storage
+            //------------------------------------------------------------------
+
+            Provider<LocalStorageService>.value(
+
+              value:
+                  localStorage,
+
+            ),
+
+
+            //------------------------------------------------------------------
             // Application Bootstrap / Master Data
-            //----------------------------------------------------
+            //------------------------------------------------------------------
 
-            Provider(
-      create: (_) =>
-          ApplicationBootstrapper(
-        doctorRepository:
-            doctorRepository,
-        referenceDataRepository:
-            referenceDataRepository,
-        assetManager:
-            assetManager,
-        localStorage:
-            localStorage,
-      ),
-    ),
+            Provider<ApplicationBootstrapper>.value(
 
-            //----------------------------------------------------
+              value:
+                  applicationBootstrapper,
+
+            ),
+
+
+            //------------------------------------------------------------------
             // Current Prescription State
-            //----------------------------------------------------
+            //------------------------------------------------------------------
 
             ChangeNotifierProvider(
 
@@ -283,7 +435,8 @@ Future<void> main() async {
 
           ],
 
-          child: const MyApp(),
+          child:
+              const MyApp(),
 
         ),
 
@@ -291,9 +444,10 @@ Future<void> main() async {
 
     },
 
-    //------------------------------------------------------------
+
+    //==========================================================================
     // Unhandled Zoned Errors
-    //------------------------------------------------------------
+    //==========================================================================
 
     (
 
@@ -324,6 +478,7 @@ class MyApp extends StatelessWidget {
     super.key,
   });
 
+
   @override
   Widget build(
     BuildContext context,
@@ -331,15 +486,20 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
 
-      title: 'Prescriptor',
+      title:
+          'Prescriptor',
 
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner:
+          false,
 
-      theme: ThemeData(
+      theme:
+          ThemeData(
 
-        useMaterial3: true,
+        useMaterial3:
+            true,
 
-        colorScheme: ColorScheme.fromSeed(
+        colorScheme:
+            ColorScheme.fromSeed(
 
           seedColor:
               const Color.fromARGB(
@@ -367,13 +527,14 @@ class MyApp extends StatelessWidget {
 
         ),
 
-        textTheme: TextTheme(
+        textTheme:
+            TextTheme(
 
           displayLarge:
-
               const TextStyle(
 
-            fontSize: 72,
+            fontSize:
+                72,
 
             fontWeight:
                 FontWeight.bold,
@@ -381,10 +542,10 @@ class MyApp extends StatelessWidget {
           ),
 
           titleLarge:
-
               GoogleFonts.aleo(
 
-            fontSize: 30,
+            fontSize:
+                30,
 
             fontStyle:
                 FontStyle.italic,
@@ -392,11 +553,9 @@ class MyApp extends StatelessWidget {
           ),
 
           bodyMedium:
-
               GoogleFonts.merriweather(),
 
           displaySmall:
-
               GoogleFonts.pacifico(),
 
         ),
@@ -411,4 +570,6 @@ class MyApp extends StatelessWidget {
   }
 
 }
+
+
 

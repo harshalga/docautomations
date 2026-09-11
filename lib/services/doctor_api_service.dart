@@ -804,12 +804,16 @@
 // }
 
 
+
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import 'package:docautomations/datamodels/request/doctor_registration_request.dart';
 import 'package:docautomations/datamodels/response/doctor_profile.dart';
 
 import 'package:docautomations/network/dio_client.dart';
+
 
 class DoctorApiService {
 
@@ -819,15 +823,18 @@ class DoctorApiService {
 
   final Dio _dio;
 
-  //=========================================================================== 
+
+  //===========================================================================
   // Constructor
   //===========================================================================
 
   DoctorApiService({
     Dio? dio,
-  }) : _dio = dio ?? DioClient.instance;
+  }) : _dio =
+          dio ?? DioClient.instance;
 
-  //=========================================================================== 
+
+  //===========================================================================
   // Register Doctor
   //===========================================================================
 
@@ -851,6 +858,7 @@ class DoctorApiService {
 
   }
 
+
   //===========================================================================
   // Get Doctor Profile
   //===========================================================================
@@ -859,13 +867,17 @@ class DoctorApiService {
 
     final response =
         await _dio.get(
+
       "/api/doctor/profile",
+
     );
+
 
     final responseData =
         Map<String, dynamic>.from(
-      response.data,
-    );
+          response.data,
+        );
+
 
     if (responseData["success"] != true) {
 
@@ -878,16 +890,30 @@ class DoctorApiService {
 
     }
 
+
     final data =
-        Map<String, dynamic>.from(
-      responseData["data"],
-    );
+        responseData["data"];
+
+
+    if (data == null) {
+
+      throw Exception(
+        "Doctor profile data not found.",
+      );
+
+    }
+
 
     return DoctorProfile.fromJson(
-      data,
+
+      Map<String, dynamic>.from(
+        data,
+      ),
+
     );
 
   }
+
 
   //===========================================================================
   // Update Doctor Profile
@@ -902,7 +928,8 @@ class DoctorApiService {
 
       "/api/doctor/profile",
 
-      data: request,
+      data:
+          request,
 
     );
 
@@ -912,39 +939,49 @@ class DoctorApiService {
 
   }
 
+
   //===========================================================================
   // Upload Doctor Logo
   //
-  // Sends image bytes using multipart/form-data.
+  // License-server expects JSON:
+  //
+  // {
+  //   "imageData": "<base64>",
+  //   "mimeType": "image/png"
+  // }
+  //
+  // No multipart/form-data is used.
   //===========================================================================
 
   Future<Map<String, dynamic>> uploadDoctorLogo({
+
     required List<int> bytes,
-    required String fileName,
+
+    required String mimeType,
+
   }) async {
 
-    final formData =
-        FormData.fromMap({
+    final request = {
 
-      "logo":
-          MultipartFile.fromBytes(
+      "imageData":
+          base64Encode(bytes),
 
-        bytes,
+      "mimeType":
+          mimeType.trim().toLowerCase(),
 
-        filename: fileName,
+    };
 
-      ),
-
-    });
 
     final response =
         await _dio.post(
 
       "/api/doctor/logo",
 
-      data: formData,
+      data:
+          request,
 
     );
+
 
     return Map<String, dynamic>.from(
       response.data,
@@ -952,25 +989,49 @@ class DoctorApiService {
 
   }
 
+
   //===========================================================================
   // Download Doctor Logo
+  //
+  // License-server returns JSON containing Base64 image data.
+  //
+  // The API service decodes the Base64 data and returns raw bytes to the
+  // repository/application layer.
   //===========================================================================
 
   Future<List<int>> downloadDoctorLogo() async {
 
     final response =
-        await _dio.get<List<int>>(
+        await _dio.get(
 
       "/api/doctor/logo",
 
-      options: Options(
-        responseType:
-            ResponseType.bytes,
-      ),
-
     );
 
-    if (response.data == null) {
+
+    final responseData =
+        Map<String, dynamic>.from(
+          response.data,
+        );
+
+
+    if (responseData["success"] != true) {
+
+      throw Exception(
+
+        responseData["message"] ??
+            "Unable to download doctor logo.",
+
+      );
+
+    }
+
+
+    final data =
+        responseData["data"];
+
+
+    if (data == null) {
 
       throw Exception(
         "Doctor logo not found.",
@@ -978,41 +1039,86 @@ class DoctorApiService {
 
     }
 
-    return response.data!;
+
+    final asset =
+        Map<String, dynamic>.from(
+          data,
+        );
+
+
+    final imageData =
+        asset["imageData"]?.toString();
+
+
+    if (imageData == null ||
+        imageData.isEmpty) {
+
+      throw Exception(
+        "Doctor logo image data not found.",
+      );
+
+    }
+
+
+    try {
+
+      return base64Decode(
+        imageData,
+      );
+
+    } catch (_) {
+
+      throw Exception(
+        "Invalid doctor logo image data.",
+      );
+
+    }
 
   }
 
+
   //===========================================================================
   // Upload Doctor Signature
+  //
+  // License-server expects JSON:
+  //
+  // {
+  //   "imageData": "<base64>",
+  //   "mimeType": "image/png"
+  // }
+  //
+  // No multipart/form-data is used.
   //===========================================================================
 
   Future<Map<String, dynamic>> uploadDoctorSignature({
+
     required List<int> bytes,
-    required String fileName,
+
+    required String mimeType,
+
   }) async {
 
-    final formData =
-        FormData.fromMap({
+    final request = {
 
-      "signature":
-          MultipartFile.fromBytes(
+      "imageData":
+          base64Encode(bytes),
 
-        bytes,
+      "mimeType":
+          mimeType.trim().toLowerCase(),
 
-        filename: fileName,
+    };
 
-      ),
-
-    });
 
     final response =
         await _dio.post(
 
       "/api/doctor/signature",
 
-      data: formData,
+      data:
+          request,
 
     );
+
 
     return Map<String, dynamic>.from(
       response.data,
@@ -1020,25 +1126,49 @@ class DoctorApiService {
 
   }
 
+
   //===========================================================================
   // Download Doctor Signature
+  //
+  // License-server returns JSON containing Base64 image data.
+  //
+  // The API service decodes the Base64 data and returns raw bytes to the
+  // repository/application layer.
   //===========================================================================
 
   Future<List<int>> downloadDoctorSignature() async {
 
     final response =
-        await _dio.get<List<int>>(
+        await _dio.get(
 
       "/api/doctor/signature",
 
-      options: Options(
-        responseType:
-            ResponseType.bytes,
-      ),
-
     );
 
-    if (response.data == null) {
+
+    final responseData =
+        Map<String, dynamic>.from(
+          response.data,
+        );
+
+
+    if (responseData["success"] != true) {
+
+      throw Exception(
+
+        responseData["message"] ??
+            "Unable to download doctor signature.",
+
+      );
+
+    }
+
+
+    final data =
+        responseData["data"];
+
+
+    if (data == null) {
 
       throw Exception(
         "Doctor signature not found.",
@@ -1046,8 +1176,42 @@ class DoctorApiService {
 
     }
 
-    return response.data!;
+
+    final asset =
+        Map<String, dynamic>.from(
+          data,
+        );
+
+
+    final imageData =
+        asset["imageData"]?.toString();
+
+
+    if (imageData == null ||
+        imageData.isEmpty) {
+
+      throw Exception(
+        "Doctor signature image data not found.",
+      );
+
+    }
+
+
+    try {
+
+      return base64Decode(
+        imageData,
+      );
+
+    } catch (_) {
+
+      throw Exception(
+        "Invalid doctor signature image data.",
+      );
+
+    }
 
   }
 
 }
+

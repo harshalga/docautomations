@@ -185,6 +185,16 @@ class AuthService {
   }
 
 
+  //=========================================================================== // Get Token //
+  // // Backward-compatible alias for existing application code. // 
+  //// The canonical method is getAccessToken(). 
+  ///// This method delegates to it and does not maintain separate state. 
+  /////=========================================================================== 
+  static Future<String?> getToken() async {
+   return await getAccessToken(); 
+   }
+
+
   //===========================================================================
   // Get Refresh Token
   //===========================================================================
