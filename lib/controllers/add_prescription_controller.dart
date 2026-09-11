@@ -1,25 +1,18 @@
-import 'dart:convert';
-import 'dart:typed_data';
+import 'package:flutter/material.dart';
 
 import 'package:docautomations/datamodels/master/patient.dart';
 import 'package:docautomations/datamodels/master/patient_doctor.dart';
-import 'package:docautomations/viewmodels/patient_view_model.dart';
-import 'package:docautomations/viewmodels/prescription_view_model.dart';
-import 'package:docautomations/widgets/AddPrescrip.dart';
-import 'package:flutter/material.dart';
-
-import 'package:docautomations/common/licenseprovider.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
-import 'package:docautomations/services/doctor_api_service.dart';
-import 'package:docautomations/widgets/Addprescrip.dart';
-import 'package:docautomations/widgets/doctorinfo.dart';
-import 'package:docautomations/services/logo_service.dart';
 
-class AddPrescriptionController extends ChangeNotifier {
+import 'package:docautomations/widgets/AddPrescrip.dart';
 
-  //---------------------------------------------------------------------------
+
+class AddPrescriptionController
+    extends ChangeNotifier {
+
+  //===========================================================================
   // Constructor
-  //---------------------------------------------------------------------------
+  //===========================================================================
 
   AddPrescriptionController({
     required this.mode,
@@ -27,9 +20,10 @@ class AddPrescriptionController extends ChangeNotifier {
     this.patientDoctor,
   });
 
-  //---------------------------------------------------------------------------
-  // Navigation Context
-  //---------------------------------------------------------------------------
+
+  //===========================================================================
+  // Patient / Navigation Context
+  //===========================================================================
 
   final PatientMode mode;
 
@@ -37,13 +31,10 @@ class AddPrescriptionController extends ChangeNotifier {
 
   final PatientDoctor? patientDoctor;
 
-  final PatientViewModel patientvm = PatientViewModel();
 
-  final PrescriptionViewModel prescriptionvm = PrescriptionViewModel();
-
-  //---------------------------------------------------------------------------
+  //===========================================================================
   // UI State
-  //---------------------------------------------------------------------------
+  //===========================================================================
 
   bool isLoading = false;
 
@@ -51,30 +42,55 @@ class AddPrescriptionController extends ChangeNotifier {
 
   bool printLetterhead = true;
 
-  //---------------------------------------------------------------------------
-  // Doctor
-  //---------------------------------------------------------------------------
 
-  DoctorInfo? doctorInfo;
+  //===========================================================================
+  // Doctor Information
+  //
+  // Doctor profile is now loaded by ApplicationBootstrapper.
+  //
+  // This controller should not independently call the old
+  // LicenseApiService or LogoService.
+  //
+  //===========================================================================
 
-  Uint8List? doctorLogo;
+  // Doctor profile / logo will be supplied by the application layer
+  // when the prescription screen is integrated with MasterData.
+  //
+  // Do not reintroduce DoctorInfo or LicenseApiService here.
 
-    bool get isNewPatient =>
-      mode == PatientMode.newPatient;
 
-  bool get isExistingPatient =>
-      mode == PatientMode.existingPatient;
+  //===========================================================================
+  // Patient State
+  //===========================================================================
 
-  //---------------------------------------------------------------------------
-  // Medicines
-  //---------------------------------------------------------------------------
+  Patient? _currentPatient;
+
+  Patient? get currentPatient =>
+      _currentPatient;
+
+
+  //===========================================================================
+  // Prescription State
+  //===========================================================================
 
   final List<Prescriptiondata> prescriptions = [];
 
 
-    //---------------------------------------------------------------------------
+  //===========================================================================
+  // Convenience Getters
+  //===========================================================================
+
+  bool get isNewPatient =>
+      mode == PatientMode.newPatient;
+
+
+  bool get isExistingPatient =>
+      mode == PatientMode.existingPatient;
+
+
+  //===========================================================================
   // Initialize Controller
-  //---------------------------------------------------------------------------
+  //===========================================================================
 
   Future<void> initialize() async {
 
@@ -84,8 +100,6 @@ class AddPrescriptionController extends ChangeNotifier {
 
     try {
 
-      await _loadDoctorInfo();
-
       switch (mode) {
 
         case PatientMode.newPatient:
@@ -93,6 +107,7 @@ class AddPrescriptionController extends ChangeNotifier {
           await _initializeNewPatient();
 
           break;
+
 
         case PatientMode.existingPatient:
 
@@ -103,9 +118,11 @@ class AddPrescriptionController extends ChangeNotifier {
       }
 
     }
-    catch (e) {
+    catch (error) {
 
-      debugPrint(e.toString());
+      debugPrint(
+        "AddPrescriptionController.initialize: $error",
+      );
 
       rethrow;
 
@@ -121,9 +138,9 @@ class AddPrescriptionController extends ChangeNotifier {
   }
 
 
-    //---------------------------------------------------------------------------
-  // New Patient
-  //---------------------------------------------------------------------------
+  //===========================================================================
+  // Initialize New Patient
+  //===========================================================================
 
   Future<void> _initializeNewPatient() async {
 
@@ -131,19 +148,33 @@ class AddPrescriptionController extends ChangeNotifier {
 
     canGenerateNext = false;
 
-    //----------------------------------------------------------
-    // Patient fields remain empty.
-    //
-    // PatientInfo widget will display blank controls.
-    //----------------------------------------------------------
+    _currentPatient = patient;
 
     notifyListeners();
 
   }
 
-    //---------------------------------------------------------------------------
-  // Existing Patient
-  //---------------------------------------------------------------------------
+
+  //===========================================================================
+  // Load Existing Patient
+  //
+  // IMPORTANT:
+  //
+  // The old implementation called:
+  //
+  //     LicenseApiService.getLatestPrescription(...)
+  //
+  // This is intentionally removed.
+  //
+  // Patient and prescription data must now be obtained through:
+  //
+  //     PatientRepository
+  //     PrescriptionRepository
+  //
+  // We will connect those repositories once their current method
+  // signatures are confirmed.
+  //
+  //===========================================================================
 
   Future<void> _loadExistingPatient() async {
 
@@ -156,68 +187,101 @@ class AddPrescriptionController extends ChangeNotifier {
 
     }
 
-    //----------------------------------------------------------
-    // Backend returns
+
+    //-------------------------------------------------------------------------
+    // Existing Patient
+    //-------------------------------------------------------------------------
     //
-    // Patient
+    // The patient object supplied by the previous patient-search flow is
+    // retained here.
     //
-    // Latest Prescription
+    // The latest prescription should subsequently be loaded through
+    // PrescriptionRepository.
     //
-    // already decrypted.
-    //----------------------------------------------------------
+    // Do NOT call LicenseApiService here.
+    //
+    //-------------------------------------------------------------------------
 
-    final response =
-        await LicenseApiService
-            .getLatestPrescription(
-                patientDoctor!.id,
-            );
+    _currentPatient = patient;
 
-    //----------------------------------------------------------
-    // Patient
-    //----------------------------------------------------------
 
-    _populatePatient(
-      response.patient,
-    );
+    //-------------------------------------------------------------------------
+    // Temporary guard
+    //-------------------------------------------------------------------------
+    //
+    // We deliberately do not fabricate a repository API here.
+    // Once the current PatientRepository and PrescriptionRepository files
+    // are reviewed, this method will be completed against their actual
+    // interfaces.
+    //
+    //-------------------------------------------------------------------------
 
-    //----------------------------------------------------------
-    // Prescription
-    //----------------------------------------------------------
+    prescriptions.clear();
 
-    _populatePrescription(
-      response.latestPrescription,
-    );
+    canGenerateNext = false;
 
     notifyListeners();
 
   }
 
-    //---------------------------------------------------------------------------
+
+  //===========================================================================
   // Populate Patient
-  //---------------------------------------------------------------------------
+  //===========================================================================
 
   void _populatePatient(
-      Patient patient,
+    Patient value,
   ) {
 
-    //----------------------------------------------------------
-    // Part 2
-    //----------------------------------------------------------
+    _currentPatient = value;
+
+    notifyListeners();
 
   }
 
-  //---------------------------------------------------------------------------
-  // Populate Latest Prescription
-  //---------------------------------------------------------------------------
+
+  //===========================================================================
+  // Populate Prescription
+  //===========================================================================
 
   void _populatePrescription(
-      GeneratedPrescription prescription,
+    List<Prescriptiondata> values,
   ) {
 
-    //----------------------------------------------------------
-    // Part 2
-    //----------------------------------------------------------
+    prescriptions
+      ..clear()
+      ..addAll(values);
+
+    notifyListeners();
+
+  }
+
+
+  //===========================================================================
+  // Reset Prescription
+  //===========================================================================
+
+  void resetPrescription() {
+
+    prescriptions.clear();
+
+    canGenerateNext = false;
+
+    notifyListeners();
+
+  }
+
+
+  //===========================================================================
+  // Dispose
+  //===========================================================================
+
+  @override
+  void dispose() {
+
+    super.dispose();
 
   }
 
 }
+
