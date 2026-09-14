@@ -6,71 +6,88 @@ class Patient {
   final String middleName;
   final String lastName;
 
-  final DateTime? dateOfBirth;
+  final DateTime? dob;
 
   final String gender;
 
-  final String mobileNumber;
+  final String mobile;
 
   final String email;
 
   final String addressLine1;
   final String addressLine2;
-  final String city;  
-  final String district;
+  final String city;
   final String state;
-  final String countryid;
-  final String pinCode; 
+
+  final String countryId;
+
+  final String pinCode;
+
   const Patient({
     required this.id,
     required this.ppid,
     required this.firstName,
     required this.middleName,
     required this.lastName,
-    this.dateOfBirth,
+    this.dob,
     required this.gender,
-    required this.mobileNumber,
+    required this.mobile,
     required this.email,
     required this.addressLine1,
     required this.addressLine2,
     required this.city,
-    required this.district,
     required this.state,
-    required this.countryid,
+    required this.countryId,
     required this.pinCode,
   });
 
+  //-------------------------------------------------------------------------
+  // FROM JSON
+  //-------------------------------------------------------------------------
+
   factory Patient.fromJson(Map<String, dynamic> json) {
     return Patient(
-      id: json["_id"] ?? "",
+      id: json["_id"]?.toString() ?? "",
 
-      ppid: json["ppid"] ?? "",
+      ppid: json["ppid"]?.toString() ?? "",
 
-      firstName: json["firstName"] ?? "",
+      firstName: json["firstName"]?.toString() ?? "",
 
-      middleName: json["middleName"] ?? "",
+      middleName: json["middleName"]?.toString() ?? "",
 
-      lastName: json["lastName"] ?? "",
+      lastName: json["lastName"]?.toString() ?? "",
 
-      dateOfBirth: json["dateOfBirth"] != null
-          ? DateTime.parse(json["dateOfBirth"])
+      dob: json["dob"] != null
+          ? DateTime.tryParse(json["dob"].toString())
           : null,
 
-      gender: json["gender"] ?? "",
+      gender: json["gender"]?.toString() ?? "",
 
-      mobileNumber: json["mobileNumber"] ?? "",
+      mobile: json["mobile"]?.toString() ?? "",
 
-      email: json["email"] ?? "",
+      email: json["email"]?.toString() ?? "",
 
-      addressLine1: json["addressLine1"] ?? "",
-      addressLine2: json["addressLine2"] ?? "",
-      city: json["city"] ?? "",
-      district: json["district"] ?? "",
-      state: json["state"] ?? "",
-      countryid: json["countryid"] ?? "",
-      pinCode: json["pinCode"] ?? "",
+      addressLine1:
+          json["addressLine1"]?.toString() ?? "",
+
+      addressLine2:
+          json["addressLine2"]?.toString() ?? "",
+
+      city: json["city"]?.toString() ?? "",
+
+      state: json["state"]?.toString() ?? "",
+
+      countryId:
+          json["countryId"]?.toString() ?? "",
+
+      pinCode:
+          json["pinCode"]?.toString() ?? "",
     );
   }
+
+  //-------------------------------------------------------------------------
+  // TO JSON
+  //-------------------------------------------------------------------------
 
   Map<String, dynamic> toJson() {
     return {
@@ -79,22 +96,26 @@ class Patient {
       "firstName": firstName,
       "middleName": middleName,
       "lastName": lastName,
-      "dateOfBirth": dateOfBirth?.toIso8601String(),
+      "dob": dob?.toIso8601String(),
       "gender": gender,
-      "mobileNumber": mobileNumber,
+      "mobile": mobile,
       "email": email,
       "addressLine1": addressLine1,
       "addressLine2": addressLine2,
       "city": city,
-      "district": district,
       "state": state,
-      "countryid": countryid,
+      "countryId": countryId,
       "pinCode": pinCode,
     };
   }
 
+  //-------------------------------------------------------------------------
+  // FULL NAME
+  //-------------------------------------------------------------------------
+
   String get fullName =>
       "$firstName $middleName $lastName"
-          .replaceAll(RegExp(r'\s+'), " ")
+          .replaceAll(RegExp(r"\s+"), " ")
           .trim();
 }
+

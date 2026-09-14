@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-
+import 'package:docautomations/datamodels/snapshot/prescription_snapshot.dart';
 import 'package:docautomations/datamodels/master/patient.dart';
 import 'package:docautomations/datamodels/master/patient_doctor.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
+
+import 'package:docautomations/repositories/prescription_repository.dart';
 
 import 'package:docautomations/widgets/AddPrescrip.dart';
 
@@ -18,6 +20,7 @@ class AddPrescriptionController
     required this.mode,
     this.patient,
     this.patientDoctor,
+    required this.prescriptionRepository,
   });
 
 
@@ -33,6 +36,13 @@ class AddPrescriptionController
 
 
   //===========================================================================
+  // Repository
+  //===========================================================================
+
+  final PrescriptionRepository prescriptionRepository;
+
+
+  //===========================================================================
   // UI State
   //===========================================================================
 
@@ -41,22 +51,6 @@ class AddPrescriptionController
   bool canGenerateNext = false;
 
   bool printLetterhead = true;
-
-
-  //===========================================================================
-  // Doctor Information
-  //
-  // Doctor profile is now loaded by ApplicationBootstrapper.
-  //
-  // This controller should not independently call the old
-  // LicenseApiService or LogoService.
-  //
-  //===========================================================================
-
-  // Doctor profile / logo will be supplied by the application layer
-  // when the prescription screen is integrated with MasterData.
-  //
-  // Do not reintroduce DoctorInfo or LicenseApiService here.
 
 
   //===========================================================================
@@ -155,74 +149,168 @@ class AddPrescriptionController
   }
 
 
-  //===========================================================================
-  // Load Existing Patient
-  //
-  // IMPORTANT:
-  //
-  // The old implementation called:
-  //
-  //     LicenseApiService.getLatestPrescription(...)
-  //
-  // This is intentionally removed.
-  //
-  // Patient and prescription data must now be obtained through:
-  //
-  //     PatientRepository
-  //     PrescriptionRepository
-  //
-  // We will connect those repositories once their current method
-  // signatures are confirmed.
-  //
-  //===========================================================================
+  
+//===========================================================================
+// Load Existing Patient
+//===========================================================================
+//
+// Existing patient flow:
+//
+//     PatientDoctor
+//          |
+//          v
+// PrescriptionRepository
+//          |
+//          v
+// Latest Prescription
+//          |
+//          v
+// PrescriptionSnapshot
+//          |
+//          v
+// Prescriptiondata[]
+//
+//===========================================================================
 
-  Future<void> _loadExistingPatient() async {
+Future<void> _loadExistingPatient() async {
 
-    if (patientDoctor == null) {
+  //-------------------------------------------------------------------------
+  // Validate PatientDoctor
+  //-------------------------------------------------------------------------
 
-      throw Exception(
-        "PatientDoctor is required "
-        "for Existing Patient mode.",
-      );
+  if (patientDoctor == null) {
 
-    }
-
-
-    //-------------------------------------------------------------------------
-    // Existing Patient
-    //-------------------------------------------------------------------------
-    //
-    // The patient object supplied by the previous patient-search flow is
-    // retained here.
-    //
-    // The latest prescription should subsequently be loaded through
-    // PrescriptionRepository.
-    //
-    // Do NOT call LicenseApiService here.
-    //
-    //-------------------------------------------------------------------------
-
-    _currentPatient = patient;
-
-
-    //-------------------------------------------------------------------------
-    // Temporary guard
-    //-------------------------------------------------------------------------
-    //
-    // We deliberately do not fabricate a repository API here.
-    // Once the current PatientRepository and PrescriptionRepository files
-    // are reviewed, this method will be completed against their actual
-    // interfaces.
-    //
-    //-------------------------------------------------------------------------
-
-    prescriptions.clear();
-
-    canGenerateNext = false;
-
-    notifyListeners();
+    throw Exception(
+      "PatientDoctor is required "
+      "for Existing Patient mode.",
+    );
 
   }
+
+
+  //-------------------------------------------------------------------------
+  // Set Current Patient
+  //-------------------------------------------------------------------------
+
+  _currentPatient = patient;
+
+
+  //-------------------------------------------------------------------------
+  // Clear Existing Prescription State
+  //-------------------------------------------------------------------------
+
+  prescriptions.clear();
+
+  canGenerateNext = false;
+
+  notifyListeners();
+
+
+  //-------------------------------------------------------------------------
+  // Retrieve Latest Prescription
+  //-------------------------------------------------------------------------
+
+  final result =
+      await prescriptionRepository.getLatestPrescription(
+    patientDoctor!.id,
+  );
+
+
+  //-------------------------------------------------------------------------
+  // No Latest Prescription
+  //-------------------------------------------------------------------------
+  //
+  // This is not necessarily an error.
+  //
+  // An existing patient may not have a previous prescription.
+  //
+  //-------------------------------------------------------------------------
+
+  if (!result.success) {
+
+    debugPrint(
+      "Latest prescription not available: "
+      "${result.message}",
+    );
+
+    return;
+
+  }
+
+
+  //-------------------------------------------------------------------------
+  // Validate Response
+  //-------------------------------------------------------------------------
+
+  if (result.data == null) {
+
+    return;
+
+  }
+
+
+  if (result.data is! Map<String, dynamic>) {
+
+    debugPrint(
+      "Unexpected latest prescription response format.",
+    );
+
+    return;
+
+  }
+
+
+  //-------------------------------------------------------------------------
+  // Convert Backend Snapshot
+  //-------------------------------------------------------------------------
+  //
+  // PrescriptionService.getLatestPrescription() decrypts the
+  // GeneratedPrescDetails encryption payload on the backend and returns
+  // the decrypted prescription snapshot.
+  //
+  // Therefore result.data should represent:
+  //
+  // {
+  //   "doctor": {...},
+  //   "patient": {...},
+  //   "clinic": {...},
+  //   "prescription": {
+  //      ...
+  //      "medicines": [...]
+  //   }
+  // }
+  //
+  //-------------------------------------------------------------------------
+
+  final snapshot =
+      PrescriptionSnapshot.fromJson(
+    Map<String, dynamic>.from(
+      result.data,
+    ),
+  );
+
+
+  //-------------------------------------------------------------------------
+  // Restore Medicines
+  //-------------------------------------------------------------------------
+
+  _populatePrescription(
+    snapshot.prescription.medicines,
+  );
+
+
+  //-------------------------------------------------------------------------
+  // Existing Patient Is Ready
+  //-------------------------------------------------------------------------
+
+  canGenerateNext =
+      prescriptions.isNotEmpty;
+
+  notifyListeners();
+
+}
+
+
 
 
   //===========================================================================

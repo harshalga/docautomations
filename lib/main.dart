@@ -123,13 +123,18 @@ import 'package:docautomations/datamodels/prescriptionData.dart';
 
 import 'package:docautomations/device_assets/asset_manager.dart';
 
-import 'package:docautomations/network/dio_client.dart';
 
 import 'package:docautomations/repositories/doctor_repository.dart';
 import 'package:docautomations/repositories/reference_data_repository.dart';
 
 import 'package:docautomations/services/doctor_api_service.dart';
 import 'package:docautomations/services/reference_data_api_service.dart';
+
+import 'package:docautomations/repositories/patient_repository.dart';
+import 'package:docautomations/repositories/prescription_repository.dart';
+
+import 'package:docautomations/services/patient_api_service.dart';
+import 'package:docautomations/services/prescription_api_service.dart';
 
 import 'package:docautomations/storage/local_storage_service.dart';
 
@@ -283,6 +288,13 @@ Future<void> main() async {
       final referenceDataApiService =
           ReferenceDataApiService();
 
+          final patientApiService =
+          PatientApiService();
+
+
+      final prescriptionApiService =
+          PrescriptionApiService();
+
 
       //========================================================================
       // Repositories
@@ -307,6 +319,23 @@ Future<void> main() async {
             localStorage,
 
       );
+
+      final patientRepository =
+           PatientRepository(
+
+        apiService:
+            patientApiService,
+
+        );
+
+
+      final prescriptionRepository =
+            PrescriptionRepository(
+
+        apiService:
+          prescriptionApiService,
+
+        );
 
 
       //========================================================================
@@ -384,6 +413,30 @@ Future<void> main() async {
                   referenceDataRepository,
 
             ),
+
+
+            //------------------------------------------------------------------
+// Patient Repository
+//------------------------------------------------------------------
+
+Provider<PatientRepository>.value(
+
+  value:
+      patientRepository,
+
+),
+
+
+//------------------------------------------------------------------
+// Prescription Repository
+//------------------------------------------------------------------
+
+Provider<PrescriptionRepository>.value(
+
+  value:
+      prescriptionRepository,
+
+),
 
 
             //------------------------------------------------------------------
