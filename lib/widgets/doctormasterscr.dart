@@ -2,636 +2,636 @@
 
 
 
-import 'package:docautomations/common/appcolors.dart';
-import 'package:docautomations/common/licenseprovider.dart';
-// 🔹 import reusable loader
-import 'package:docautomations/commonwidget/loadingOverlay.dart';
-import 'package:docautomations/commonwidget/trialbanner.dart';
-import 'package:docautomations/services/logo_service.dart';
-import 'package:docautomations/validationhandling/validation.dart';
-import 'package:docautomations/validationhandling/validator.dart';
-import 'package:docautomations/widgets/doctorwelcomescreen.dart';
-import 'package:docautomations/widgets/menubar.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:image/image.dart' as img;
-import 'dart:convert';
+// import 'package:docautomations/common/appcolors.dart';
+// import 'package:docautomations/common/licenseprovider.dart';
+// // 🔹 import reusable loader
+// import 'package:docautomations/commonwidget/loadingOverlay.dart';
+// import 'package:docautomations/commonwidget/trialbanner.dart';
+// import 'package:docautomations/services/logo_service.dart';
+// import 'package:docautomations/validationhandling/validation.dart';
+// import 'package:docautomations/validationhandling/validator.dart';
+// import 'package:docautomations/widgets/doctorwelcomescreen.dart';
+// import 'package:docautomations/widgets/menubar.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
+// import 'package:image_picker/image_picker.dart';
+// import 'package:image/image.dart' as img;
+// import 'dart:convert';
 
-import 'package:docautomations/widgets/doctorinfo.dart';
-import 'package:docautomations/common/common_widgets.dart';
-import 'package:docautomations/services/license_api_service.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-
+// import 'package:docautomations/widgets/doctorinfo.dart';
+// import 'package:docautomations/common/common_widgets.dart';
+// import 'package:docautomations/services/license_api_service.dart';
+// import 'package:provider/provider.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
 
-class DoctorMasterScr extends StatefulWidget {
-  final DoctorInfo doctorInfo; // doctor info to edit
-  final void Function(DoctorInfo) onUpdated;
-
-  const DoctorMasterScr({
-    super.key,
-    required this.doctorInfo,
-    required this.onUpdated,
-  });
-
-  @override
-  State<DoctorMasterScr> createState() => _DoctorMasterScrState();
-}
-
-class _DoctorMasterScrState extends State<DoctorMasterScr> {
-  final _formKey = GlobalKey<FormState>();
-
-  late TextEditingController _nameController;
-  late TextEditingController _specController;
-  late TextEditingController _clinicNameController;
-  late TextEditingController _clinicAddressController;
-  late TextEditingController _contactController;
-  late TextEditingController _loginEmailController;
-
-  final _nameKey = GlobalKey<FormFieldState>();
-  final _specKey = GlobalKey<FormFieldState>();
-  final _clinicNameKey = GlobalKey<FormFieldState>();
-  final _clinicAddressKey = GlobalKey<FormFieldState>();
-  final _contactKey = GlobalKey<FormFieldState>();
-  final _emailKey = GlobalKey<FormFieldState>();
 
 
-  DoctorLogo? _logoToUpload; // New field to hold the logo to upload
-  Uint8List? _logobytes;
+// class DoctorMasterScr extends StatefulWidget {
+//   final DoctorInfo doctorInfo; // doctor info to edit
+//   final void Function(DoctorInfo) onUpdated;
+
+//   const DoctorMasterScr({
+//     super.key,
+//     required this.doctorInfo,
+//     required this.onUpdated,
+//   });
+
+//   @override
+//   State<DoctorMasterScr> createState() => _DoctorMasterScrState();
+// }
+
+// class _DoctorMasterScrState extends State<DoctorMasterScr> {
+//   final _formKey = GlobalKey<FormState>();
+
+//   late TextEditingController _nameController;
+//   late TextEditingController _specController;
+//   late TextEditingController _clinicNameController;
+//   late TextEditingController _clinicAddressController;
+//   late TextEditingController _contactController;
+//   late TextEditingController _loginEmailController;
+
+//   final _nameKey = GlobalKey<FormFieldState>();
+//   final _specKey = GlobalKey<FormFieldState>();
+//   final _clinicNameKey = GlobalKey<FormFieldState>();
+//   final _clinicAddressKey = GlobalKey<FormFieldState>();
+//   final _contactKey = GlobalKey<FormFieldState>();
+//   final _emailKey = GlobalKey<FormFieldState>();
+
+
+//   DoctorLogo? _logoToUpload; // New field to hold the logo to upload
+//   Uint8List? _logobytes;
   
-  int? _logoSizeBytes;
-  int? _logoWidth;
-  int? _logoHeight;
-  bool _printLetterhead = true;
-  bool _isLoading = false; // ✅ loader flag
-  late String _originalEmail;
-  String? _emailServerError;
+//   int? _logoSizeBytes;
+//   int? _logoWidth;
+//   int? _logoHeight;
+//   bool _printLetterhead = true;
+//   bool _isLoading = false; // ✅ loader flag
+//   late String _originalEmail;
+//   String? _emailServerError;
 
 
-  @override
-  void initState() {
-    super.initState();
-    _seedControllers(widget.doctorInfo);
-    _loadLogo();
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     _seedControllers(widget.doctorInfo);
+//     _loadLogo();
+//   }
 
-  @override
-  void didUpdateWidget(covariant DoctorMasterScr oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.doctorInfo != widget.doctorInfo) {
-      _seedControllers(widget.doctorInfo);
-      _loadLogo();
-      setState(() {});
-    }
-  }
-Future<void> _loadLogo() async {
-  try {
+//   @override
+//   void didUpdateWidget(covariant DoctorMasterScr oldWidget) {
+//     super.didUpdateWidget(oldWidget);
+//     if (oldWidget.doctorInfo != widget.doctorInfo) {
+//       _seedControllers(widget.doctorInfo);
+//       _loadLogo();
+//       setState(() {});
+//     }
+//   }
+// Future<void> _loadLogo() async {
+//   try {
 
    
-    final logo = await LogoService.getLogo();
+//     final logo = await LogoService.getLogo();
    
 
-    if (!mounted || logo == null) return;
+//     if (!mounted || logo == null) return;
 
-    setState(() {
-      _logobytes = logo;
-      _logoToUpload=null;
-    });
+//     setState(() {
+//       _logobytes = logo;
+//       _logoToUpload=null;
+//     });
    
-  } catch (e) {
-    debugPrint("Failed to load logo: $e");
+//   } catch (e) {
+//     debugPrint("Failed to load logo: $e");
      
-  }
-}
-  void _seedControllers(DoctorInfo d) {
-    _nameController = TextEditingController(text: d.name);
-    _specController = TextEditingController(text: d.specialization);
-    _clinicNameController = TextEditingController(text: d.clinicName);
-    _clinicAddressController = TextEditingController(text: d.clinicAddress);
-    _contactController = TextEditingController(text: d.contact);
-    _loginEmailController = TextEditingController(text: d.loginEmail);
-    _originalEmail = d.loginEmail.trim().toLowerCase();
-    _printLetterhead = d.printLetterhead;
-  }
+//   }
+// }
+//   void _seedControllers(DoctorInfo d) {
+//     _nameController = TextEditingController(text: d.name);
+//     _specController = TextEditingController(text: d.specialization);
+//     _clinicNameController = TextEditingController(text: d.clinicName);
+//     _clinicAddressController = TextEditingController(text: d.clinicAddress);
+//     _contactController = TextEditingController(text: d.contact);
+//     _loginEmailController = TextEditingController(text: d.loginEmail);
+//     _originalEmail = d.loginEmail.trim().toLowerCase();
+//     _printLetterhead = d.printLetterhead;
+//   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _specController.dispose();
-    _clinicNameController.dispose();
-    _clinicAddressController.dispose();
-    _contactController.dispose();
-    _loginEmailController.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     _nameController.dispose();
+//     _specController.dispose();
+//     _clinicNameController.dispose();
+//     _clinicAddressController.dispose();
+//     _contactController.dispose();
+//     _loginEmailController.dispose();
+//     super.dispose();
+//   }
 
-void _showError(String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      backgroundColor: Colors.red,
-      content: Text(message),
-    ),
-  );
-}
-
-
-
-
-Future<void> _pickImage() async {
-  final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-
-   if (picked == null) return;
-
-  //if (picked != null) {
-    // -------------------------------
-    // 1. EXTENSION VALIDATION
-    // -------------------------------
-    final extension = picked.name.split('.').last.toLowerCase();
-
-    const allowedExtensions = ['png', 'jpg', 'jpeg', 'webp'];
-
-    if (!allowedExtensions.contains(extension)) {
-      _showError("Invalid file type. Please select a PNG, JPG, JPEG, or WEBP image.");
-      return;
-    }
+// void _showError(String message) {
+//   ScaffoldMessenger.of(context).showSnackBar(
+//     SnackBar(
+//       backgroundColor: Colors.red,
+//       content: Text(message),
+//     ),
+//   );
+// }
 
 
 
-//--------------------------------------------------------
-  // Read original bytes
-  //--------------------------------------------------------
 
-  final bytes = await picked.readAsBytes();
+// Future<void> _pickImage() async {
+//   final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
 
-  final fileSize = bytes.length;
+//    if (picked == null) return;
 
-    // -------------------------------
-    // 2. SIZE VALIDATION (≤ 200 KB) Reject >2MB
-    // -------------------------------
-    //final sizeInBytes = await picked.length();
-//    const maxSize = 200 * 1024; // 200 KB
-    const maxSize = 2 * 1024 *1024; // 2 MB
+//   //if (picked != null) {
+//     // -------------------------------
+//     // 1. EXTENSION VALIDATION
+//     // -------------------------------
+//     final extension = picked.name.split('.').last.toLowerCase();
 
-    if (fileSize > maxSize) {
-      _showError("Selected logo is too large.\n\n  Maximum allowed size: 2 MB.\n\n Please choose a smaller image or crop the image before uploading.");          
-      return;
-    }
+//     const allowedExtensions = ['png', 'jpg', 'jpeg', 'webp'];
 
-
-     //--------------------------------------------------------
-  // 3. Decode image
-  //--------------------------------------------------------
-
-  final image = img.decodeImage(bytes);
-
-  if (image == null) {
-    _showError("Unable to read image.");
-    return;
-  }
-
-  _logoWidth = image.width;
-  _logoHeight = image.height;
+//     if (!allowedExtensions.contains(extension)) {
+//       _showError("Invalid file type. Please select a PNG, JPG, JPEG, or WEBP image.");
+//       return;
+//     }
 
 
-  if (image.width > 2000 || image.height > 2000) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text(
-        "Large image detected.\nIt will be resized to 500 × 500 automatically.",
-      ),
-    ),
-  );
-}
+
+// //--------------------------------------------------------
+//   // Read original bytes
+//   //--------------------------------------------------------
+
+//   final bytes = await picked.readAsBytes();
+
+//   final fileSize = bytes.length;
+
+//     // -------------------------------
+//     // 2. SIZE VALIDATION (≤ 200 KB) Reject >2MB
+//     // -------------------------------
+//     //final sizeInBytes = await picked.length();
+// //    const maxSize = 200 * 1024; // 200 KB
+//     const maxSize = 2 * 1024 *1024; // 2 MB
+
+//     if (fileSize > maxSize) {
+//       _showError("Selected logo is too large.\n\n  Maximum allowed size: 2 MB.\n\n Please choose a smaller image or crop the image before uploading.");          
+//       return;
+//     }
 
 
-   //--------------------------------------------------------
-  // Resize to 500x500
-  //--------------------------------------------------------
+//      //--------------------------------------------------------
+//   // 3. Decode image
+//   //--------------------------------------------------------
 
-  img.Image resized = img.copyResize(
-    image,
-    width: 500,
-    height: 500,
-    interpolation: img.Interpolation.average,
-  );
+//   final image = img.decodeImage(bytes);
 
-  //--------------------------------------------------------
-  // Compress
-  //--------------------------------------------------------
+//   if (image == null) {
+//     _showError("Unable to read image.");
+//     return;
+//   }
 
-  List<int> compressed =
-      img.encodeJpg(resized, quality: 90);
+//   _logoWidth = image.width;
+//   _logoHeight = image.height;
 
-  if (compressed.length > 500 * 1024) {
 
-    for (int quality = 85;
-        quality >= 40;
-        quality -= 5) {
+//   if (image.width > 2000 || image.height > 2000) {
+//   ScaffoldMessenger.of(context).showSnackBar(
+//     const SnackBar(
+//       content: Text(
+//         "Large image detected.\nIt will be resized to 500 × 500 automatically.",
+//       ),
+//     ),
+//   );
+// }
 
-      compressed =
-          img.encodeJpg(resized, quality: quality);
 
-      if (compressed.length <= 500 * 1024) {
-        break;
-      }
-    }
-  }
+//    //--------------------------------------------------------
+//   // Resize to 500x500
+//   //--------------------------------------------------------
 
-    // -------------------------------
-    // 4. Convert to Base64 WITH MIME PREFIX
-    // -------------------------------
+//   img.Image resized = img.copyResize(
+//     image,
+//     width: 500,
+//     height: 500,
+//     interpolation: img.Interpolation.average,
+//   );
+
+//   //--------------------------------------------------------
+//   // Compress
+//   //--------------------------------------------------------
+
+//   List<int> compressed =
+//       img.encodeJpg(resized, quality: 90);
+
+//   if (compressed.length > 500 * 1024) {
+
+//     for (int quality = 85;
+//         quality >= 40;
+//         quality -= 5) {
+
+//       compressed =
+//           img.encodeJpg(resized, quality: quality);
+
+//       if (compressed.length <= 500 * 1024) {
+//         break;
+//       }
+//     }
+//   }
+
+//     // -------------------------------
+//     // 4. Convert to Base64 WITH MIME PREFIX
+//     // -------------------------------
     
-    final rawBase64 = base64Encode(compressed);
+//     final rawBase64 = base64Encode(compressed);
 
-    // Detect image type -> build correct prefix
-    String mimeType;
-    if (extension == "png") {
-      mimeType = "image/png";
-    } else if (extension == "webp") {
-      mimeType = "image/webp";
-    } else {
-      mimeType = "image/jpeg"; // default for jpg / jpeg
-    }
+//     // Detect image type -> build correct prefix
+//     String mimeType;
+//     if (extension == "png") {
+//       mimeType = "image/png";
+//     } else if (extension == "webp") {
+//       mimeType = "image/webp";
+//     } else {
+//       mimeType = "image/jpeg"; // default for jpg / jpeg
+//     }
 
    
 
-    setState(() {
-      _logoToUpload= DoctorLogo(imageData: rawBase64, mimeType: mimeType);
-      _logobytes = Uint8List.fromList(compressed);
-      _logoSizeBytes = compressed.length;
-    });
+//     setState(() {
+//       _logoToUpload= DoctorLogo(imageData: rawBase64, mimeType: mimeType);
+//       _logobytes = Uint8List.fromList(compressed);
+//       _logoSizeBytes = compressed.length;
+//     });
 
-    if (fileSize > 500 * 1024) {
+//     if (fileSize > 500 * 1024) {
       
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          "Large logo detected.\nImage was automatically compressed.",
-        ),
-      ),
-    );
-  }
-  //}
-}
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       const SnackBar(
+//         content: Text(
+//           "Large logo detected.\nImage was automatically compressed.",
+//         ),
+//       ),
+//     );
+//   }
+//   //}
+// }
 
   
 
 
-Future<void> _submit() async {
-// Clear old server error before validating
- _emailServerError = null;
-    final isValid = _formKey.currentState!.validate();
+// Future<void> _submit() async {
+// // Clear old server error before validating
+//  _emailServerError = null;
+//     final isValid = _formKey.currentState!.validate();
 
-  if (!isValid) {
-    await _scrollToFirstError();
-    return;
-  }
-  final newEmail =
-      _loginEmailController.text.trim().toLowerCase();
+//   if (!isValid) {
+//     await _scrollToFirstError();
+//     return;
+//   }
+//   final newEmail =
+//       _loginEmailController.text.trim().toLowerCase();
 
-  // 🔐 Check only if email changed
-  if (newEmail != _originalEmail) {
-    setState(() => _isLoading = true);
+//   // 🔐 Check only if email changed
+//   if (newEmail != _originalEmail) {
+//     setState(() => _isLoading = true);
 
-    final exists =
-        await LicenseApiService.isEmailAlreadyRegistered(newEmail);
+//     final exists =
+//         await LicenseApiService.isEmailAlreadyRegistered(newEmail);
 
-    setState(() => _isLoading = false);
+//     setState(() => _isLoading = false);
 
-    if (exists) {
-      setState(() {
-        _emailServerError = "Email already registered";
-      });
-// Re-run validation so ServerEmailValidation shows error
-      _emailKey.currentState?.validate();
-      await _scrollToFirstError();
-      return;
-    }
-  }
-   // ✅ Continue with normal update
-      setState(() => _isLoading = true); // ✅ start loader
+//     if (exists) {
+//       setState(() {
+//         _emailServerError = "Email already registered";
+//       });
+// // Re-run validation so ServerEmailValidation shows error
+//       _emailKey.currentState?.validate();
+//       await _scrollToFirstError();
+//       return;
+//     }
+//   }
+//    // ✅ Continue with normal update
+//       setState(() => _isLoading = true); // ✅ start loader
 
-      final updatedInfo = DoctorInfo(
-        name: _nameController.text,
-        specialization: _specController.text,
-        clinicName: _clinicNameController.text,
-        clinicAddress: _clinicAddressController.text,
-        contact: _contactController.text,
-        loginEmail: _loginEmailController.text.trim().toLowerCase(),
-        password: "", // not needed in edit
-        logo: _logoToUpload,
-        printLetterhead: _printLetterhead,
-        prescriptionCount:widget.doctorInfo.prescriptionCount,
-        licensedOnDate:widget.doctorInfo.licensedOnDate,
-        nextRenewalDate:widget.doctorInfo.nextRenewalDate,
-        firstTimeRegistrationDate:widget.doctorInfo.firstTimeRegistrationDate,
+//       final updatedInfo = DoctorInfo(
+//         name: _nameController.text,
+//         specialization: _specController.text,
+//         clinicName: _clinicNameController.text,
+//         clinicAddress: _clinicAddressController.text,
+//         contact: _contactController.text,
+//         loginEmail: _loginEmailController.text.trim().toLowerCase(),
+//         password: "", // not needed in edit
+//         logo: _logoToUpload,
+//         printLetterhead: _printLetterhead,
+//         prescriptionCount:widget.doctorInfo.prescriptionCount,
+//         licensedOnDate:widget.doctorInfo.licensedOnDate,
+//         nextRenewalDate:widget.doctorInfo.nextRenewalDate,
+//         firstTimeRegistrationDate:widget.doctorInfo.firstTimeRegistrationDate,
         
-      );
+//       );
 
-      final success = await LicenseApiService.updateDoctorOnServer(updatedInfo);
+//       final success = await LicenseApiService.updateDoctorOnServer(updatedInfo);
 
-      setState(() => _isLoading = false); // ✅ stop loader
+//       setState(() => _isLoading = false); // ✅ stop loader
 
-      if (success) {
-        final prefs = await SharedPreferences.getInstance();
-  await prefs.setString("doctor_profile", jsonEncode(updatedInfo.toJson())); 
-          LogoService.clearLogo();
-          LogoService.cacheLogo(_logobytes!);
-        widget.onUpdated(updatedInfo);
+//       if (success) {
+//         final prefs = await SharedPreferences.getInstance();
+//   await prefs.setString("doctor_profile", jsonEncode(updatedInfo.toJson())); 
+//           LogoService.clearLogo();
+//           LogoService.cacheLogo(_logobytes!);
+//         widget.onUpdated(updatedInfo);
 
-       await _showSuccessPopup();  // 👈 show dialog first
+//        await _showSuccessPopup();  // 👈 show dialog first
 
       
 
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(content: Text("Doctor info updated successfully")),
-        // );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error updating doctor info")),
-        );
-      }
+//         // ScaffoldMessenger.of(context).showSnackBar(
+//         //   const SnackBar(content: Text("Doctor info updated successfully")),
+//         // );
+//       } else {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(content: Text("Error updating doctor info")),
+//         );
+//       }
     
-  }
+//   }
 
-  @override
-Widget build(BuildContext context) {
-  return Consumer<LicenseProvider>(
-    builder: (context, license, child) {
-      return Scaffold(
-        backgroundColor: Colors.white,
+//   @override
+// Widget build(BuildContext context) {
+//   return Consumer<LicenseProvider>(
+//     builder: (context, license, child) {
+//       return Scaffold(
+//         backgroundColor: Colors.white,
 
-        body: Stack(
-          children: [
-            // ===========================
-            // MAIN SCROLLABLE PAGE
-            // ===========================
-            SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+//         body: Stack(
+//           children: [
+//             // ===========================
+//             // MAIN SCROLLABLE PAGE
+//             // ===========================
+//             SingleChildScrollView(
+//               padding: const EdgeInsets.only(bottom: 40),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.stretch,
+//                 children: [
 
-                  // ─────────────────────────
-                  // Trial Banner (only when needed)
-                  // ─────────────────────────
-                  if (!license.isSubscribed && license.isTrialActive)
-                    TrialBanner(),
+//                   // ─────────────────────────
+//                   // Trial Banner (only when needed)
+//                   // ─────────────────────────
+//                   if (!license.isSubscribed && license.isTrialActive)
+//                     TrialBanner(),
 
-                  const SizedBox(height: 10),
+//                   const SizedBox(height: 10),
 
-                  // ─────────────────────────
-                  // FORM CARD
-                  // ─────────────────────────
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(50),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.25),
-                          blurRadius: 18,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
+//                   // ─────────────────────────
+//                   // FORM CARD
+//                   // ─────────────────────────
+//                   Container(
+//                     padding: const EdgeInsets.all(20),
+//                     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+//                     decoration: BoxDecoration(
+//                       color: Colors.white,
+//                       borderRadius: BorderRadius.circular(50),
+//                       boxShadow: [
+//                         BoxShadow(
+//                           color: AppColors.primary.withValues(alpha: 0.25),
+//                           blurRadius: 18,
+//                           offset: Offset(0, 4),
+//                         ),
+//                       ],
+//                     ),
 
-                    child: _buildFormContent(),
-                  ),
-                ],
-              ),
-            ),
+//                     child: _buildFormContent(),
+//                   ),
+//                 ],
+//               ),
+//             ),
 
-            // ===========================
-            // FULL-SCREEN LOADING OVERLAY
-            // ===========================
-            if (_isLoading)
-              Positioned.fill(
-                child: LoadingOverlay(
-                  isLoading: true,
-                  message: "Updating…",
-                ),
-              ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
-
-Widget _buildFormContent() {
-  return Form(
-    key: _formKey,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-
-        TextFormField(
-          controller: _nameController,
-          key: _nameKey,
-          maxLength: 50,
-          maxLengthEnforcement: MaxLengthEnforcement.enforced,
-          decoration:  InputDecoration(labelText: 'Doctor Name', 
-                               prefix: Padding(
-                                padding: EdgeInsets.only(right: 6),
-                                child: Text(
-                                    "Dr.",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-    ),
-          ),
-          validator: (v) => v!.isEmpty ? 'Required' : null,
-        ),
-
-        TextFormField(
-          controller: _specController,
-          key: _specKey,
-          maxLength: 100,
-          maxLengthEnforcement: MaxLengthEnforcement.enforced,
-          decoration: const InputDecoration(labelText: 'Specialization'),
-          validator: (v) => v!.isEmpty ? 'Required' : null,
-        ),
-
-        TextFormField(
-          controller: _clinicNameController,
-          key: _clinicNameKey,
-          maxLength: 50,
-          maxLengthEnforcement: MaxLengthEnforcement.enforced,
-          decoration: const InputDecoration(labelText: 'Clinic Name'),
-          validator: (v) => v!.isEmpty ? 'Required' : null,
-        ),
-
-        TextFormField(
-          controller: _clinicAddressController,
-          key: _clinicAddressKey,
-          maxLength: 200,
-          maxLengthEnforcement: MaxLengthEnforcement.enforced,
-          decoration: const InputDecoration(labelText: 'Clinic Address'),
-          validator: (v) => v!.isEmpty ? 'Required' : null,
-        ),
-
-        TextFormField(
-          controller: _contactController,
-          key: _contactKey,
-          maxLength: 10,
-          maxLengthEnforcement: MaxLengthEnforcement.enforced,
-          decoration: const InputDecoration(labelText: 'Contact Details'),
-          validator: Validator.apply(
-            context,
-            const [RequiredValidation(), NumericValidation()],
-          ),
-        ),
-
-        TextFormField(
-          controller: _loginEmailController,
-          onChanged: (_) {
-          if (_emailServerError != null) {
-              setState(() => _emailServerError = null);
-               }
-            },
-          key: _emailKey,
-          maxLength: 50,
-          maxLengthEnforcement: MaxLengthEnforcement.enforced,
-          decoration: const InputDecoration(labelText: 'Login Email'),
-          validator: Validator.apply(
-            context,
-             [const RequiredValidation(),  const EmailValidation(), 
-             ServerValidation(() => _emailServerError)],
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        SwitchListTile(
-          title: const Text("Print on Letterhead"),
-          value: _printLetterhead,
-          onChanged: (val) => setState(() => _printLetterhead = val),
-        ),
-
-        ElevatedButton(
-          onPressed: _pickImage,
-          child: const Text("Select Logo"),
-        ),
-//info for logo selection 
-if (_logoSizeBytes != null)
-  Padding(
-    padding: const EdgeInsets.only(top: 8),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-
-        Text(
-          "Logo Size: ${(_logoSizeBytes! / 1024).toStringAsFixed(0)} KB",
-        ),
-
-        Text(
-          "Dimensions: $_logoWidth × $_logoHeight",
-        ),
-
-        const Text(
-          "Maximum logo size: 2 MB",
-        ),
-
-        const Text(
-          "Recommended size: 500 × 500 pixels",
-        ),
-
-        const Text(
-          "Images larger than 500 KB are automatically compressed.",
-        ),
-      ],
-    ),
-  ),
-//End of info for logo selection
-        const SizedBox(height: 10),
-
-        displayDoctorImage (imageBytes: _logobytes ),
-
-        const SizedBox(height: 20),
-
-        ElevatedButton(
-          onPressed: _isLoading ? null : _submit,
-          child: const Text("Update Info"),
-        ),
-      ],
-    ),
-  );
-}
+//             // ===========================
+//             // FULL-SCREEN LOADING OVERLAY
+//             // ===========================
+//             if (_isLoading)
+//               Positioned.fill(
+//                 child: LoadingOverlay(
+//                   isLoading: true,
+//                   message: "Updating…",
+//                 ),
+//               ),
+//           ],
+//         ),
+//       );
+//     },
+//   );
+// }
 
 
+// Widget _buildFormContent() {
+//   return Form(
+//     key: _formKey,
+//     child: Column(
+//       crossAxisAlignment: CrossAxisAlignment.stretch,
+//       children: [
+
+//         TextFormField(
+//           controller: _nameController,
+//           key: _nameKey,
+//           maxLength: 50,
+//           maxLengthEnforcement: MaxLengthEnforcement.enforced,
+//           decoration:  InputDecoration(labelText: 'Doctor Name', 
+//                                prefix: Padding(
+//                                 padding: EdgeInsets.only(right: 6),
+//                                 child: Text(
+//                                     "Dr.",
+//                               style: TextStyle(
+//                                 fontSize: 16,
+//                                 fontWeight: FontWeight.w600,
+//                               ),
+//                             ),
+//     ),
+//           ),
+//           validator: (v) => v!.isEmpty ? 'Required' : null,
+//         ),
+
+//         TextFormField(
+//           controller: _specController,
+//           key: _specKey,
+//           maxLength: 100,
+//           maxLengthEnforcement: MaxLengthEnforcement.enforced,
+//           decoration: const InputDecoration(labelText: 'Specialization'),
+//           validator: (v) => v!.isEmpty ? 'Required' : null,
+//         ),
+
+//         TextFormField(
+//           controller: _clinicNameController,
+//           key: _clinicNameKey,
+//           maxLength: 50,
+//           maxLengthEnforcement: MaxLengthEnforcement.enforced,
+//           decoration: const InputDecoration(labelText: 'Clinic Name'),
+//           validator: (v) => v!.isEmpty ? 'Required' : null,
+//         ),
+
+//         TextFormField(
+//           controller: _clinicAddressController,
+//           key: _clinicAddressKey,
+//           maxLength: 200,
+//           maxLengthEnforcement: MaxLengthEnforcement.enforced,
+//           decoration: const InputDecoration(labelText: 'Clinic Address'),
+//           validator: (v) => v!.isEmpty ? 'Required' : null,
+//         ),
+
+//         TextFormField(
+//           controller: _contactController,
+//           key: _contactKey,
+//           maxLength: 10,
+//           maxLengthEnforcement: MaxLengthEnforcement.enforced,
+//           decoration: const InputDecoration(labelText: 'Contact Details'),
+//           validator: Validator.apply(
+//             context,
+//             const [RequiredValidation(), NumericValidation()],
+//           ),
+//         ),
+
+//         TextFormField(
+//           controller: _loginEmailController,
+//           onChanged: (_) {
+//           if (_emailServerError != null) {
+//               setState(() => _emailServerError = null);
+//                }
+//             },
+//           key: _emailKey,
+//           maxLength: 50,
+//           maxLengthEnforcement: MaxLengthEnforcement.enforced,
+//           decoration: const InputDecoration(labelText: 'Login Email'),
+//           validator: Validator.apply(
+//             context,
+//              [const RequiredValidation(),  const EmailValidation(), 
+//              ServerValidation(() => _emailServerError)],
+//           ),
+//         ),
+
+//         const SizedBox(height: 12),
+
+//         SwitchListTile(
+//           title: const Text("Print on Letterhead"),
+//           value: _printLetterhead,
+//           onChanged: (val) => setState(() => _printLetterhead = val),
+//         ),
+
+//         ElevatedButton(
+//           onPressed: _pickImage,
+//           child: const Text("Select Logo"),
+//         ),
+// //info for logo selection 
+// if (_logoSizeBytes != null)
+//   Padding(
+//     padding: const EdgeInsets.only(top: 8),
+//     child: Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+
+//         Text(
+//           "Logo Size: ${(_logoSizeBytes! / 1024).toStringAsFixed(0)} KB",
+//         ),
+
+//         Text(
+//           "Dimensions: $_logoWidth × $_logoHeight",
+//         ),
+
+//         const Text(
+//           "Maximum logo size: 2 MB",
+//         ),
+
+//         const Text(
+//           "Recommended size: 500 × 500 pixels",
+//         ),
+
+//         const Text(
+//           "Images larger than 500 KB are automatically compressed.",
+//         ),
+//       ],
+//     ),
+//   ),
+// //End of info for logo selection
+//         const SizedBox(height: 10),
+
+//         displayDoctorImage (imageBytes: _logobytes ),
+
+//         const SizedBox(height: 20),
+
+//         ElevatedButton(
+//           onPressed: _isLoading ? null : _submit,
+//           child: const Text("Update Info"),
+//         ),
+//       ],
+//     ),
+//   );
+// }
 
 
-  Future<void> _scrollToFirstError() async {
-  await Future.delayed(const Duration(milliseconds: 50));
 
-  final fields = [
-    _nameKey,
-    _specKey,
-    _clinicNameKey,
-    _clinicAddressKey,
-    _contactKey,
-    _emailKey,
+
+//   Future<void> _scrollToFirstError() async {
+//   await Future.delayed(const Duration(milliseconds: 50));
+
+//   final fields = [
+//     _nameKey,
+//     _specKey,
+//     _clinicNameKey,
+//     _clinicAddressKey,
+//     _contactKey,
+//     _emailKey,
     
-  ];
+//   ];
 
-  for (final key in fields) {
-    final state = key.currentState;
-    final context = key.currentContext;
+//   for (final key in fields) {
+//     final state = key.currentState;
+//     final context = key.currentContext;
 
-    if (state != null && state.hasError && context != null) {
-      await Scrollable.ensureVisible(
-        context,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-        alignment: 0.3,
-      );
-      return;
-    }
-  }
-}
+//     if (state != null && state.hasError && context != null) {
+//       await Scrollable.ensureVisible(
+//         context,
+//         duration: const Duration(milliseconds: 500),
+//         curve: Curves.easeInOut,
+//         alignment: 0.3,
+//       );
+//       return;
+//     }
+//   }
+// }
 
-Future<void> _showSuccessPopup() async {
-  await showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (_) => AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text(
-        "Success",
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      content: const Text("Profile updated successfully!"),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(); // close popup ONLY
+// Future<void> _showSuccessPopup() async {
+//   await showDialog(
+//     context: context,
+//     barrierDismissible: false,
+//     builder: (_) => AlertDialog(
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+//       title: const Text(
+//         "Success",
+//         style: TextStyle(fontWeight: FontWeight.bold),
+//       ),
+//       content: const Text("Profile updated successfully!"),
+//       actions: [
+//         TextButton(
+//           onPressed: () {
+//             Navigator.of(context).pop(); // close popup ONLY
 
-            final menuState = Menubar.of(context);
+//             final menuState = Menubar.of(context);
 
-            if (menuState != null) {
-              menuState.changeScreen(const DoctorWelcomeScreen());
-            }
-          },
-          child: const Text("OK"),
-        ),
-      ],
-    ),
-  );
-}
-
-
+//             if (menuState != null) {
+//               menuState.changeScreen(const DoctorWelcomeScreen());
+//             }
+//           },
+//           child: const Text("OK"),
+//         ),
+//       ],
+//     ),
+//   );
+// }
 
 
 
 
-}
+
+
+// }
 

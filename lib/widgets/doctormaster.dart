@@ -1,136 +1,136 @@
-import 'package:docautomations/commonwidget/loadingOverlay.dart';
-import 'package:docautomations/services/license_api_service.dart';
-import 'package:docautomations/widgets/doctorinfo.dart';
-import 'package:docautomations/widgets/doctormasterscr.dart';
-import 'package:flutter/material.dart';
+// import 'package:docautomations/commonwidget/loadingOverlay.dart';
+// import 'package:docautomations/services/license_api_service.dart';
+// import 'package:docautomations/widgets/doctorinfo.dart';
+// import 'package:docautomations/widgets/doctormasterscr.dart';
+// import 'package:flutter/material.dart';
 
 
-class DoctorMaster extends StatefulWidget {
-   final String title;
-  const DoctorMaster({super.key, required this.title});
+// class DoctorMaster extends StatefulWidget {
+//    final String title;
+//   const DoctorMaster({super.key, required this.title});
 
-  @override
-  State<DoctorMaster> createState() => _DoctorMasterState();
-}
-
-
-  class _DoctorMasterState extends State<DoctorMaster> {
-
-    bool _isLoading = false;
-   DoctorInfo? _doctorInfo;
-  bool _loading = true;
-  String? _error;
-  @override
-  void initState() {
-    super.initState();
-    _loadLoggedInDoctor();
-  }
-  Future<void> _loadLoggedInDoctor() async {
-    try {
-      // Uses your authenticated GET -> /api/doctor/me
-      final doc = await LicenseApiService.fetchCurrentDoctor();
-      if (!mounted) return;
-
-      if (doc != null) {
-        setState(() {
-          _doctorInfo = doc;
-          _loading = false;
-        });
-      } else {
-        setState(() {
-          _error = "Couldn’t load doctor profile.";
-          _loading = false;
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _error = "Error loading profile: $e";
-        _loading = false;
-      });
-    }
-  }
-
-  
-Future<void> _handleUpdated(DoctorInfo updated) async {
-  setState(() => _isLoading = true);
-
-  try {
-    // Example: update on server
-    // final ok = await LicenseApiService.updateDoctorOnServer(updated);
-
-    await Future.delayed(const Duration(seconds: 2)); // simulate network call
-
-    // Update local doctor info
-    setState(() {
-      _doctorInfo = updated;
-    });
-
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   const SnackBar(content: Text("Doctor updated successfully.")),
-    // );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Update failed: $e")),
-    );
-  } finally {
-    setState(() => _isLoading = false);
-  }
-}
+//   @override
+//   State<DoctorMaster> createState() => _DoctorMasterState();
+// }
 
 
-  @override
- @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: Text(
-        widget.title,
-        style: Theme.of(context)
-            .textTheme
-            .titleLarge
-            ?.copyWith(color: Theme.of(context).colorScheme.onSecondary),
-      ),
-      backgroundColor: Theme.of(context).colorScheme.secondary,
-    ),
-    body: Stack(
-      children: [
-        // ✅ Main content
-        if (_loading)
-          const Center(child: CircularProgressIndicator())
-        else if (_error != null)
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(_error!, textAlign: TextAlign.center),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _error = null;
-                      _loading = true;
-                    });
-                    _loadLoggedInDoctor();
-                  },
-                  child: const Text("Retry"),
-                ),
-              ],
-            ),
-          )
-        else
-          DoctorMasterScr(
-            doctorInfo: _doctorInfo!,
-            onUpdated: _handleUpdated,
-          ),
+//   class _DoctorMasterState extends State<DoctorMaster> {
 
-        // ✅ Loader overlay
-        if (_isLoading)
-          LoadingOverlay(isLoading: _isLoading, message: "Loading...."),
-      ],
-    ),
-  );
-}
+//     bool _isLoading = false;
+//    DoctorInfo? _doctorInfo;
+//   bool _loading = true;
+//   String? _error;
+//   @override
+//   void initState() {
+//     super.initState();
+//     _loadLoggedInDoctor();
+//   }
+//   Future<void> _loadLoggedInDoctor() async {
+//     try {
+//       // Uses your authenticated GET -> /api/doctor/me
+//       final doc = await LicenseApiService.fetchCurrentDoctor();
+//       if (!mounted) return;
+
+//       if (doc != null) {
+//         setState(() {
+//           _doctorInfo = doc;
+//           _loading = false;
+//         });
+//       } else {
+//         setState(() {
+//           _error = "Couldn’t load doctor profile.";
+//           _loading = false;
+//         });
+//       }
+//     } catch (e) {
+//       if (!mounted) return;
+//       setState(() {
+//         _error = "Error loading profile: $e";
+//         _loading = false;
+//       });
+//     }
+//   }
 
   
-}
+// Future<void> _handleUpdated(DoctorInfo updated) async {
+//   setState(() => _isLoading = true);
+
+//   try {
+//     // Example: update on server
+//     // final ok = await LicenseApiService.updateDoctorOnServer(updated);
+
+//     await Future.delayed(const Duration(seconds: 2)); // simulate network call
+
+//     // Update local doctor info
+//     setState(() {
+//       _doctorInfo = updated;
+//     });
+
+//     // ScaffoldMessenger.of(context).showSnackBar(
+//     //   const SnackBar(content: Text("Doctor updated successfully.")),
+//     // );
+//   } catch (e) {
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(content: Text("Update failed: $e")),
+//     );
+//   } finally {
+//     setState(() => _isLoading = false);
+//   }
+// }
+
+
+//   @override
+//  @override
+// Widget build(BuildContext context) {
+//   return Scaffold(
+//     appBar: AppBar(
+//       title: Text(
+//         widget.title,
+//         style: Theme.of(context)
+//             .textTheme
+//             .titleLarge
+//             ?.copyWith(color: Theme.of(context).colorScheme.onSecondary),
+//       ),
+//       backgroundColor: Theme.of(context).colorScheme.secondary,
+//     ),
+//     body: Stack(
+//       children: [
+//         // ✅ Main content
+//         if (_loading)
+//           const Center(child: CircularProgressIndicator())
+//         else if (_error != null)
+//           Center(
+//             child: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               children: [
+//                 Text(_error!, textAlign: TextAlign.center),
+//                 const SizedBox(height: 12),
+//                 ElevatedButton(
+//                   onPressed: () {
+//                     setState(() {
+//                       _error = null;
+//                       _loading = true;
+//                     });
+//                     _loadLoggedInDoctor();
+//                   },
+//                   child: const Text("Retry"),
+//                 ),
+//               ],
+//             ),
+//           )
+//         else
+//           DoctorMasterScr(
+//             doctorInfo: _doctorInfo!,
+//             onUpdated: _handleUpdated,
+//           ),
+
+//         // ✅ Loader overlay
+//         if (_isLoading)
+//           LoadingOverlay(isLoading: _isLoading, message: "Loading...."),
+//       ],
+//     ),
+//   );
+// }
+
+  
+// }

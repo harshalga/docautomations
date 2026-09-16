@@ -1,469 +1,497 @@
 
-import 'package:docautomations/commonwidget/loadingOverlay.dart';
-import 'package:docautomations/services/auth_service.dart';
-import 'package:docautomations/services/license_api_service.dart';
-import 'package:docautomations/services/logger_service.dart';
-import 'package:docautomations/validationhandling/validator.dart';
-import 'package:docautomations/widgets/forgot_password_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:docautomations/validationhandling/validation.dart';
-import 'package:url_launcher/url_launcher.dart';
+// import 'package:docautomations/commonwidget/loadingOverlay.dart';
+// import 'package:docautomations/services/auth_service.dart';
+// import 'package:docautomations/services/license_api_service.dart';
+// import 'package:docautomations/services/logger_service.dart';
+// import 'package:docautomations/validationhandling/validator.dart';
+// import 'package:docautomations/widgets/forgot_password_screen.dart';
+// import 'package:flutter/material.dart';
+// import 'package:share_plus/share_plus.dart';
+// import 'package:docautomations/validationhandling/validation.dart';
+// import 'package:url_launcher/url_launcher.dart';
 
-class DoctorLoginScreen extends StatefulWidget {
-  final VoidCallback onLoginSuccess;
-  final VoidCallback onRegisterTap;
+// class DoctorLoginScreen extends StatefulWidget {
+//   final VoidCallback onLoginSuccess;
+//   final VoidCallback onRegisterTap;
 
-  const DoctorLoginScreen({
-    super.key,
-    required this.onLoginSuccess,
-    required this.onRegisterTap,
-  });
+//   const DoctorLoginScreen({
+//     super.key,
+//     required this.onLoginSuccess,
+//     required this.onRegisterTap,
+//   });
 
-  @override
-  State<DoctorLoginScreen> createState() =>
-      _DoctorLoginScreenState();
-}
+//   @override
+//   State<DoctorLoginScreen> createState() =>
+//       _DoctorLoginScreenState();
+// }
 
-class _DoctorLoginScreenState
-    extends State<DoctorLoginScreen> {
-  final TextEditingController
-      _usernameController =
-      TextEditingController();
+// class _DoctorLoginScreenState
+//     extends State<DoctorLoginScreen> {
+//   final TextEditingController
+//       _usernameController =
+//       TextEditingController();
 
-  final TextEditingController
-      _passwordController =
-      TextEditingController();
+//   final TextEditingController
+//       _passwordController =
+//       TextEditingController();
 
-  bool _loading = false;
-  bool _showPassword = false;
+//   bool _loading = false;
+//   bool _showPassword = false;
 
-  String? _usernameError;
-  String? _passwordError;
+//   String? _usernameError;
+//   String? _passwordError;
 
 
-// Future<void> _openDemoVideo() async {
-//   // Replace with your actual YouTube video ID
-//   const String videoId = "ZsmBEu_lzKw";
+// // Future<void> _openDemoVideo() async {
+// //   // Replace with your actual YouTube video ID
+// //   const String videoId = "ZsmBEu_lzKw";
 
-//   // Replace with your actual playlist ID
-//   const String playlistId = "PLLikLK39r_Zo";
+// //   // Replace with your actual playlist ID
+// //   const String playlistId = "PLLikLK39r_Zo";
 
-//   final Uri youtubeApp =
-//    Uri.parse("https://www.youtube.com/playlist?list=$playlistId");
-//       //Uri.parse("vnd.youtube://$videoId");
+// //   final Uri youtubeApp =
+// //    Uri.parse("https://www.youtube.com/playlist?list=$playlistId");
+// //       //Uri.parse("vnd.youtube://$videoId");
 
-//   final Uri youtubeWeb =
-//       Uri.parse("https://youtu.be/$videoId");
+// //   final Uri youtubeWeb =
+// //       Uri.parse("https://youtu.be/$videoId");
 
-//   if (await canLaunchUrl(youtubeApp)) {
-//     await launchUrl(
-//       youtubeApp,
+// //   if (await canLaunchUrl(youtubeApp)) {
+// //     await launchUrl(
+// //       youtubeApp,
+// //       mode: LaunchMode.externalApplication,
+// //     );
+// //   } else {
+// //     await launchUrl(
+// //       youtubeWeb,
+// //       mode: LaunchMode.externalApplication,
+// //     );
+// //   }
+// // }
+
+// Future<void> _openDemoPlaylist() async {
+//   const String playlistUrl =
+//       "https://www.youtube.com/playlist?list=PLLikLK39r_Zo";
+
+//   final Uri uri = Uri.parse(playlistUrl);
+
+//   try {
+//     final launched = await launchUrl(
+//       uri,
 //       mode: LaunchMode.externalApplication,
 //     );
-//   } else {
-//     await launchUrl(
-//       youtubeWeb,
-//       mode: LaunchMode.externalApplication,
+
+//     if (!launched) {
+//       throw Exception("Unable to launch YouTube.");
+//     }
+//   } catch (_) {
+//     if (!mounted) return;
+
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       const SnackBar(
+//         content: Text("Unable to open YouTube."),
+//       ),
 //     );
 //   }
 // }
 
-Future<void> _openDemoPlaylist() async {
-  const String playlistUrl =
-      "https://www.youtube.com/playlist?list=PLLikLK39r_Zo";
+//   // ==========================
+//   // VALIDATION
+//   // ==========================
+//   bool _validateFields() {
+//     final emailValidator =
+//         Validator.apply<String>(
+//       context,
+//       const [
+//         RequiredValidation(),
+//         EmailValidation(),
+//       ],
+//     );
 
-  final Uri uri = Uri.parse(playlistUrl);
+//     final passwordValidator =
+//         Validator.apply<String>(
+//       context,
+//       const [
+//         RequiredValidation(),
+//       ],
+//     );
 
-  try {
-    final launched = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
+//     final username =
+//         _usernameController.text.trim();
 
-    if (!launched) {
-      throw Exception("Unable to launch YouTube.");
-    }
-  } catch (_) {
-    if (!mounted) return;
+//     final password =
+//         _passwordController.text.trim();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Unable to open YouTube."),
-      ),
-    );
-  }
-}
+//     final usernameError =
+//         emailValidator(username);
 
-  // ==========================
-  // VALIDATION
-  // ==========================
-  bool _validateFields() {
-    final emailValidator =
-        Validator.apply<String>(
-      context,
-      const [
-        RequiredValidation(),
-        EmailValidation(),
-      ],
-    );
+//     final passwordError =
+//         passwordValidator(password);
 
-    final passwordValidator =
-        Validator.apply<String>(
-      context,
-      const [
-        RequiredValidation(),
-      ],
-    );
+//     setState(() {
+//       _usernameError = usernameError;
+//       _passwordError = passwordError;
+//     });
 
-    final username =
-        _usernameController.text.trim();
+//     return usernameError == null &&
+//         passwordError == null;
+//   }
 
-    final password =
-        _passwordController.text.trim();
+//   // ==========================
+//   // LOGIN
+//   // ==========================
+//   Future<void> _login() async {
+//     if (!_validateFields()) return;
 
-    final usernameError =
-        emailValidator(username);
+//     setState(() => _loading = true);
 
-    final passwordError =
-        passwordValidator(password);
+//     try {
+//       final tokens =
+//           await LicenseApiService
+//               .loginDoctor(
+//         _usernameController.text
+//             .trim(),
+//         _passwordController.text
+//             .trim(),
+//       );
 
-    setState(() {
-      _usernameError = usernameError;
-      _passwordError = passwordError;
-    });
+//       if (!mounted) return;
 
-    return usernameError == null &&
-        passwordError == null;
-  }
+//       setState(() => _loading = false);
 
-  // ==========================
-  // LOGIN
-  // ==========================
-  Future<void> _login() async {
-    if (!_validateFields()) return;
+//       if (tokens != null) {
+//         // ✅ Use AuthService
+//         await AuthService.saveTokens(
+//           accessToken:
+//               tokens["accessToken"] ??
+//                   "",
+//           refreshToken:
+//               tokens["refreshToken"] ??
+//                   "",
+//         );
 
-    setState(() => _loading = true);
+//         widget.onLoginSuccess();
+//       } else {
+//         setState(() {
+//           _passwordError =
+//               "Invalid username or password";
+//         });
+//       }
+//     } catch (e) {
+//       if (!mounted) return;
 
-    try {
-      final tokens =
-          await LicenseApiService
-              .loginDoctor(
-        _usernameController.text
-            .trim(),
-        _passwordController.text
-            .trim(),
-      );
+//       setState(() => _loading = false);
 
-      if (!mounted) return;
+//       setState(() {
+//         _passwordError =
+//             "Login failed";
+//       });
+//     }
+//   }
 
-      setState(() => _loading = false);
+//   @override
+//   void initState() {
+//     super.initState();
+//     _checkExistingLogin();
+//   }
 
-      if (tokens != null) {
-        // ✅ Use AuthService
-        await AuthService.saveTokens(
-          accessToken:
-              tokens["accessToken"] ??
-                  "",
-          refreshToken:
-              tokens["refreshToken"] ??
-                  "",
-        );
+//   // ==========================
+//   // AUTO LOGIN
+//   // ==========================
+//   Future<void>
+//       _checkExistingLogin() async {
+//     final token =
+//         await AuthService.getToken();
 
-        widget.onLoginSuccess();
-      } else {
-        setState(() {
-          _passwordError =
-              "Invalid username or password";
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
+//     final refreshToken =
+//         await AuthService
+//             .getRefreshToken();
 
-      setState(() => _loading = false);
+//     if (token != null) {
+//       final valid =
+//           await LicenseApiService
+//               .verifyToken();
 
-      setState(() {
-        _passwordError =
-            "Login failed";
-      });
-    }
-  }
+//       if (valid) {
+//         widget.onLoginSuccess();
+//         return;
+//       }
 
-  @override
-  void initState() {
-    super.initState();
-    _checkExistingLogin();
-  }
+//       // token invalid -> refresh
+//       if (refreshToken != null) {
+//         final refreshed =
+//             await AuthService
+//                 .refreshAccessToken();
 
-  // ==========================
-  // AUTO LOGIN
-  // ==========================
-  Future<void>
-      _checkExistingLogin() async {
-    final token =
-        await AuthService.getToken();
+//         if (refreshed) {
+//           widget.onLoginSuccess();
+//           return;
+//         }
+//       }
 
-    final refreshToken =
-        await AuthService
-            .getRefreshToken();
+//       await AuthService.logout();
+//     }
+//   }
 
-    if (token != null) {
-      final valid =
-          await LicenseApiService
-              .verifyToken();
+//   // ==========================
+//   // SHARE LOGS
+//   // ==========================
+//   Future<void> _shareLogs() async {
+//     try {
+//       final file =
+//           await LoggerService
+//               .getLogFile();
 
-      if (valid) {
-        widget.onLoginSuccess();
-        return;
-      }
+//       if (file == null) {
+//         ScaffoldMessenger.of(context)
+//             .showSnackBar(
+//           const SnackBar(
+//             content: Text(
+//               "No logs available",
+//             ),
+//           ),
+//         );
+//         return;
+//       }
 
-      // token invalid -> refresh
-      if (refreshToken != null) {
-        final refreshed =
-            await AuthService
-                .refreshAccessToken();
+//       await Share.shareXFiles(
+//         [XFile(file.path)],
+//         subject:
+//             "Prescriptor App – Login Logs",
+//         text:
+//             "Please find attached logs.",
+//       );
+//     } catch (_) {
+//       ScaffoldMessenger.of(context)
+//           .showSnackBar(
+//         const SnackBar(
+//           content:
+//               Text("Unable to share logs"),
+//         ),
+//       );
+//     }
+//   }
 
-        if (refreshed) {
-          widget.onLoginSuccess();
-          return;
-        }
-      }
+//   // ==========================
+//   // UI
+//   // ==========================
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title:
+//             const Text("Doctor Login"),
+//       ),
+//       body: Stack(
+//         children: [
+//           SingleChildScrollView(
+//             padding:
+//                 const EdgeInsets.all(
+//                     24),
+//             child: Column(
+//               children: [
+//                 const SizedBox(
+//                     height: 10),
 
-      await AuthService.logout();
-    }
-  }
+//                 Center(
+//                   child: ClipRRect(
+//                     borderRadius:
+//                         BorderRadius
+//                             .circular(
+//                                 50),
+//                     child:
+//                         Image.asset(
+//                       'assets/icon/app_logo.png',
+//                       width:150,
+//                       height: 150,
+//                       fit: BoxFit.cover,
+//                     ),
+//                   ),
+//                 ),
 
-  // ==========================
-  // SHARE LOGS
-  // ==========================
-  Future<void> _shareLogs() async {
-    try {
-      final file =
-          await LoggerService
-              .getLogFile();
+//                 const SizedBox(
+//                     height: 24),
 
-      if (file == null) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(
-          const SnackBar(
-            content: Text(
-              "No logs available",
-            ),
-          ),
-        );
-        return;
-      }
+//                     Text(
+//   "Already registered? Login below",
+//   style: TextStyle(
+//     fontSize: 16,
+//     fontWeight: FontWeight.w500,
+//   ),
+// ),
+//  const SizedBox(
+//                     height: 10),
 
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        subject:
-            "Prescriptor App – Login Logs",
-        text:
-            "Please find attached logs.",
-      );
-    } catch (_) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        const SnackBar(
-          content:
-              Text("Unable to share logs"),
-        ),
-      );
-    }
-  }
+//                 TextField(
+//                   controller:
+//                       _usernameController,
+//                   decoration:
+//                       InputDecoration(
+//                     labelText:
+//                         "User Email",
+//                     border:
+//                         const OutlineInputBorder(),
+//                     errorText:
+//                         _usernameError,
+//                   ),
+//                 ),
 
-  // ==========================
-  // UI
-  // ==========================
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title:
-            const Text("Doctor Login"),
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding:
-                const EdgeInsets.all(
-                    24),
-            child: Column(
-              children: [
-                const SizedBox(
-                    height: 10),
+//                 const SizedBox(
+//                     height: 16),
 
-                Center(
-                  child: ClipRRect(
-                    borderRadius:
-                        BorderRadius
-                            .circular(
-                                50),
-                    child:
-                        Image.asset(
-                      'assets/icon/app_logo.png',
-                      width:150,
-                      height: 150,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
+//                 TextField(
+//                   controller:
+//                       _passwordController,
+//                   obscureText:
+//                       !_showPassword,
+//                   decoration:
+//                       InputDecoration(
+//                     labelText:
+//                         "Password",
+//                     border:
+//                         const OutlineInputBorder(),
+//                     errorText:
+//                         _passwordError,
+//                     suffixIcon:
+//                         IconButton(
+//                       icon: Icon(
+//                         _showPassword
+//                             ? Icons
+//                                 .visibility
+//                             : Icons
+//                                 .visibility_off,
+//                       ),
+//                       onPressed: () {
+//                         setState(() {
+//                           _showPassword =
+//                               !_showPassword;
+//                         });
+//                       },
+//                     ),
+//                   ),
+//                 ),
 
-                const SizedBox(
-                    height: 24),
+//                 TextButton(
+//                   onPressed: () async {
+//                     final emailValidator = Validator.apply<String>(
+//                       context,
+//                       const [RequiredValidation(), EmailValidation()],
+//                     );
+//                     final email = _usernameController.text.trim();
+//                     final error = emailValidator(email);
 
-                    Text(
-  "Already registered? Login below",
-  style: TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w500,
-  ),
-),
- const SizedBox(
-                    height: 10),
+//                     if (error != null) {
+//                       setState(() {
+//                         _usernameError = error;
+//                       });
+//                       return;
+//                     }
+//                     setState(() => _loading = true);
+//                     final exists = await LicenseApiService.checkEmailExists(email);
 
-                TextField(
-                  controller:
-                      _usernameController,
-                  decoration:
-                      InputDecoration(
-                    labelText:
-                        "User Email",
-                    border:
-                        const OutlineInputBorder(),
-                    errorText:
-                        _usernameError,
-                  ),
-                ),
+//                     if (!mounted) return;
 
-                const SizedBox(
-                    height: 16),
+//                     setState(() => _loading = false);
 
-                TextField(
-                  controller:
-                      _passwordController,
-                  obscureText:
-                      !_showPassword,
-                  decoration:
-                      InputDecoration(
-                    labelText:
-                        "Password",
-                    border:
-                        const OutlineInputBorder(),
-                    errorText:
-                        _passwordError,
-                    suffixIcon:
-                        IconButton(
-                      icon: Icon(
-                        _showPassword
-                            ? Icons
-                                .visibility
-                            : Icons
-                                .visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _showPassword =
-                              !_showPassword;
-                        });
-                      },
-                    ),
-                  ),
-                ),
+//                     if (!exists) {
+//                       setState(() {
+//                         _usernameError = "Email is not registered";
+//                       });
+//                       return;
+//                     }
+//                     Navigator.push(
+//                       context,
+//                       MaterialPageRoute(
+//                         builder: (_) =>
+//                             ForgotPasswordScreen(
+//                           loginEmailId:
+//                               email,
+//                         ),
+//                       ),
+//                     );
+//                   },
+//                   child: const Text(
+//                     "Forgot Password?",
+//                   ),
+//                 ),
 
-                TextButton(
-                  onPressed: () async {
-                    final emailValidator = Validator.apply<String>(
-                      context,
-                      const [RequiredValidation(), EmailValidation()],
-                    );
-                    final email = _usernameController.text.trim();
-                    final error = emailValidator(email);
+//                 const SizedBox(
+//                     height: 5),
 
-                    if (error != null) {
-                      setState(() {
-                        _usernameError = error;
-                      });
-                      return;
-                    }
-                    setState(() => _loading = true);
-                    final exists = await LicenseApiService.checkEmailExists(email);
-
-                    if (!mounted) return;
-
-                    setState(() => _loading = false);
-
-                    if (!exists) {
-                      setState(() {
-                        _usernameError = "Email is not registered";
-                      });
-                      return;
-                    }
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ForgotPasswordScreen(
-                          loginEmailId:
-                              email,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    "Forgot Password?",
-                  ),
-                ),
-
-                const SizedBox(
-                    height: 5),
-
-                ElevatedButton(
-                  onPressed: _login,
-                  child: const Text(
-                      "Login"),
-                ),
+//                 ElevatedButton(
+//                   onPressed: _login,
+//                   child: const Text(
+//                       "Login"),
+//                 ),
 
                
 
-                const SizedBox(height: 10),
+//                 const SizedBox(height: 10),
 
-// OutlinedButton.icon(
-//   onPressed: widget.onRegisterTap,
-//   icon: const Icon(Icons.person_add),
-//   label: const Text(
-//     "New Doctor? Register Here",
-//     style: TextStyle(
-//       fontWeight: FontWeight.bold,
-//     ),
-//   ),
-// ),
+// // OutlinedButton.icon(
+// //   onPressed: widget.onRegisterTap,
+// //   icon: const Icon(Icons.person_add),
+// //   label: const Text(
+// //     "New Doctor? Register Here",
+// //     style: TextStyle(
+// //       fontWeight: FontWeight.bold,
+// //     ),
+// //   ),
+// // ),
 
+// // SizedBox(
+// //   width: double.infinity,
+// //   child: OutlinedButton.icon(
+// //     onPressed: widget.onRegisterTap,
+// //     icon: const Icon(Icons.person_add_alt_1),
+// //     label: const Text(
+// //       "New Doctor? Register Here",
+// //     ),
+// //     style: OutlinedButton.styleFrom(
+// //       backgroundColor:
+// //           Theme.of(context)
+// //               .colorScheme
+// //               .primary
+// //               .withOpacity(0.06),
+// //       foregroundColor:
+// //           Theme.of(context)
+// //               .colorScheme
+// //               .primary,
+// //       side: BorderSide(
+// //         color: Theme.of(context)
+// //             .colorScheme
+// //             .primary,
+// //       ),
+// //       shape: RoundedRectangleBorder(
+// //         borderRadius: BorderRadius.circular(14),
+// //       ),
+// //       padding: const EdgeInsets.symmetric(
+// //         vertical: 14,
+// //       ),
+// //     ),
+// //   ),
+// // ),
+
+
+
+// //eye cachy second ver 
 // SizedBox(
 //   width: double.infinity,
-//   child: OutlinedButton.icon(
+//   height: 56,
+//   child: ElevatedButton.icon(
 //     onPressed: widget.onRegisterTap,
 //     icon: const Icon(Icons.person_add_alt_1),
 //     label: const Text(
 //       "New Doctor? Register Here",
-//     ),
-//     style: OutlinedButton.styleFrom(
-//       backgroundColor:
-//           Theme.of(context)
-//               .colorScheme
-//               .primary
-//               .withOpacity(0.06),
-//       foregroundColor:
-//           Theme.of(context)
-//               .colorScheme
-//               .primary,
-//       side: BorderSide(
-//         color: Theme.of(context)
-//             .colorScheme
-//             .primary,
+//       style: TextStyle(
+//         fontSize: 16,
+//         fontWeight: FontWeight.bold,
 //       ),
+//     ),
+//     style: ElevatedButton.styleFrom(
+//       elevation: 2,
 //       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.circular(14),
+//         borderRadius: BorderRadius.circular(12),
 //       ),
 //       padding: const EdgeInsets.symmetric(
 //         vertical: 14,
@@ -471,135 +499,107 @@ Future<void> _openDemoPlaylist() async {
 //     ),
 //   ),
 // ),
+// //first version ..
+// // SizedBox(
+// //   width: double.infinity,
+// //   height: 52,
+// //   child: OutlinedButton.icon(
+// //     onPressed: widget.onRegisterTap,
+// //     icon: const Icon(Icons.person_add_alt_1),
+// //     label: const Text(
+// //       "New Doctor? Register Here",
+// //       style: TextStyle(
+// //         fontSize: 16,
+// //         fontWeight: FontWeight.w600,
+// //       ),
+// //     ),
+// //     style: OutlinedButton.styleFrom(
+// //       foregroundColor: Theme.of(context).colorScheme.primary,
+// //       side: BorderSide(
+// //         color: Theme.of(context).colorScheme.primary,
+// //         width: 1.5,
+// //       ),
+// //       shape: RoundedRectangleBorder(
+// //         borderRadius: BorderRadius.circular(12),
+// //       ),
+// //     ),
+// //   ),
+// // ),
 
+// const SizedBox(height: 12),
 
-
-//eye cachy second ver 
-SizedBox(
-  width: double.infinity,
-  height: 56,
-  child: ElevatedButton.icon(
-    onPressed: widget.onRegisterTap,
-    icon: const Icon(Icons.person_add_alt_1),
-    label: const Text(
-      "New Doctor? Register Here",
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    style: ElevatedButton.styleFrom(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.symmetric(
-        vertical: 14,
-      ),
-    ),
-  ),
-),
-//first version ..
-// SizedBox(
-//   width: double.infinity,
-//   height: 52,
-//   child: OutlinedButton.icon(
-//     onPressed: widget.onRegisterTap,
-//     icon: const Icon(Icons.person_add_alt_1),
-//     label: const Text(
-//       "New Doctor? Register Here",
+// Card(
+//   color: Colors.red.shade50,
+//   child: ListTile(
+//     leading: const Icon(
+//       Icons.play_circle_fill,
+//       color: Colors.red,
+//       size: 36,
+//     ),
+//     title: const Text(
+//       "Watch App Demo",
 //       style: TextStyle(
-//         fontSize: 16,
-//         fontWeight: FontWeight.w600,
+//         fontWeight: FontWeight.bold,
 //       ),
 //     ),
-//     style: OutlinedButton.styleFrom(
-//       foregroundColor: Theme.of(context).colorScheme.primary,
-//       side: BorderSide(
-//         color: Theme.of(context).colorScheme.primary,
-//         width: 1.5,
-//       ),
-//       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.circular(12),
+//     subtitle: const Text(
+//       "See how to create prescriptions in just 2 minutes",
+//     ),
+//     trailing: const Icon(Icons.arrow_forward_ios),
+//     onTap: _openDemoPlaylist,
+//   ),
+// ),
+// const SizedBox(height: 10),
+
+// Card(
+//   color:  Colors.blue.shade50,
+//   child: ListTile(
+//     leading: const Icon(
+//       Icons.support_agent,
+//       color:  Color.fromARGB(255, 30, 124, 218),
+//     ),
+//     title: const Text(
+//       "Login Problem?",
+//       style: TextStyle(
+//         fontWeight: FontWeight.bold,
 //       ),
 //     ),
+//     subtitle: const Text(
+//       "Tap here to send logs to support",
+//     ),
+//     trailing: const Icon(Icons.arrow_forward_ios),
+//     onTap: _shareLogs,
 //   ),
 // ),
 
-const SizedBox(height: 12),
+//                 // TextButton.icon(
+//                 //   icon: const Icon(Icons
+//                 //       .email_outlined),
+//                 //   label: const Text(
+//                 //     "Having trouble logging in? Share logs with support",
+//                 //   ),
+//                 //   onPressed:
+//                 //       _shareLogs,
+//                 // ),
 
-Card(
-  color: Colors.red.shade50,
-  child: ListTile(
-    leading: const Icon(
-      Icons.play_circle_fill,
-      color: Colors.red,
-      size: 36,
-    ),
-    title: const Text(
-      "Watch App Demo",
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    subtitle: const Text(
-      "See how to create prescriptions in just 2 minutes",
-    ),
-    trailing: const Icon(Icons.arrow_forward_ios),
-    onTap: _openDemoPlaylist,
-  ),
-),
-const SizedBox(height: 10),
+//                 // TextButton(
+//                 //   onPressed: widget
+//                 //       .onRegisterTap,
+//                 //   child: const Text(
+//                 //     "New user? Register here",
+//                 //   ),
+//                 // ),
+//               ],
+//             ),
+//           ),
 
-Card(
-  color:  Colors.blue.shade50,
-  child: ListTile(
-    leading: const Icon(
-      Icons.support_agent,
-      color:  Color.fromARGB(255, 30, 124, 218),
-    ),
-    title: const Text(
-      "Login Problem?",
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    subtitle: const Text(
-      "Tap here to send logs to support",
-    ),
-    trailing: const Icon(Icons.arrow_forward_ios),
-    onTap: _shareLogs,
-  ),
-),
-
-                // TextButton.icon(
-                //   icon: const Icon(Icons
-                //       .email_outlined),
-                //   label: const Text(
-                //     "Having trouble logging in? Share logs with support",
-                //   ),
-                //   onPressed:
-                //       _shareLogs,
-                // ),
-
-                // TextButton(
-                //   onPressed: widget
-                //       .onRegisterTap,
-                //   child: const Text(
-                //     "New user? Register here",
-                //   ),
-                // ),
-              ],
-            ),
-          ),
-
-          LoadingOverlay(
-            isLoading: _loading,
-            message:
-                "Logging in…",
-          ),
-        ],
-      ),
-    );
-  }
-}
+//           LoadingOverlay(
+//             isLoading: _loading,
+//             message:
+//                 "Logging in…",
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

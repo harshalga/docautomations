@@ -1,198 +1,367 @@
-import 'dart:convert';
-import 'package:docautomations/common/appcolors.dart';
-import 'package:docautomations/common/appconstants.dart';
-import 'package:docautomations/common/licenseprovider.dart';
-import 'package:docautomations/common/medicineType.dart';
-import 'package:docautomations/commonwidget/loadingOverlay.dart';
-import 'package:docautomations/commonwidget/trialbanner.dart';
-import 'package:docautomations/datamodels/prescriptionData.dart';
-import 'package:docautomations/services/doctor_api_service.dart';
-import 'package:docautomations/services/logo_service.dart';
-import 'package:docautomations/widgets/AddPrescription.dart';
-import 'package:docautomations/widgets/PatientInfo.dart';
-import 'package:docautomations/widgets/doctorinfo.dart';
-import 'package:docautomations/widgets/print_preview_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'dart:convert';
 
-class Addprescriptionscr extends StatefulWidget {
-  //final String title;
-  const Addprescriptionscr({super.key});
+// import 'package:docautomations/common/appcolors.dart';
+// import 'package:docautomations/common/appconstants.dart';
+// import 'package:docautomations/common/medicineType.dart';
 
-  @override
-  State<Addprescriptionscr> createState() => _AddprescriptionscrState();
-}
+// import 'package:docautomations/commonwidget/loadingOverlay.dart';
 
-class _AddprescriptionscrState extends State<Addprescriptionscr> {
-  final _formKey = GlobalKey<FormState>();
-  final nameFieldKey = GlobalKey();
-  final ageFieldKey = GlobalKey();
-  final ScrollController _scrollController = ScrollController();
+// import 'package:docautomations/datamodels/master/patient.dart';
+// import 'package:docautomations/datamodels/master/patient_doctor.dart';
+// import 'package:docautomations/datamodels/master/patient_mode.dart';
+// import 'package:docautomations/datamodels/prescriptionData.dart';
 
-  final GlobalKey<PatientinfoState> _patientInfoKey = GlobalKey<PatientinfoState>();
+// import 'package:docautomations/controllers/add_prescription_controller.dart';
 
-  // Keys for specific form fields INSIDE Patientinfo
-final GlobalKey<FormFieldState<String>> _nameFieldKey =
-    GlobalKey<FormFieldState<String>>();
-final GlobalKey<FormFieldState<String>> _ageFieldKey =
-    GlobalKey<FormFieldState<String>>();
-  final bool _canGeneratePdf = true;
-  bool _printLetterhead = true;
+// import 'package:docautomations/repositories/prescription_repository.dart';
 
-  bool _isLoading = false;
-  bool _canGenerateNext = false;
-  Uint8List? _doctorLogo;
-  DoctorInfo? _doctorInfo;
+// import 'package:docautomations/widgets/AddPrescription.dart';
+// import 'package:docautomations/widgets/PatientInfo.dart';
+// import 'package:docautomations/widgets/doctorinfo.dart';
+// import 'package:docautomations/widgets/print_preview_screen.dart';
 
-  /// Medicine type list
-  final List<MedicineType> types = [
-    MedicineType("Tablet",
-    Image.asset(
-    "assets/icon/tablet.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  ),
-     "mg"),
-    MedicineType("Capsule",
-     //Icons.medication_liquid
-     Image.asset(
-    "assets/icon/capsule.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  )
-    ,
-      "mg"),
-    MedicineType("Syrup", 
-     Image.asset(
-    "assets/icon/bottle.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  )
+// import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
+
+// import 'package:pdf/pdf.dart';
+// import 'package:pdf/widgets.dart' as pw;
+
+// import 'package:intl/intl.dart';
+// import 'package:provider/provider.dart';
+
+// class Addprescriptionscr extends StatefulWidget {
+//   //===========================================================================
+//   // Patient Context
+//   //===========================================================================
+
+//   final PatientMode mode;
+
+//   final Patient? patient;
+
+//   final PatientDoctor? patientDoctor;
+
+
+//   //===========================================================================
+//   // Constructor
+//   //===========================================================================
+
+//   const Addprescriptionscr({
+//     super.key,
+//     required this.mode,
+//     this.patient,
+//     this.patientDoctor,
+//   });
+
+
+//   @override
+//   State<Addprescriptionscr> createState() =>
+//       _AddprescriptionscrState();
+// }
+
+// class _AddprescriptionscrState extends State<Addprescriptionscr> {
+//   //===========================================================================
+//   // Form
+//   //===========================================================================
+
+//   final _formKey =
+//       GlobalKey<FormState>();
+
+//   final ScrollController _scrollController =
+//       ScrollController();
+
+//   final GlobalKey<PatientinfoState>
+//       _patientInfoKey =
+//           GlobalKey<PatientinfoState>();
+
+//   final GlobalKey<FormFieldState<String>>
+//       _nameFieldKey =
+//           GlobalKey<FormFieldState<String>>();
+
+//   final GlobalKey<FormFieldState<String>>
+//       _ageFieldKey =
+//           GlobalKey<FormFieldState<String>>();
+
+//           //===========================================================================
+//   // Controller
+//   //===========================================================================
+
+//   AddPrescriptionController? _controller;
+//   //===========================================================================
+//   // UI State
+//   //===========================================================================
+//   bool _isLoading = false;
+
+//   bool _canGeneratePdf = true;
+
+//   bool _printLetterhead = true;
+//   bool _canGenerateNext = false;
+
+//   //===========================================================================
+//   // Doctor Information
+//   //===========================================================================
+//   //
+//   // This is temporarily retained because the current PDF generator still
+//   // expects DoctorInfo.
+//   //
+//   // It will subsequently be replaced by DoctorProfile supplied by the
+//   // application bootstrap layer.
+//   //
+//   // Do NOT load it through LicenseApiService.
+//   //
+//   //===========================================================================
+
+//   Uint8List? _doctorLogo;
+//   DoctorInfo? _doctorInfo;
+
+//   /// Medicine type list
+//   final List<MedicineType> types = [
+//     MedicineType("Tablet",
+//     Image.asset(
+//     "assets/icon/tablet.png",
+//     width: 28,
+//     height: 28,
+//     fit: BoxFit.contain,
+//   ),
+//      "mg"),
+//     MedicineType("Capsule",
+//      //Icons.medication_liquid
+//      Image.asset(
+//     "assets/icon/capsule.png",
+//     width: 28,
+//     height: 28,
+//     fit: BoxFit.contain,
+//   )
+//     ,
+//       "mg"),
+//     MedicineType("Syrup", 
+//      Image.asset(
+//     "assets/icon/bottle.png",
+//     width: 28,
+//     height: 28,
+//     fit: BoxFit.contain,
+//   )
      
-    , "ml"),
-    MedicineType("Ointment",
-     Image.asset(
-    "assets/icon/ointment.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  )
-    , "gm"),
-    MedicineType("Injection", 
-     Image.asset(
-    "assets/icon/injection.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  )
-    , "ml"),
-    MedicineType("Inhalation", 
+//     , "ml"),
+//     MedicineType("Ointment",
+//      Image.asset(
+//     "assets/icon/ointment.png",
+//     width: 28,
+//     height: 28,
+//     fit: BoxFit.contain,
+//   )
+//     , "gm"),
+//     MedicineType("Injection", 
+//      Image.asset(
+//     "assets/icon/injection.png",
+//     width: 28,
+//     height: 28,
+//     fit: BoxFit.contain,
+//   )
+//     , "ml"),
+//     MedicineType("Inhalation", 
     
-    Image.asset(
-    "assets/icon/inhaler.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  )
-  , "puffs"),
-    MedicineType("Drops", 
-     Image.asset(
-    "assets/icon/eye-dropper.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  )
-    , "drops"),
-    MedicineType("Others", 
-     Image.asset(
-    "assets/icon/first-aid-kit.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  )
-    , ""), // no unit needed
-  ];
+//     Image.asset(
+//     "assets/icon/inhaler.png",
+//     width: 28,
+//     height: 28,
+//     fit: BoxFit.contain,
+//   )
+//   , "puffs"),
+//     MedicineType("Drops", 
+//      Image.asset(
+//     "assets/icon/eye-dropper.png",
+//     width: 28,
+//     height: 28,
+//     fit: BoxFit.contain,
+//   )
+//     , "drops"),
+//     MedicineType("Others", 
+//      Image.asset(
+//     "assets/icon/first-aid-kit.png",
+//     width: 28,
+//     height: 28,
+//     fit: BoxFit.contain,
+//   )
+//     , ""), // no unit needed
+//   ];
 
-  String _unitForType(String medicine) {
-    return types.firstWhere((e) => e.name == medicine).unit;
-  }
+//   //===========================================================================
+//   // Helpers
+//   //===========================================================================
 
-  final List<Prescriptiondata> _prescriptions = [];
+//   String _unitForType(
+//     String medicineType,
+//   ) {
 
-  @override
-  void initState() {
-    super.initState();
-    _loadDoctorInfo();
-  }
+//     final match =
+//         types.where(
+//       (type) =>
+//           type.name == medicineType,
+//     );
 
-  // ===================================================================
-  //  LOAD DOCTOR PROFILE ONLY ONCE
-  // ===================================================================
-  Future<void> _loadDoctorInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-    final stored = prefs.getString("doctor_profile");
-    DoctorInfo? doctor;
+//     if (match.isEmpty) {
+//       return "";
+//     }
+
+//     return match.first.unit;
+//   }
+
+//   //===========================================================================
+//   // Controller Access
+//   //===========================================================================
+
+//   AddPrescriptionController get controller =>
+//       _controller!;
+
+
+//        //===========================================================================
+//   // Initialization
+//   //===========================================================================
+
+//   @override
+//   void didChangeDependencies() {
+
+//     super.didChangeDependencies();
+
+//     if (_controller != null) {
+//       return;
+//     }
+
+//     final prescriptionRepository =
+//         context.read<PrescriptionRepository>();
+
+//     _controller =
+//         AddPrescriptionController(
+//       mode: widget.mode,
+//       patient: widget.patient,
+//       patientDoctor: widget.patientDoctor,
+//       prescriptionRepository:
+//           prescriptionRepository,
+//     );
+
+//     _initializeController();
+//   }
+//    //===========================================================================
+//   // Initialize Controller
+//   //===========================================================================
+
+//   Future<void> _initializeController() async {
+
+//     try {
+
+//       await controller.initialize();
+
+//       if (!mounted) {
+//         return;
+//       }
+
+//       setState(() {});
+
+//     }
+//     catch (error) {
+
+//       if (!mounted) {
+//         return;
+//       }
+
+//       ScaffoldMessenger.of(context)
+//           .showSnackBar(
+//         SnackBar(
+//           content: Text(
+//             "Unable to initialize prescription: $error",
+//           ),
+//         ),
+//       );
+//     }
+//   }
+
+//   //final List<Prescriptiondata> _prescriptions = [];
+//   List<Prescriptiondata> get _prescriptions =>
+//     controller.prescriptions;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _loadDoctorInfo();
+//   }
+// //===========================================================================
+//   // Dispose
+//   //===========================================================================
+
+//   @override
+//   void dispose() {
+
+//     _scrollController.dispose();
+
+//     _controller?.dispose();
+
+//     super.dispose();
+//   }
+//   // ===================================================================
+//   //  LOAD DOCTOR PROFILE ONLY ONCE
+//   // ===================================================================
+//   Future<void> _loadDoctorInfo() async {
+//     ///final prefs = await SharedPreferences.getInstance();
+//     final applicationProvider = context.read<ApplicationProvider>();
+
+//     final masterData = applicationProvider.masterData; if (masterData == null) { return; }
+
+//     final stored = prefs.getString("doctor_profile");
+//     DoctorInfo? doctor;
      
 
-    if (stored != null && stored.trim().isNotEmpty) {
-      try 
-      {
-      final data = jsonDecode(stored);
-      if (data is Map<String, dynamic>) {
-        doctor = DoctorInfo.fromJson(data);
-      }
+//     if (stored != null && stored.trim().isNotEmpty) {
+//       try 
+//       {
+//       final data = jsonDecode(stored);
+//       if (data is Map<String, dynamic>) {
+//         doctor = DoctorInfo.fromJson(data);
+//       }
       
-      }
-      catch(e) {
-      print("❌ Corrupted doctor_profile JSON → clearing it");
-      prefs.remove("doctor_profile");
-    }
-    } else {
-      final apiData = await LicenseApiService.fetchDoctorProfile();
-      if (apiData != null && apiData["doctor"] != null) {
-        doctor = DoctorInfo.fromJson(apiData["doctor"]);
-        await prefs.setString("doctor_profile", jsonEncode(doctor.toJson()));
-      }
-    }
+//       }
+//       catch(e) {
+//       print("❌ Corrupted doctor_profile JSON → clearing it");
+//       prefs.remove("doctor_profile");
+//     }
+//     } else {
+//       final apiData = await LicenseApiService.fetchDoctorProfile();
+//       if (apiData != null && apiData["doctor"] != null) {
+//         doctor = DoctorInfo.fromJson(apiData["doctor"]);
+//         await prefs.setString("doctor_profile", jsonEncode(doctor.toJson()));
+//       }
+//     }
 
-  //logo
-  // -----------------------------
-  // Load Logo (LogoService handles
-  // cache + download automatically)
-  // -----------------------------
-    final logoBytes = await LogoService.getLogo();  
+//   //logo
+//   // -----------------------------
+//   // Load Logo (LogoService handles
+//   // cache + download automatically)
+//   // -----------------------------
+//     final logoBytes = await LogoService.getLogo();  
 
-    if (!mounted) return;
-    setState(() {
-      _doctorInfo = doctor;
-      _doctorLogo = logoBytes; // Use the bytes from LogoService    
-      if (doctor != null) {
-      _printLetterhead = doctor.printLetterhead ?? true ;     
-      }
-    });
-  }
+//     if (!mounted) return;
+//     setState(() {
+//       _doctorInfo = doctor;
+//       _doctorLogo = logoBytes; // Use the bytes from LogoService    
+//       if (doctor != null) {
+//       _printLetterhead = doctor.printLetterhead ?? true ;     
+//       }
+//     });
+//   }
 
-  // ===================================================================
-  //  RESET FORM (NO REBUILD OF PATIENTINFO)
-  // ===================================================================
-  void _resetPrescriptionForm() {
-    _prescriptions.clear();
-    _patientInfoKey.currentState?.clearFields();
-    setState(() {
-      _canGenerateNext = false;
-    });
-  }
+//   // ===================================================================
+//   //  RESET FORM (NO REBUILD OF PATIENTINFO)
+//   // ===================================================================
+//   void _resetPrescriptionForm() {
 
-///old generatePrescriptionPdf function with signature below the line in the footer
-///void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
+//   controller.resetPrescription();
+
+//   _patientInfoKey.currentState?.clearFields();
+
+//   setState(() {});
+// }
+
+
+// void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
 //   setState(() => _isLoading = true);
 
 //   final p = _patientInfoKey.currentState!;
@@ -216,6 +385,12 @@ final GlobalKey<FormFieldState<String>> _ageFieldKey =
 //   final diagnosis = p.diagnoscontroller.text;
 //   final remarks = p.remarkscontroller.text;
 //   final nextDate = p.followupDatecontroller.text;
+//   final qrCode = pw.BarcodeWidget(
+//   barcode: pw.Barcode.qrCode(),
+//   data:  AppConstants.playStoreUrl,
+//   width: 60,
+//   height: 60,
+// );
 
 //   final formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
 
@@ -230,7 +405,7 @@ final GlobalKey<FormFieldState<String>> _ageFieldKey =
 //         if (!_printLetterhead) {
 //           return pw.Column(
 //             children: [
-//               pw.SizedBox(height: 100),
+//               pw.SizedBox(height: 160),
 //               pw.Divider(),
 //             ],
 //           );
@@ -271,33 +446,139 @@ final GlobalKey<FormFieldState<String>> _ageFieldKey =
 //       },
 
 //       // ---------------- FOOTER ----------------
-//       footer: (context) => pw.Column(
-//   children: [
-//     pw.Divider(),
+// //      footer: (context) => pw.Column(
+// //   children: [
 
-//     pw.Center(
-//       child: pw.Text(
-//         "Page ${context.pageNumber} of ${context.pagesCount}",
-//         style: const pw.TextStyle(fontSize: 10),
-//       ),
-//     ),
+// //     if (context.pageNumber == context.pagesCount)
+// //       pw.Align(
+// //         alignment: pw.Alignment.centerRight,
+// //         child: pw.Column(
+// //           children: [
+
+// //             // Blank space for actual signature
+// //             pw.SizedBox(height: 35),
+
+// //             pw.Container(
+// //               width: 140,
+// //               child: pw.Divider(thickness: 1),
+// //             ),
+
+// //             pw.Text(
+// //               "Doctor's Signature",
+// //               style: const pw.TextStyle(fontSize: 10),
+// //             ),
+
+// //             pw.SizedBox(height: 10),
+// //           ],
+// //         ),
+// //       ),
+
+// //     pw.Divider(),
+
+// //     pw.Center(
+// //       child: pw.Text(
+// //         "Page ${context.pageNumber} of ${context.pagesCount}",
+// //         style: const pw.TextStyle(fontSize: 10),
+// //       ),
+// //     ),
+// //   ],
+// // ),
+
+// footer: (context) => pw.Column(
+//   children: [
+
+//     // ============================================================
+//     // Doctor Signature (Prescription ends here)
+//     // ============================================================
 
 //     if (context.pageNumber == context.pagesCount)
 //       pw.Align(
 //         alignment: pw.Alignment.centerRight,
-//         child: pw.Padding(
-//           padding: const pw.EdgeInsets.only(top: 8),
-//           child: pw.Text(
-//             "Signature",
-//             style: pw.TextStyle(
-//               fontSize: 14,
-//               fontWeight: pw.FontWeight.bold,
+//         child: pw.Column(
+//           children: [
+
+//             pw.SizedBox(height: 35),
+
+//             pw.Container(
+//               width: 140,
+//               child: pw.Divider(thickness: 1),
 //             ),
-//           ),
+
+//             pw.Text(
+//               "Doctor's Signature",
+//               style: const pw.TextStyle(fontSize: 10),
+//             ),
+
+//             pw.SizedBox(height: 8),
+//           ],
 //         ),
 //       ),
+
+//     // Divider separating prescription from advertisement
+//     pw.Divider(),
+
+//     // ============================================================
+//     // Advertisement (Last page only)
+//     // ============================================================
+
+//     if (context.pageNumber == context.pagesCount)
+//       pw.Container(
+//         padding: const pw.EdgeInsets.symmetric(vertical: 6),
+//         child: pw.Row(
+//           crossAxisAlignment: pw.CrossAxisAlignment.center,
+//           children: [
+
+//             qrCode,
+
+//             pw.SizedBox(width: 12),
+
+//             pw.Expanded(
+//               child: pw.Column(
+//                 crossAxisAlignment: pw.CrossAxisAlignment.start,
+//                 children: [
+
+//                   pw.Text(
+//                     "Digitally generated using Prescriptor®",
+//                     style: pw.TextStyle(
+//                       fontSize: 10,
+//                       fontWeight: pw.FontWeight.bold,
+//                       color: PdfColors.blue700,
+//                     ),
+//                   ),
+
+//                   pw.SizedBox(height: 2),
+
+//                   pw.Text(
+//                     "Helping healthcare professionals create clear, professional and paper-efficient prescriptions.",
+//                     style: const pw.TextStyle(fontSize: 8),
+//                   ),
+
+//                   pw.Text(
+//                     "Have your doctor scan the QR code to download the Prescriptor App.",
+//                     style: const pw.TextStyle(fontSize: 8),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+
+//     pw.Divider(),
+
+//     // ============================================================
+//     // Page Number
+//     // ============================================================
+
+//     pw.Center(
+//       child: pw.Text(
+//         "Page ${context.pageNumber} of ${context.pagesCount}",
+//         style: const pw.TextStyle(fontSize: 9),
+//       ),
+//     ),
 //   ],
 // ),
+// //------footer ends here
 
 
 
@@ -405,701 +686,388 @@ final GlobalKey<FormFieldState<String>> _ageFieldKey =
 
 //   setState(() => _isLoading = false);
 // }
-///
 
 
-void generatePrescriptionPdf(DoctorInfo doctorInfo) async {
-  setState(() => _isLoading = true);
 
-  final p = _patientInfoKey.currentState!;
-  final pdf = pw.Document();
 
-  final fontRegular =
-      pw.Font.ttf(await rootBundle.load("assets/fonts/Roboto-Regular.ttf"));
-  final fontBold =
-      pw.Font.ttf(await rootBundle.load("assets/fonts/Roboto-Bold.ttf"));
+//   pw.Widget _section(String title, String value) {
+//     if (value.trim().isEmpty) return pw.SizedBox();
+//     return pw.Column(
+//       crossAxisAlignment: pw.CrossAxisAlignment.start,
+//       children: [
+//         pw.Text(title,
+//             style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+//         pw.Text(value),
+//         pw.SizedBox(height: 10),
+//       ],
+//     );
+//   }
 
-  final theme = pw.ThemeData.withFont(
-    base: fontRegular,
-    bold: fontBold,
-  );
+//   pw.Widget _cell(String? text) =>
+//       pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Text(text ?? "", ));
 
-  final name = p.tabNameController.text;
-  final age = p.ageController.text;
-  final gender = p.gender.value;
-  final complaints = p.keyComplaintcontroller.text;
-  final exam = p.examinationcontroller.text;
-  final diagnosis = p.diagnoscontroller.text;
-  final remarks = p.remarkscontroller.text;
-  final nextDate = p.followupDatecontroller.text;
-  final qrCode = pw.BarcodeWidget(
-  barcode: pw.Barcode.qrCode(),
-  data:  AppConstants.playStoreUrl,
-  width: 60,
-  height: 60,
-);
+//   pw.Widget _cellHeader(String text) => pw.Padding(
+//       padding: const pw.EdgeInsets.all(5),
+//       child: pw.Text(text, style: pw.TextStyle(fontWeight: pw.FontWeight.bold), maxLines: 1,) );
 
-  final formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+//   // ===================================================================
+//   //  UI BUILD
+//   // ===================================================================
+//   @override
+//   Widget build(BuildContext context) {
+//     return Stack(
+//       children: [
+//         // MAIN SCREEN
+//         Scaffold(
+//           backgroundColor: Colors.white,
+//           body: Column(
+//             children: [
+//               const SizedBox(height: 60), // space for banner
 
-  pdf.addPage(
-    pw.MultiPage(
-      theme: theme,
-      pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.all(24),
+//               Expanded(
+//                 child: SingleChildScrollView(
+//                   controller: _scrollController,
+//                   child: _buildFormContent(),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
 
-      // ---------------- HEADER ----------------
-      header: (context) {
-        if (!_printLetterhead) {
-          return pw.Column(
-            children: [
-              pw.SizedBox(height: 160),
-              pw.Divider(),
-            ],
-          );
-        }
+//         // TRIAL BANNER — SAFE — DOES NOT REBUILD FORM
+//         Positioned(
+//           top: 0,
+//           left: 0,
+//           right: 0,
+//           child: Consumer<LicenseProvider>(
+//             builder: (context, license, _) {
+//               return (!license.isSubscribed && license.isTrialActive)
+//                   ? TrialBanner()
+//                   : const SizedBox.shrink();
+//             },
+//           ),
+//         ),
 
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(
-                      "Dr. ${doctorInfo.name}",
-                      style: pw.TextStyle(
-                          fontSize: 20, fontWeight: pw.FontWeight.bold),
-                    ),
-                    pw.SizedBox(height: 2),
-                    pw.Text(doctorInfo.specialization),
-                    pw.Text(doctorInfo.clinicAddress),
-                    pw.Text("Contact: ${doctorInfo.contact}"),
-                  ],
-                ),
-                if (_doctorLogo != null)
-                  pw.Container(
-                    width: 60,
-                    height: 60,
-                    child: pw.Image(pw.MemoryImage(_doctorLogo!)),
-                  ),
-              ],
-            ),
-            pw.SizedBox(height: 10),
-            pw.Divider(),
-          ],
-        );
-      },
+//         // LOADING OVERLAY
+//         if (_isLoading)
+//           LoadingOverlay(isLoading: true, message: "Generating prescription…")
+//       ],
+//     );
+//   }
 
-      // ---------------- FOOTER ----------------
-//      footer: (context) => pw.Column(
-//   children: [
-
-//     if (context.pageNumber == context.pagesCount)
-//       pw.Align(
-//         alignment: pw.Alignment.centerRight,
-//         child: pw.Column(
+//   // ===================================================================
+//   //  FORM CONTENT
+//   // ===================================================================
+//   Widget _buildFormContent() {
+//     return Container(
+//       padding: const EdgeInsets.all(20),
+//       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(40),
+//         boxShadow: [
+//           BoxShadow(
+//             color: AppColors.primary.withValues(alpha: 0.3),
+//             blurRadius: 20,
+//           )
+//         ],
+//       ),
+//       child: Form(
+//         key: _formKey,
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
 //           children: [
+//             Patientinfo(key: _patientInfoKey , 
+//             nameFieldKey: _nameFieldKey,
+//             ageFieldKey: _ageFieldKey,),
 
-//             // Blank space for actual signature
-//             pw.SizedBox(height: 35),
-
-//             pw.Container(
-//               width: 140,
-//               child: pw.Divider(thickness: 1),
-//             ),
-
-//             pw.Text(
-//               "Doctor's Signature",
-//               style: const pw.TextStyle(fontSize: 10),
-//             ),
-
-//             pw.SizedBox(height: 10),
+//             const SizedBox(height: 20),
+//             _buildAddMedicineButton(),
+//             const SizedBox(height: 20),
+//             _buildPrescriptionList(),
+//             _buildGeneratePdfButton(),
+//             _buildNextPrescriptionButton(),
 //           ],
 //         ),
 //       ),
+//     );
+//   }
 
-//     pw.Divider(),
+//   // ===================================================================
+//   //  BUTTONS / MEDICINE LIST
+//   // ===================================================================
+//   Widget _buildAddMedicineButton() {
+//     return ElevatedButton(
+//       onPressed: () async {
+//         final result = await Navigator.push(
+//           context,
+//           MaterialPageRoute(
+//             builder: (_) => const AddPrescription(title: "Prescription"),
+//           ),
+//         );
 
-//     pw.Center(
-//       child: pw.Text(
-//         "Page ${context.pageNumber} of ${context.pagesCount}",
-//         style: const pw.TextStyle(fontSize: 10),
-//       ),
-//     ),
-//   ],
-// ),
+//         if (result != null &&
+//     result is Prescriptiondata) {
 
-footer: (context) => pw.Column(
-  children: [
+//   controller.addMedicine(result);
 
-    // ============================================================
-    // Doctor Signature (Prescription ends here)
-    // ============================================================
+//   setState(() {});
+// }
+//       },
+//       child: const Text("Add Medicine"),
+//     );
+//   }
 
-    if (context.pageNumber == context.pagesCount)
-      pw.Align(
-        alignment: pw.Alignment.centerRight,
-        child: pw.Column(
-          children: [
+//   Widget _buildPrescriptionList() {
+//     late bool istabletType;
+//     late String unitofmeasure;
+//     late String? medicinetype;
+//     late String displayConsumption;
+//     if (_prescriptions.isEmpty) {
+//       return const Text("No medicines added yet.");
+//     }
 
-            pw.SizedBox(height: 35),
-
-            pw.Container(
-              width: 140,
-              child: pw.Divider(thickness: 1),
-            ),
-
-            pw.Text(
-              "Doctor's Signature",
-              style: const pw.TextStyle(fontSize: 10),
-            ),
-
-            pw.SizedBox(height: 8),
-          ],
-        ),
-      ),
-
-    // Divider separating prescription from advertisement
-    pw.Divider(),
-
-    // ============================================================
-    // Advertisement (Last page only)
-    // ============================================================
-
-    if (context.pageNumber == context.pagesCount)
-      pw.Container(
-        padding: const pw.EdgeInsets.symmetric(vertical: 6),
-        child: pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.center,
-          children: [
-
-            qrCode,
-
-            pw.SizedBox(width: 12),
-
-            pw.Expanded(
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-
-                  pw.Text(
-                    "Digitally generated using Prescriptor®",
-                    style: pw.TextStyle(
-                      fontSize: 10,
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.blue700,
-                    ),
-                  ),
-
-                  pw.SizedBox(height: 2),
-
-                  pw.Text(
-                    "Helping healthcare professionals create clear, professional and paper-efficient prescriptions.",
-                    style: const pw.TextStyle(fontSize: 8),
-                  ),
-
-                  pw.Text(
-                    "Have your doctor scan the QR code to download the Prescriptor App.",
-                    style: const pw.TextStyle(fontSize: 8),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-
-    pw.Divider(),
-
-    // ============================================================
-    // Page Number
-    // ============================================================
-
-    pw.Center(
-      child: pw.Text(
-        "Page ${context.pageNumber} of ${context.pagesCount}",
-        style: const pw.TextStyle(fontSize: 9),
-      ),
-    ),
-  ],
-),
-//------footer ends here
-
-
-
-      // ---------------- BODY ----------------
-      build: (context) => [
-        pw.Align(
-          alignment: pw.Alignment.centerRight,
-          child: pw.Text(
-            "Date: $formattedDate",
-            style:
-                pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
-          ),
-        ),
-
-        pw.SizedBox(height: 20),
-
-        pw.Text("Patient Information",
-            style:
-                pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-        pw.SizedBox(height: 5),
-        pw.Text("Patient Name: $name"),
-        pw.Text("Age: $age"),
-        pw.Text("Gender: $gender"),
-        pw.SizedBox(height: 10),
-
-        _section("Chief Complaints", complaints),
-        _section("Findings of Examination", exam),
-        _section("Diagnosis", diagnosis),
-        _section("Remarks", remarks),
-        _section("Next Follow Up Date", nextDate),
-
-        pw.SizedBox(height: 20),
-
-        // ---------------- MEDICINE TABLE ----------------
-        pw.Text("Prescribed Medicines",
-            style:
-                pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-        pw.SizedBox(height: 10),
-
-        _prescriptions.isEmpty
-    ? pw.Text("No medicines added.")
-    : pw.TableHelper.fromTextArray(
-        border: pw.TableBorder.all(),
-        headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 11),
-        cellStyle: const pw.TextStyle(fontSize: 10),
-
-        // 👇 ADD THIS HERE
-        columnWidths: {
-          0: const pw.FlexColumnWidth(3.5), // Medicine (wider for long names)
-          1: const pw.FlexColumnWidth(1.4), // Freq.
-          2: const pw.FlexColumnWidth(2.0), // Consumption
-          3: const pw.FlexColumnWidth(1.5), // Duration
-          4: const pw.FlexColumnWidth(2.0), // Consume Till Date
-          5: const pw.FlexColumnWidth(2.2), // Remarks
-        },
-
-        headers: [
-          "Medicine",
-          "Freq.",
-          "Consumption",
-          "Duration",
-          "Consume Till Date",
-          "Remarks",
-        ],
-
-        data: _prescriptions.map((med) {
-          final isTablet = med.isTablet;
-          final unit = _unitForType(med.medicineType.toString());
-          final doseValue = med.drugUnit?.toString() ?? "";
-          final unitValue =
-              (med.medicineType == "Ointment" || med.medicineType == "Others")
-                  ? ""
-                  : unit;
-
-          final consumption =
-              isTablet ? (med.isBeforeFood ? "Before Food" : "After Food") : "NA";
-
-          return [
-            "${med.medicineType} ${med.drugName} $doseValue $unitValue",
-            med.toBitList(4).join(" - "),
-            consumption,
-            "${med.followupDuration} ${med.inDays ? 'Days' : 'Months'}",
-            DateFormat('dd/MM/yyyy').format(med.followupdate),
-            med.remarks,
-          ];
-        }).toList(),
-      ),
-
-      ],
-    ),
-  );
-
-  final pdfBytes = await pdf.save();
-  await LicenseApiService.incrementPrescriptionCount();
-
-  if (!mounted) return;
-
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => PrintPreviewScreen(pdfBytes: pdfBytes),
-    ),
-  );
-
-  setState(() => _isLoading = false);
-}
-
-
-
-
-  pw.Widget _section(String title, String value) {
-    if (value.trim().isEmpty) return pw.SizedBox();
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Text(title,
-            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-        pw.Text(value),
-        pw.SizedBox(height: 10),
-      ],
-    );
-  }
-
-  pw.Widget _cell(String? text) =>
-      pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Text(text ?? "", ));
-
-  pw.Widget _cellHeader(String text) => pw.Padding(
-      padding: const pw.EdgeInsets.all(5),
-      child: pw.Text(text, style: pw.TextStyle(fontWeight: pw.FontWeight.bold), maxLines: 1,) );
-
-  // ===================================================================
-  //  UI BUILD
-  // ===================================================================
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // MAIN SCREEN
-        Scaffold(
-          backgroundColor: Colors.white,
-          body: Column(
-            children: [
-              const SizedBox(height: 60), // space for banner
-
-              Expanded(
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  child: _buildFormContent(),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // TRIAL BANNER — SAFE — DOES NOT REBUILD FORM
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Consumer<LicenseProvider>(
-            builder: (context, license, _) {
-              return (!license.isSubscribed && license.isTrialActive)
-                  ? TrialBanner()
-                  : const SizedBox.shrink();
-            },
-          ),
-        ),
-
-        // LOADING OVERLAY
-        if (_isLoading)
-          LoadingOverlay(isLoading: true, message: "Generating prescription…")
-      ],
-    );
-  }
-
-  // ===================================================================
-  //  FORM CONTENT
-  // ===================================================================
-  Widget _buildFormContent() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(40),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
-            blurRadius: 20,
-          )
-        ],
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Patientinfo(key: _patientInfoKey , 
-            nameFieldKey: _nameFieldKey,
-            ageFieldKey: _ageFieldKey,),
-
-            const SizedBox(height: 20),
-            _buildAddMedicineButton(),
-            const SizedBox(height: 20),
-            _buildPrescriptionList(),
-            _buildGeneratePdfButton(),
-            _buildNextPrescriptionButton(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ===================================================================
-  //  BUTTONS / MEDICINE LIST
-  // ===================================================================
-  Widget _buildAddMedicineButton() {
-    return ElevatedButton(
-      onPressed: () async {
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const AddPrescription(title: "Prescription"),
-          ),
-        );
-
-        if (result != null && result is Prescriptiondata) {
-          setState(() => _prescriptions.add(result));
-        }
-      },
-      child: const Text("Add Medicine"),
-    );
-  }
-
-  Widget _buildPrescriptionList() {
-    late bool istabletType;
-    late String unitofmeasure;
-    late String? medicinetype;
-    late String displayConsumption;
-    if (_prescriptions.isEmpty) {
-      return const Text("No medicines added yet.");
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _prescriptions.length,
-      itemBuilder: (context, i) {
+//     return ListView.builder(
+//       shrinkWrap: true,
+//       physics: const NeverScrollableScrollPhysics(),
+//       itemCount: _prescriptions.length,
+//       itemBuilder: (context, i) {
         
-        final med = _prescriptions[i];
-        istabletType =med.isTablet ;
-        unitofmeasure =  _unitForType(med.medicineType.toString());//istabletType ? 'mg' : 'ml';
-        medicinetype = med.medicineType; //istabletType ? 'Tablet' : 'Syrup';
-        if (istabletType)
-        {
-          displayConsumption =  "For ${med.followupDuration} ${med.inDays ? "Days" : "Months"} | "
-              "${med.isBeforeFood ? 'Before Food' : 'After Food'} | "
-              "${med.toBitList(4).join(" - ")}";
-        }
-        else
-        {
-          displayConsumption =  "For ${med.followupDuration} ${med.inDays ? "Days" : "Months"} | "
+//         final med = _prescriptions[i];
+//         istabletType =med.isTablet ;
+//         unitofmeasure =  _unitForType(med.medicineType.toString());//istabletType ? 'mg' : 'ml';
+//         medicinetype = med.medicineType; //istabletType ? 'Tablet' : 'Syrup';
+//         if (istabletType)
+//         {
+//           displayConsumption =  "For ${med.followupDuration} ${med.inDays ? "Days" : "Months"} | "
+//               "${med.isBeforeFood ? 'Before Food' : 'After Food'} | "
+//               "${med.toBitList(4).join(" - ")}";
+//         }
+//         else
+//         {
+//           displayConsumption =  "For ${med.followupDuration} ${med.inDays ? "Days" : "Months"} | "
               
-              "${med.toBitList(4).join(" - ")}";
-        }
+//               "${med.toBitList(4).join(" - ")}";
+//         }
 
-         late String doseValue = (med.drugUnit?.toString() ?? "");
-         late String unitValue = med.medicineType == "Ointment" || med.medicineType == "Others"
-                            ? ""
-                            : (unitofmeasure);
-
-
-        return Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: ListTile(
-            title: Text('$medicinetype ${med.drugName} $doseValue $unitValue'),
-            subtitle: Text(
-              displayConsumption,
-            ),
-            trailing: PopupMenuButton(
-              onSelected: (value) {
-                if (value == 'edit') {
-                   _editPrescription(context, i);
-                 } else
-                if (value == "delete") {
-                  _deletePrescription(i);
-                }
-              },
-              itemBuilder: (_) => [
-                const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                const PopupMenuItem(value: "delete", child: Text("Delete")),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildGeneratePdfButton() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20),
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _canGeneratePdf ? Colors.blue : Colors.grey,
-        ),
-        onPressed: _canGeneratePdf
-            ? () async{
-                    final isValid = _formKey.currentState!.validate();
-
-                    if (!isValid) {
-                       await _scrollToFirstError();
-                      return;
-                    }
-
-                    // ⚠️ WARNING IF NO MEDICINES ADDED
-        if (_prescriptions.isEmpty) {
-          final proceed = await showDialog<bool>(
-            context: context,
-            builder: (_) => AlertDialog(
-              title: const Text("No medicines added"),
-              content: const Text(
-                  "You have not added any medicines.\n\nDo you still want to generate the prescription PDF?"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: const Text("Cancel"),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text("Generate Anyway"),
-                ),
-              ],
-            ),
-          );
-
-          if (proceed != true) return;
-        }
+//          late String doseValue = (med.drugUnit?.toString() ?? "");
+//          late String unitValue = med.medicineType == "Ointment" || med.medicineType == "Others"
+//                             ? ""
+//                             : (unitofmeasure);
 
 
-                    if (_doctorInfo != null) {
-                      generatePrescriptionPdf(_doctorInfo!);
-                      setState(() => _canGenerateNext = true);
-                    }
+//         return Card(
+//           elevation: 4,
+//           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+//           child: ListTile(
+//             title: Text('$medicinetype ${med.drugName} $doseValue $unitValue'),
+//             subtitle: Text(
+//               displayConsumption,
+//             ),
+//             trailing: PopupMenuButton(
+//               onSelected: (value) {
+//                 if (value == 'edit') {
+//                    _editPrescription(context, i);
+//                  } else
+//                 if (value == "delete") {
+//                   _deletePrescription(i);
+//                 }
+//               },
+//               itemBuilder: (_) => [
+//                 const PopupMenuItem(value: 'edit', child: Text('Edit')),
+//                 const PopupMenuItem(value: "delete", child: Text("Delete")),
+//               ],
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//   }
 
-                // if (_formKey.currentState!.validate() &&
-                //     _doctorInfo != null) {
-                //   generatePrescriptionPdf(_doctorInfo!);
-                //   setState(() => _canGenerateNext = true);
-                // }
-              }
-            : null,
-        icon: const Icon(Icons.picture_as_pdf),
-        label: const Text(
-          "Generate PDF Prescription",
-          style: TextStyle(color: Colors.black),
-        ),
-      ),
-    );
-  }
+//   Widget _buildGeneratePdfButton() {
+//     return Padding(
+//       padding: const EdgeInsets.only(top: 20),
+//       child: ElevatedButton.icon(
+//         style: ElevatedButton.styleFrom(
+//           backgroundColor: _canGeneratePdf ? Colors.blue : Colors.grey,
+//         ),
+//         onPressed: _canGeneratePdf
+//             ? () async{
+//                     final isValid = _formKey.currentState!.validate();
 
-  Widget _buildNextPrescriptionButton() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          backgroundColor:
-              _canGenerateNext ? Colors.redAccent : Colors.grey,
-        ),
-        onPressed: _canGenerateNext
-            ? () {
-                _resetPrescriptionForm();
-                setState(() => _canGenerateNext = false);
-              }
-            : null,
-        icon: const Icon(Icons.refresh),
-        label: const Text("Generate Next Prescription",
-            style: TextStyle(color: Colors.black)),
-      ),
-    );
-  }
+//                     if (!isValid) {
+//                        await _scrollToFirstError();
+//                       return;
+//                     }
 
-    Future<void> _editPrescription(BuildContext context, int index) async {
-    final existing = _prescriptions[index];
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            AddPrescription(title: "Edit Prescription", existingPrescription: existing),
-      ),
-    );
+//                     // ⚠️ WARNING IF NO MEDICINES ADDED
+//         if (_prescriptions.isEmpty) {
+//           final proceed = await showDialog<bool>(
+//             context: context,
+//             builder: (_) => AlertDialog(
+//               title: const Text("No medicines added"),
+//               content: const Text(
+//                   "You have not added any medicines.\n\nDo you still want to generate the prescription PDF?"),
+//               actions: [
+//                 TextButton(
+//                   onPressed: () => Navigator.pop(context, false),
+//                   child: const Text("Cancel"),
+//                 ),
+//                 ElevatedButton(
+//                   onPressed: () => Navigator.pop(context, true),
+//                   child: const Text("Generate Anyway"),
+//                 ),
+//               ],
+//             ),
+//           );
 
-    if (result != null && result is Prescriptiondata) {
-      setState(() => _prescriptions[index] = result);
-    }
-  }
+//           if (proceed != true) return;
+//         }
 
-  void _deletePrescription(int index) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Delete Prescription'),
-        content: const Text('Are you sure you want to delete this?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete', style: TextStyle(color: Colors.red))),
-        ],
-      ),
-    );
 
-    if (confirm == true) {
-      setState(() => _prescriptions.removeAt(index));
-    }
-  }
+//                     if (_doctorInfo != null) {
+//                       generatePrescriptionPdf(_doctorInfo!);
+//                       setState(() => _canGenerateNext = true);
+//                     }
 
- Future<void> _scrollToFirstError() async {
-  // Let Flutter paint the error messages first
-  await Future.delayed(const Duration(milliseconds: 100));
+//                 // if (_formKey.currentState!.validate() &&
+//                 //     _doctorInfo != null) {
+//                 //   generatePrescriptionPdf(_doctorInfo!);
+//                 //   setState(() => _canGenerateNext = true);
+//                 // }
+//               }
+//             : null,
+//         icon: const Icon(Icons.picture_as_pdf),
+//         label: const Text(
+//           "Generate PDF Prescription",
+//           style: TextStyle(color: Colors.black),
+//         ),
+//       ),
+//     );
+//   }
 
-  // Fields in the order you want to check
-  final fieldKeys = <GlobalKey<FormFieldState<String>>>[
-    _nameFieldKey,
-    _ageFieldKey,
+//   Widget _buildNextPrescriptionButton() {
+//     return Padding(
+//       padding: const EdgeInsets.only(top: 10),
+//       child: ElevatedButton.icon(
+//         style: ElevatedButton.styleFrom(
+//           backgroundColor:
+//               _canGenerateNext ? Colors.redAccent : Colors.grey,
+//         ),
+//         onPressed: _canGenerateNext
+//             ? () {
+//                 _resetPrescriptionForm();
+//                 setState(() => _canGenerateNext = false);
+//               }
+//             : null,
+//         icon: const Icon(Icons.refresh),
+//         label: const Text("Generate Next Prescription",
+//             style: TextStyle(color: Colors.black)),
+//       ),
+//     );
+//   }
+
+//     Future<void> _editPrescription(BuildContext context, int index) async {
+//     final existing = _prescriptions[index];
+//     final result = await Navigator.push(
+//       context,
+//       MaterialPageRoute(
+//         builder: (context) =>
+//             AddPrescription(title: "Edit Prescription", existingPrescription: existing),
+//       ),
+//     );
+
+//     if (result != null && result is Prescriptiondata) {
+//       controller.updateMedicine(
+//   index,
+//   result,
+// );
+
+// setState(() {});
+//     }
+//   }
+
+//   void _deletePrescription(int index) async {
+//     final confirm = await showDialog<bool>(
+//       context: context,
+//       builder: (_) => AlertDialog(
+//         title: const Text('Delete Prescription'),
+//         content: const Text('Are you sure you want to delete this?'),
+//         actions: [
+//           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+//           TextButton(onPressed: () => Navigator.pop(context, true),
+//               child: const Text('Delete', style: TextStyle(color: Colors.red))),
+//         ],
+//       ),
+//     );
+
+//     if (confirm == true) {
+//      controller.deleteMedicine(index);
+
+// setState(() {});
+//     }
+//   }
+
+//  Future<void> _scrollToFirstError() async {
+//   // Let Flutter paint the error messages first
+//   await Future.delayed(const Duration(milliseconds: 100));
+
+//   // Fields in the order you want to check
+//   final fieldKeys = <GlobalKey<FormFieldState<String>>>[
+//     _nameFieldKey,
+//     _ageFieldKey,
     
-  ];
+//   ];
 
-  for (final key in fieldKeys) {
-    final state = key.currentState;
-    final context = key.currentContext;
+//   for (final key in fieldKeys) {
+//     final state = key.currentState;
+//     final context = key.currentContext;
 
-    if (state != null && state.hasError && context != null) {
-      await Scrollable.ensureVisible(
-        context,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-        alignment: 0.3, // keeps field slightly below top
-      );
-      return;
-    }
-  }
-}
-
-
+//     if (state != null && state.hasError && context != null) {
+//       await Scrollable.ensureVisible(
+//         context,
+//         duration: const Duration(milliseconds: 500),
+//         curve: Curves.easeInOut,
+//         alignment: 0.3, // keeps field slightly below top
+//       );
+//       return;
+//     }
+//   }
+// }
 
 
-}
 
-  // Widget _buildGeneratePdfButton() {
-  //   return ElevatedButton.icon(
-  //     icon: const Icon(Icons.picture_as_pdf),
-  //     label: const Text("Generate PDF Prescription",
-  //         style: TextStyle(color: Colors.black)),
-  //     onPressed: () {
-  //       if (_formKey.currentState!.validate() && _doctorInfo != null) {
-  //         generatePrescriptionPdf(_doctorInfo!);
-  //         setState(() => _canGenerateNext = true);
-  //       }
-  //     },
-  //   );
-  // }
 
-  // Widget _buildNextPrescriptionButton() {
-  //   return ElevatedButton.icon(
-  //     icon: const Icon(Icons.refresh),
-  //     label: const Text("Generate Next Prescription",
-  //         style: TextStyle(color: Colors.black)),
-  //     onPressed: _canGenerateNext ? _resetPrescriptionForm : null,
-  //     style: ElevatedButton.styleFrom(
-  //       backgroundColor:
-  //           _canGenerateNext ? Colors.redAccent : Colors.grey.shade400,
-  //     ),
-  //   );
-  // }
-//}
+// }
+
+//   // Widget _buildGeneratePdfButton() {
+//   //   return ElevatedButton.icon(
+//   //     icon: const Icon(Icons.picture_as_pdf),
+//   //     label: const Text("Generate PDF Prescription",
+//   //         style: TextStyle(color: Colors.black)),
+//   //     onPressed: () {
+//   //       if (_formKey.currentState!.validate() && _doctorInfo != null) {
+//   //         generatePrescriptionPdf(_doctorInfo!);
+//   //         setState(() => _canGenerateNext = true);
+//   //       }
+//   //     },
+//   //   );
+//   // }
+
+//   // Widget _buildNextPrescriptionButton() {
+//   //   return ElevatedButton.icon(
+//   //     icon: const Icon(Icons.refresh),
+//   //     label: const Text("Generate Next Prescription",
+//   //         style: TextStyle(color: Colors.black)),
+//   //     onPressed: _canGenerateNext ? _resetPrescriptionForm : null,
+//   //     style: ElevatedButton.styleFrom(
+//   //       backgroundColor:
+//   //           _canGenerateNext ? Colors.redAccent : Colors.grey.shade400,
+//   //     ),
+//   //   );
+//   // }
+// //}
+
+
+
+

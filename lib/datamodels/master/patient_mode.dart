@@ -1,0 +1,5 @@
+enum PatientMode {
+  newPatient,
+  existingPatient,
+}
+

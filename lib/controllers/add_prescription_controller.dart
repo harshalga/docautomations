@@ -1,12 +1,14 @@
+import 'package:docautomations/viewmodels/prescription_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:docautomations/datamodels/snapshot/prescription_snapshot.dart';
+
 import 'package:docautomations/datamodels/master/patient.dart';
 import 'package:docautomations/datamodels/master/patient_doctor.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
+import 'package:docautomations/datamodels/snapshot/prescription_snapshot.dart';
 
 import 'package:docautomations/repositories/prescription_repository.dart';
 
-import 'package:docautomations/widgets/AddPrescrip.dart';
+import 'package:docautomations/datamodels/master/patient_mode.dart';
 
 
 class AddPrescriptionController
@@ -66,8 +68,34 @@ class AddPrescriptionController
   //===========================================================================
   // Prescription State
   //===========================================================================
+  //
+  // PrescriptionViewModel is the single source of truth for prescription
+  // editing state.
+  //
+  // Do NOT maintain another List<Prescriptiondata> here.
+  //
+  //===========================================================================
 
-  final List<Prescriptiondata> prescriptions = [];
+  final PrescriptionViewModel prescription =
+      PrescriptionViewModel();
+
+
+  //===========================================================================
+  // Compatibility Getter
+  //===========================================================================
+  //
+  // Existing prescription widgets may already use:
+  //
+  //     controller.prescriptions
+  //
+  // Keep this getter so those widgets don't need to be changed immediately.
+  //
+  // The actual list is owned by PrescriptionViewModel.
+  //
+  //===========================================================================
+
+  List<Prescriptiondata> get prescriptions =>
+      prescription.medicines;
 
 
   //===========================================================================
@@ -138,7 +166,9 @@ class AddPrescriptionController
 
   Future<void> _initializeNewPatient() async {
 
-    prescriptions.clear();
+    prescription.clear();
+
+    printLetterhead = true;
 
     canGenerateNext = false;
 
@@ -149,168 +179,199 @@ class AddPrescriptionController
   }
 
 
-  
-//===========================================================================
-// Load Existing Patient
-//===========================================================================
-//
-// Existing patient flow:
-//
-//     PatientDoctor
-//          |
-//          v
-// PrescriptionRepository
-//          |
-//          v
-// Latest Prescription
-//          |
-//          v
-// PrescriptionSnapshot
-//          |
-//          v
-// Prescriptiondata[]
-//
-//===========================================================================
+  //===========================================================================
+  // Load Existing Patient
+  //===========================================================================
+  //
+  // Existing patient flow:
+  //
+  //     PatientDoctor
+  //          |
+  //          v
+  // PrescriptionRepository
+  //          |
+  //          v
+  // Latest Prescription
+  //          |
+  //          v
+  // PrescriptionSnapshot
+  //          |
+  //          v
+  // PrescriptionSnapshotData
+  //          |
+  //          v
+  // PrescriptionViewModel
+  //
+  //===========================================================================
 
-Future<void> _loadExistingPatient() async {
+  Future<void> _loadExistingPatient() async {
 
-  //-------------------------------------------------------------------------
-  // Validate PatientDoctor
-  //-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Validate PatientDoctor
+    //-------------------------------------------------------------------------
 
-  if (patientDoctor == null) {
+    if (patientDoctor == null) {
 
-    throw Exception(
-      "PatientDoctor is required "
-      "for Existing Patient mode.",
+      throw Exception(
+        "PatientDoctor is required "
+        "for Existing Patient mode.",
+      );
+
+    }
+
+
+    //-------------------------------------------------------------------------
+    // Set Current Patient
+    //-------------------------------------------------------------------------
+
+    _currentPatient = patient;
+
+
+    //-------------------------------------------------------------------------
+    // Clear Existing Prescription State
+    //-------------------------------------------------------------------------
+
+    prescription.clear();
+
+    printLetterhead = true;
+
+    canGenerateNext = false;
+
+    notifyListeners();
+
+
+    //-------------------------------------------------------------------------
+    // Retrieve Latest Prescription
+    //-------------------------------------------------------------------------
+
+    final result =
+        await prescriptionRepository
+            .getLatestPrescription(
+      patientDoctor!.id,
     );
 
-  }
+
+    //-------------------------------------------------------------------------
+    // No Prescription Available
+    //-------------------------------------------------------------------------
+    //
+    // An existing patient does not necessarily have a previous prescription.
+    //
+    // This is a valid state and should leave the prescription editor empty.
+    //
+    //-------------------------------------------------------------------------
+
+    if (!result.success) {
+
+      debugPrint(
+        "Latest prescription not available: "
+        "${result.message}",
+      );
+
+      return;
+
+    }
 
 
-  //-------------------------------------------------------------------------
-  // Set Current Patient
-  //-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Validate Response
+    //-------------------------------------------------------------------------
 
-  _currentPatient = patient;
+    if (result.data == null) {
 
+      return;
 
-  //-------------------------------------------------------------------------
-  // Clear Existing Prescription State
-  //-------------------------------------------------------------------------
-
-  prescriptions.clear();
-
-  canGenerateNext = false;
-
-  notifyListeners();
+    }
 
 
-  //-------------------------------------------------------------------------
-  // Retrieve Latest Prescription
-  //-------------------------------------------------------------------------
+    if (result.data is! Map) {
 
-  final result =
-      await prescriptionRepository.getLatestPrescription(
-    patientDoctor!.id,
-  );
+      debugPrint(
+        "Unexpected latest prescription response format.",
+      );
+
+      return;
+
+    }
 
 
-  //-------------------------------------------------------------------------
-  // No Latest Prescription
-  //-------------------------------------------------------------------------
-  //
-  // This is not necessarily an error.
-  //
-  // An existing patient may not have a previous prescription.
-  //
-  //-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Convert Response Into PrescriptionSnapshot
+    //-------------------------------------------------------------------------
 
-  if (!result.success) {
-
-    debugPrint(
-      "Latest prescription not available: "
-      "${result.message}",
+    final snapshot =
+        PrescriptionSnapshot.fromJson(
+      Map<String, dynamic>.from(
+        result.data as Map,
+      ),
     );
 
-    return;
+
+    //-------------------------------------------------------------------------
+    // Populate Prescription View Model
+    //-------------------------------------------------------------------------
+    //
+    // PrescriptionSnapshotData and PrescriptionViewModel intentionally
+    // remain separate:
+    //
+    // PrescriptionSnapshotData
+    //     = immutable persisted/printed snapshot
+    //
+    // PrescriptionViewModel
+    //     = editable screen state
+    //
+    //-------------------------------------------------------------------------
+
+    final snapshotPrescription =
+        snapshot.prescription;
+
+
+    prescription
+      ..chiefComplaint =
+          snapshotPrescription.chiefComplaint
+      ..examination =
+          snapshotPrescription.examination
+      ..diagnosis =
+          snapshotPrescription.diagnosis
+      ..advice =
+          snapshotPrescription.advice
+      ..remarks =
+          snapshotPrescription.remarks
+      ..followUpDate =
+          snapshotPrescription.followUpDate
+      ..medicines
+          .addAll(snapshotPrescription.medicines)
+      ..isDirty = false;
+
+
+    //-------------------------------------------------------------------------
+    // Print Letterhead
+    //-------------------------------------------------------------------------
+    //
+    // The current PrescriptionSnapshotData does not contain
+    // printLetterHead.
+    //
+    // Therefore retain the controller's default until LayoutSnapshot is
+    // incorporated into the persisted prescription snapshot.
+    //
+    //-------------------------------------------------------------------------
+
+    printLetterhead = true;
+
+    prescription.printLetterHead =
+        printLetterhead;
+
+
+    //-------------------------------------------------------------------------
+    // Prescription Is Ready
+    //-------------------------------------------------------------------------
+
+    canGenerateNext =
+        prescription.canGeneratePrescription;
+
+    notifyListeners();
 
   }
-
-
-  //-------------------------------------------------------------------------
-  // Validate Response
-  //-------------------------------------------------------------------------
-
-  if (result.data == null) {
-
-    return;
-
-  }
-
-
-  if (result.data is! Map<String, dynamic>) {
-
-    debugPrint(
-      "Unexpected latest prescription response format.",
-    );
-
-    return;
-
-  }
-
-
-  //-------------------------------------------------------------------------
-  // Convert Backend Snapshot
-  //-------------------------------------------------------------------------
-  //
-  // PrescriptionService.getLatestPrescription() decrypts the
-  // GeneratedPrescDetails encryption payload on the backend and returns
-  // the decrypted prescription snapshot.
-  //
-  // Therefore result.data should represent:
-  //
-  // {
-  //   "doctor": {...},
-  //   "patient": {...},
-  //   "clinic": {...},
-  //   "prescription": {
-  //      ...
-  //      "medicines": [...]
-  //   }
-  // }
-  //
-  //-------------------------------------------------------------------------
-
-  final snapshot =
-      PrescriptionSnapshot.fromJson(
-    Map<String, dynamic>.from(
-      result.data,
-    ),
-  );
-
-
-  //-------------------------------------------------------------------------
-  // Restore Medicines
-  //-------------------------------------------------------------------------
-
-  _populatePrescription(
-    snapshot.prescription.medicines,
-  );
-
-
-  //-------------------------------------------------------------------------
-  // Existing Patient Is Ready
-  //-------------------------------------------------------------------------
-
-  canGenerateNext =
-      prescriptions.isNotEmpty;
-
-  notifyListeners();
-
-}
-
-
 
 
   //===========================================================================
@@ -336,9 +397,77 @@ Future<void> _loadExistingPatient() async {
     List<Prescriptiondata> values,
   ) {
 
-    prescriptions
-      ..clear()
-      ..addAll(values);
+    prescription
+      ..medicines
+          .clear()
+      ..medicines
+          .addAll(values)
+      ..isDirty = false;
+
+    canGenerateNext =
+        prescription.canGeneratePrescription;
+
+    notifyListeners();
+
+  }
+
+
+  //===========================================================================
+  // Add Medicine
+  //===========================================================================
+
+  void addMedicine(
+    Prescriptiondata medicine,
+  ) {
+
+    prescription.addMedicine(
+      medicine,
+    );
+
+    canGenerateNext =
+        prescription.canGeneratePrescription;
+
+    notifyListeners();
+
+  }
+
+
+  //===========================================================================
+  // Update Medicine
+  //===========================================================================
+
+  void updateMedicine(
+    int index,
+    Prescriptiondata medicine,
+  ) {
+
+    prescription.updateMedicine(
+      index,
+      medicine,
+    );
+
+    canGenerateNext =
+        prescription.canGeneratePrescription;
+
+    notifyListeners();
+
+  }
+
+
+  //===========================================================================
+  // Delete Medicine
+  //===========================================================================
+
+  void deleteMedicine(
+    int index,
+  ) {
+
+    prescription.deleteMedicine(
+      index,
+    );
+
+    canGenerateNext =
+        prescription.canGeneratePrescription;
 
     notifyListeners();
 
@@ -351,7 +480,9 @@ Future<void> _loadExistingPatient() async {
 
   void resetPrescription() {
 
-    prescriptions.clear();
+    prescription.clear();
+
+    printLetterhead = true;
 
     canGenerateNext = false;
 
