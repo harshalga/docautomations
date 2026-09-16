@@ -6,6 +6,7 @@ import 'package:docautomations/application/application_bootstrapper.dart';
 import 'package:docautomations/providers/authentication_provider.dart';
 
 import 'package:docautomations/screens/auth/login_screen.dart';
+import 'package:docautomations/screens/auth/registration_screen.dart';
 import 'package:docautomations/screens/patient/patient_search_screen.dart';
 import 'package:docautomations/screens/splash/splash_screen.dart';
 import 'package:docautomations/datamodels/master/patient.dart';
@@ -222,8 +223,25 @@ class _AppEntryPointState extends State<AppEntryPoint> {
       });
     }
   }
+//-------------------------------------------------------------------------
+// REGISTRATION REQUESTED
+//-------------------------------------------------------------------------
+//
+// LoginScreen
+//      ↓
+// _handleRegistrationRequested()
+//      ↓
+// RegistrationScreen
+//
+//-------------------------------------------------------------------------
+void _handleRegistrationRequested() {
+  if (!mounted) return;
 
-
+  setState(() {
+    _startupState = _AppStartupState.registration;
+    _errorMessage = null;
+  });
+}
   //-------------------------------------------------------------------------
   // REGISTRATION COMPLETED
   //-------------------------------------------------------------------------
@@ -244,7 +262,25 @@ class _AppEntryPointState extends State<AppEntryPoint> {
       _errorMessage = null;
     });
   }
+  //-------------------------------------------------------------------------
+// BACK TO LOGIN
+//-------------------------------------------------------------------------
+//
+// RegistrationScreen
+//      ↓
+// Back
+//      ↓
+// LoginScreen
+//
+//-------------------------------------------------------------------------
+void _handleBackToLogin() {
+  if (!mounted) return;
 
+  setState(() {
+    _startupState = _AppStartupState.unauthenticated;
+    _errorMessage = null;
+  });
+}
 
 //-----------------------------------------------------------------------------
 // PATIENT SELECTED
@@ -368,7 +404,7 @@ void _handleNewPatientRequested() {
 
         return LoginScreen(
           onLoginSuccess: _handleLoginSuccess,
-          onRegisterRequested: _handleRegistrationCompleted,
+          onRegisterRequested: _handleRegistrationRequested,
         );
 
 
@@ -399,6 +435,12 @@ void _handleNewPatientRequested() {
               'Unable to start Prescriptor.',
           onRetry: _initializeApplication,
         );
+      case _AppStartupState.registration:
+        // TODO: Handle this case.
+        return RegistrationScreen(
+          onRegistrationCompleted: _handleRegistrationCompleted,
+          onBackToLogin: _handleBackToLogin,
+        );
     }
   }
 }
@@ -413,6 +455,8 @@ enum _AppStartupState {
   initializing,
 
   unauthenticated,
+
+  registration,
 
   ready,
 
