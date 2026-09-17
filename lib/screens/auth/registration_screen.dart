@@ -1342,7 +1342,7 @@ class _RegistrationScreenState
 
     return DropdownButtonFormField<Country>(
 
-      value:
+      initialValue:
           _selectedCountry,
 
       isExpanded:

@@ -1074,7 +1074,7 @@ class _PatientSearchScreenState
                     'Mobile',
 
                 value:
-                    patient.mobile!,
+                    patient.mobile,
               ),
             ],
 
@@ -1352,9 +1352,8 @@ class _PatientSearchScreenState
 
       patient.firstName,
 
-      if (patient.middleName != null &&
-          patient.middleName!.trim().isNotEmpty)
-        patient.middleName!,
+      if (patient.middleName.trim().isNotEmpty)
+        patient.middleName,
 
       patient.lastName,
     ];

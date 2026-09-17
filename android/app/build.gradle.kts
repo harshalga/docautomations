@@ -6,7 +6,10 @@ plugins {
 
 android {
     namespace = "com.docautomations.docautomations"
-    compileSdk = flutter.compileSdkVersion
+    //compileSdk = flutter.compileSdkVersion
+    compileSdk =  providers.gradleProperty("PRESCRIPTOR_COMPILE_SDK")
+            .get()
+            .toInt()
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -20,7 +23,10 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        //targetSdk = flutter.targetSdkVersion
+        targetSdk = providers.gradleProperty("PRESCRIPTOR_TARGET_SDK")
+                .get()
+                .toInt()
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

@@ -495,12 +495,6 @@ class AddPrescriptionController
   // Dispose
   //===========================================================================
 
-  @override
-  void dispose() {
-
-    super.dispose();
-
-  }
 
 }
 

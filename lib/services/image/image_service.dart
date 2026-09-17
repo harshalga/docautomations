@@ -1,13 +1,9 @@
-import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:docautomations/datamodels/master/image_asset.dart';
 import 'package:docautomations/services/image/procesed_image.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
-import '../../datamodels/master/doctor_logo.dart';
 
 class ImageService {
   //---------------------------------------------------------------------------
