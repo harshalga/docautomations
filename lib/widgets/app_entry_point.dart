@@ -10,6 +10,8 @@ import 'package:docautomations/screens/auth/registration_screen.dart';
 import 'package:docautomations/screens/patient/patient_search_screen.dart';
 import 'package:docautomations/screens/splash/splash_screen.dart';
 import 'package:docautomations/datamodels/master/patient.dart';
+import 'package:docautomations/controllers/doctor_registration_controller.dart';
+import 'package:docautomations/repositories/doctor_repository.dart';
 
 
 //=============================================================================
@@ -208,13 +210,18 @@ class _AppEntryPointState extends State<AppEntryPoint> {
         _startupState = _AppStartupState.ready;
       });
 
-    } catch (error) {
+    } catch (error, stackTrace) {
 
       if (!mounted) return;
 
       debugPrint(
         'Application bootstrap after login failed: $error',
       );
+
+      debugPrintStack(
+    stackTrace: stackTrace,
+    label: 'BOOTSTRAP STACK TRACE',
+  );
 
       setState(() {
         _startupState = _AppStartupState.error;
@@ -437,10 +444,18 @@ void _handleNewPatientRequested() {
         );
       case _AppStartupState.registration:
         // TODO: Handle this case.
-        return RegistrationScreen(
-          onRegistrationCompleted: _handleRegistrationCompleted,
-          onBackToLogin: _handleBackToLogin,
-        );
+       
+
+  return ChangeNotifierProvider<DoctorRegistrationController>(
+    create: (_) => DoctorRegistrationController(
+      doctorRepository: context.read<DoctorRepository>(),
+    ),
+
+    child: RegistrationScreen(
+      onRegistrationCompleted: _handleRegistrationCompleted,
+      onBackToLogin: _handleBackToLogin,
+    ),
+  );
     }
   }
 }

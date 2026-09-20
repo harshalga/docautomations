@@ -129,7 +129,7 @@ class DoctorMaster {
           json["registrationCouncil"] ?? "",
 
       doctorName:
-          json["doctorName"] ?? "",
+          json["name"] ?? "",
 
       qualification:
           json["qualification"] ?? "",
@@ -152,17 +152,17 @@ class DoctorMaster {
       state:
           json["state"] ?? "",
 
-      countryid:
-          json["countryid"] ?? "",
+      countryid: _readId(json["countryId"]),
+          //json["countryId"] ?? "",
 
       pinCode:
-          json["pinCode"] ?? "",
+          json["pincode"] ?? "",
 
       mobileNumber:
-          json["mobileNumber"] ?? "",
+          json["contact"] ?? "",
 
       alternateMobileNumber:
-          json["alternateMobileNumber"] ?? "",
+          json["alternateContact"] ?? "",
 
       email:
           json["email"] ?? "",
@@ -182,69 +182,50 @@ class DoctorMaster {
     );
   }
 
-  Map<String, dynamic> toJson() {
+  static String _readId(dynamic value) {
+  if (value == null) return "";
 
-    return {
+  if (value is String) return value;
 
-      "_id": id,
-
-      "doctorCode": doctorCode,
-
-      "medicalRegistrationNumber":
-          medicalRegistrationNumber,
-
-      "registrationCouncil":
-          registrationCouncil,
-
-      "doctorName":
-          doctorName,
-
-      "qualification":
-          qualification,
-
-      "specialization":
-          specialization,
-
-      "clinicName":
-          clinicName,
-
-      "clinicAddress":
-          clinicAddress,
-
-      "city":
-          city,
-
-      "district":
-          district,
-
-      "state":
-          state,
-
-      "country":
-          countryid,
-
-      "pinCode":
-          pinCode,
-
-      "mobileNumber":
-          mobileNumber,
-
-      "alternateMobileNumber":
-          alternateMobileNumber,
-
-      "email":
-          email,
-
-      "website":
-          website,
-
-      
-      "isSubscribed":
-          isSubscribed,
-
-      "subscriptionExpiry":
-          subscriptionExpiry
-              ?.toIso8601String(),
-    };
+  if (value is Map) {
+    return value["_id"]?.toString() ?? "";
   }
+
+  return value.toString();
+}
+
+  Map<String, dynamic> toJson() {
+  return {
+    "_id": id,
+    "doctorCode": doctorCode,
+
+    "medicalRegistrationNumber":
+        medicalRegistrationNumber,
+    "registrationCouncil":
+        registrationCouncil,
+
+    "name": doctorName,
+    "qualification": qualification,
+    "specialization": specialization,
+
+    "clinicName": clinicName,
+    "clinicAddress": clinicAddress,
+    "city": city,
+    "district": district,
+    "state": state,
+
+    "countryId": countryid,
+    "pincode": pinCode,
+
+    "contact": mobileNumber,
+    "alternateContact": alternateMobileNumber,
+
+    "email": email,
+    "website": website,
+
+    "isSubscribed": isSubscribed,
+    "subscriptionExpiry":
+        subscriptionExpiry?.toIso8601String(),
+  };
+}
 }

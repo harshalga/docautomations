@@ -813,6 +813,7 @@ import 'package:docautomations/datamodels/request/doctor_registration_request.da
 import 'package:docautomations/datamodels/response/doctor_profile.dart';
 
 import 'package:docautomations/network/dio_client.dart';
+import 'package:flutter/material.dart';
 
 
 class DoctorApiService {
@@ -841,11 +842,12 @@ class DoctorApiService {
   Future<Map<String, dynamic>> registerDoctor(
     DoctorRegistrationRequest request,
   ) async {
-
+try
+{
     final response =
         await _dio.post(
 
-      "/api/doctor/register",
+      "/api/doctors/register",
 
       data:
           request.toJson(),
@@ -855,7 +857,18 @@ class DoctorApiService {
     return Map<String, dynamic>.from(
       response.data,
     );
+}
+on DioException catch (error) {
+  debugPrint(
+    'Registration status: ${error.response?.statusCode}',
+  );
 
+  debugPrint(
+    'Registration response: ${error.response?.data}',
+  );
+
+  rethrow;
+  }
   }
 
 
@@ -868,10 +881,18 @@ class DoctorApiService {
     final response =
         await _dio.get(
 
-      "/api/doctor/profile",
+      "/api/doctors/profile",
 
     );
 
+
+debugPrint(
+  'PROFILE RESPONSE TYPE: ${response.data.runtimeType}',
+);
+
+debugPrint(
+  'PROFILE RESPONSE DATA: ${response.data}',
+);
 
     final responseData =
         Map<String, dynamic>.from(
@@ -903,6 +924,18 @@ class DoctorApiService {
 
     }
 
+    //TODO: Need to be deleted after testing
+      debugPrint(
+  'PROFILE DATA KEYS: ${data.keys.toList()}',
+);
+
+debugPrint(
+  'DOCTOR DATA: ${data['doctor']}',
+);
+
+debugPrint(
+  'ASSETS DATA: ${data['assets']}',
+);
 
     return DoctorProfile.fromJson(
 
@@ -975,7 +1008,7 @@ class DoctorApiService {
     final response =
         await _dio.post(
 
-      "/api/doctor/logo",
+      "/api/doctors/logo",
 
       data:
           request,
@@ -1004,7 +1037,7 @@ class DoctorApiService {
     final response =
         await _dio.get(
 
-      "/api/doctor/logo",
+      "/api/doctors/logo",
 
     );
 
@@ -1112,7 +1145,7 @@ class DoctorApiService {
     final response =
         await _dio.post(
 
-      "/api/doctor/signature",
+      "/api/doctors/signature",
 
       data:
           request,
@@ -1141,7 +1174,7 @@ class DoctorApiService {
     final response =
         await _dio.get(
 
-      "/api/doctor/signature",
+      "/api/doctors/signature",
 
     );
 

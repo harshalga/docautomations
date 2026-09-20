@@ -60,8 +60,8 @@ class PrescriptionTheme {
       Map<String, dynamic> json) {
     return PrescriptionTheme(
       id: json["_id"] ?? "",
-      name: json["name"] ?? "",
-      description: json["description"] ?? "",
+      name: json["themename"] ?? "",
+      description: json["themedescription"] ?? "",
       isPremium: json["isPremium"] ?? false,
       isActive: json["isActive"] ?? true,
       fontFamily: json["fontFamily"] ?? "Roboto",
@@ -81,8 +81,8 @@ class PrescriptionTheme {
   Map<String, dynamic> toJson() {
     return {
       "_id": id,
-      "name": name,
-      "description": description,
+      "themename": name,
+      "themedescription": description,
       "isPremium": isPremium,
       "isActive": isActive,
       "fontFamily": fontFamily,

@@ -337,7 +337,7 @@ class DioClient {
 
           final isRefreshRequest =
               path.contains(
-                "/api/doctor/refresh",
+                "/api/doctors/refresh",
               );
 
 

@@ -111,13 +111,13 @@ class AuthService {
   //===========================================================================
 
   static const String _loginEndpoint =
-      "/api/doctor/login";
+      "/api/doctors/login";
 
   static const String _refreshEndpoint =
-      "/api/doctor/refresh-token";
+      "/api/doctors/refresh-token";
 
   static const String _logoutEndpoint =
-      "/api/doctor/logout";
+      "/api/doctors/logout";
 
 
   //===========================================================================

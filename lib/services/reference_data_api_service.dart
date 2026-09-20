@@ -34,7 +34,7 @@ class ReferenceDataApiService {
     final response =
         await _dio.get(
 
-      "/api/country",
+      "/api/countries",
 
     );
 
@@ -103,7 +103,7 @@ class ReferenceDataApiService {
     final response =
         await _dio.get(
 
-      "/api/country/$countryId",
+      "/api/countries/$countryId",
 
     );
 
@@ -161,7 +161,7 @@ class ReferenceDataApiService {
     final response =
         await _dio.get(
 
-      "/api/country/code/$countryCode",
+      "/api/countries/code/$countryCode",
 
     );
 
