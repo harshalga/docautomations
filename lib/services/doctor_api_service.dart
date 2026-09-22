@@ -894,6 +894,8 @@ debugPrint(
   'PROFILE RESPONSE DATA: ${response.data}',
 );
 
+
+
     final responseData =
         Map<String, dynamic>.from(
           response.data,
@@ -932,7 +934,13 @@ debugPrint(
 debugPrint(
   'DOCTOR DATA: ${data['doctor']}',
 );
+debugPrint(
+  'LAYOUT DATA: ${data['layout']}',
+);
 
+debugPrint(
+  'THEME DATA: ${data['theme']}',
+);
 debugPrint(
   'ASSETS DATA: ${data['assets']}',
 );

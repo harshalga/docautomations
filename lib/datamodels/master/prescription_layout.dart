@@ -50,46 +50,59 @@ class PrescriptionLayout {
   });
 
   factory PrescriptionLayout.fromJson(
-      Map<String, dynamic> json) {
+    Map<String, dynamic> json) {
 
-    return PrescriptionLayout(
+  final selectedTheme = json["selectedThemeId"];
 
-      selectedThemeId:
-          json["selectedThemeId"] ?? "",
-      topMarginCm:
-          (json["topMarginCm"] ?? 0.5).toDouble(),
+  final String selectedThemeId;
 
-      bottomMarginCm:
-          (json["bottomMarginCm"] ?? 0.5).toDouble(),
-
-      leftMarginCm:
-          (json["leftMarginCm"] ?? 0.5).toDouble(),
-
-      rightMarginCm:
-          (json["rightMarginCm"] ?? 0.5).toDouble(),
-
-      headerHeightCm:
-          (json["headerHeightCm"] ?? 5.5).toDouble(),
-
-      footerHeightCm:
-          (json["footerHeightCm"] ?? 2.0).toDouble(),
-
-      printLetterHead:
-          json["printLetterHead"] ?? true,
-
-      showPrescriptionQRCode:
-          json["showPrescriptionQRCode"] ?? true,
-
-      showWatermark:
-          json["showWatermark"] ?? true,
-
-      pageSize:
-          json["pageSize"] ?? "A4",
-
-      printSignature:
-          json["printSignature"] ?? true,
-    );
+  if (selectedTheme is String) {
+    selectedThemeId = selectedTheme;
+  } else if (selectedTheme is Map<String, dynamic>) {
+    // Supports a populated theme reference.
+    selectedThemeId =
+        selectedTheme["_id"]?.toString() ?? "";
+  } else {
+    selectedThemeId = "";
   }
+
+  return PrescriptionLayout(
+    selectedThemeId: selectedThemeId,
+
+    topMarginCm:
+        (json["topMarginCm"] ?? 0.5).toDouble(),
+
+    bottomMarginCm:
+        (json["bottomMarginCm"] ?? 0.5).toDouble(),
+
+    leftMarginCm:
+        (json["leftMarginCm"] ?? 0.5).toDouble(),
+
+    rightMarginCm:
+        (json["rightMarginCm"] ?? 0.5).toDouble(),
+
+    headerHeightCm:
+        (json["headerHeightCm"] ?? 5.5).toDouble(),
+
+    footerHeightCm:
+        (json["footerHeightCm"] ?? 2.0).toDouble(),
+
+    printLetterHead:
+        json["printLetterHead"] ?? true,
+
+    showPrescriptionQRCode:
+        json["showPrescriptionQRCode"] ?? true,
+
+    showWatermark:
+        json["showWatermark"] ?? true,
+
+    pageSize:
+        json["pageSize"] ?? "A4",
+
+    printSignature:
+        json["printSignature"] ?? true,
+  );
+}
 
   Map<String, dynamic> toJson() {
 
