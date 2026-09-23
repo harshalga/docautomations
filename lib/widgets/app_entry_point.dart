@@ -1,4 +1,5 @@
 
+import 'package:docautomations/screens/menubar/menubar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -420,13 +421,14 @@ void _handleNewPatientRequested() {
       //=======================================================================
 
       case _AppStartupState.ready:
-
-        return PatientSearchScreen(
-
+      return Menubar(
+          key: const ValueKey('authenticated_menubar'),
+        body: PatientSearchScreen(
+           
           //------------------------------------------------------------------------- // Existing Patient Selected //------------------------------------------------------------------------- // // Later this will open the ConsultationScreen for the selected patient. // //-------------------------------------------------------------------------
            onPatientSelected: _handlePatientSelected, //------------------------------------------------------------------------- //
            // New Patient Requested //------------------------------------------------------------------------- // // Later this will open PatientRegistrationScreen. // //------------------------------------------------------------------------- 
-           onNewPatientRequested: _handleNewPatientRequested,
+           onNewPatientRequested: _handleNewPatientRequested,),
           onLogout: _handleLogout,
         );
 

@@ -59,7 +59,7 @@ import 'package:docautomations/repositories/patient_repository.dart';
 //
 //   Logout
 //          ↓
-//   onLogout
+//   onLogout not required hanndled from menu 
 //
 //=============================================================================
 
@@ -69,7 +69,7 @@ class PatientSearchScreen extends StatefulWidget {
     super.key,
     required this.onPatientSelected,
     required this.onNewPatientRequested,
-    required this.onLogout,
+    
   });
 
 
@@ -85,8 +85,7 @@ class PatientSearchScreen extends StatefulWidget {
   final VoidCallback onNewPatientRequested;
 
 
-  /// Called when the doctor logs out.
-  final Future<void> Function() onLogout;
+  
 
 
   @override
@@ -430,7 +429,7 @@ class _PatientSearchScreenState
     }
 
 
-    await widget.onLogout();
+   
   }
 
 
