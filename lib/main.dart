@@ -630,7 +630,8 @@
 import 'package:docautomations/common/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:docautomations/services/layout_api_service.dart';
+import 'package:docautomations/repositories/layout_repository.dart';
 //-----------------------------------------------------------------------------
 // APPLICATION
 //-----------------------------------------------------------------------------
@@ -688,6 +689,8 @@ Future<void> main() async {
 
   final referenceDataApiService = ReferenceDataApiService();
 
+
+  final layoutApiService =     LayoutApiService();
   //-------------------------------------------------------------------------
   // REPOSITORIES
   //-------------------------------------------------------------------------
@@ -700,6 +703,10 @@ Future<void> main() async {
     apiService: referenceDataApiService,
     localStorage: localStorage,
   );
+
+  final layoutRepository =   LayoutRepository(
+  apiService: layoutApiService,
+);
 
   //-------------------------------------------------------------------------
   // APPLICATION BOOTSTRAPPER
@@ -738,7 +745,11 @@ Future<void> main() async {
         Provider<ReferenceDataRepository>.value(
           value: referenceDataRepository,
         ),
-
+  
+        Provider<LayoutRepository>.value(
+          value: layoutRepository,
+        ),
+        
         Provider<AssetManager>.value(
           value: assetManager,
         ),

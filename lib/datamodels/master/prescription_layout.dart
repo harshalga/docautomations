@@ -1,22 +1,40 @@
+import 'package:docautomations/datamodels/master/prescription_theme.dart';
+
 class PrescriptionLayout {
 
-  final String selectedThemeId;
+  //===========================================================================
+  // Identity
+  //===========================================================================
 
-  final double topMarginCm;
+  final String id;
 
-  final double bottomMarginCm;
+  final String doctorId;
 
-  final double leftMarginCm;
 
-  final double rightMarginCm;
+  //===========================================================================
+  // Page Layout
+  //===========================================================================
 
   final double headerHeightCm;
 
   final double footerHeightCm;
 
-  final bool printLetterHead;
+  final double leftMarginCm;
+
+  final double rightMarginCm;
+
+  final double topMarginCm;
+
+  final double bottomMarginCm;
 
   final String pageSize;
+
+
+  //===========================================================================
+  // Printing Options
+  //===========================================================================
+
+  final bool printLetterHead;
 
   final bool printSignature;
 
@@ -24,113 +42,176 @@ class PrescriptionLayout {
 
   final bool showWatermark;
 
+  final bool showPageNumber;
+
+
+  //===========================================================================
+  // Theme
+  //===========================================================================
+
+  final PrescriptionTheme? selectedTheme;
+
+
+  //===========================================================================
+  // Constructor
+  //===========================================================================
+
   const PrescriptionLayout({
 
-    required this.selectedThemeId,
+    required this.id,
+
+    required this.doctorId,
+
+    required this.headerHeightCm,
+
+    required this.footerHeightCm,
+
+    required this.leftMarginCm,
+
+    required this.rightMarginCm,
 
     required this.topMarginCm,
 
     required this.bottomMarginCm,
 
-    required this.leftMarginCm,
-
-    required this.rightMarginCm,
-   
-    required this.headerHeightCm,
-
-    required this.footerHeightCm,
+    required this.pageSize,
 
     required this.printLetterHead,
+
+    required this.printSignature,
 
     required this.showPrescriptionQRCode,
 
     required this.showWatermark,
-    required this.pageSize,
-    required this.printSignature,
+
+    required this.showPageNumber,
+
+    this.selectedTheme,
+
   });
 
+
+  //===========================================================================
+  // JSON
+  //===========================================================================
+
   factory PrescriptionLayout.fromJson(
-    Map<String, dynamic> json) {
+    Map<String, dynamic> json,
+  ) {
 
-  final selectedTheme = json["selectedThemeId"];
+    final selectedThemeJson =
+        json["selectedThemeId"];
 
-  final String selectedThemeId;
 
-  if (selectedTheme is String) {
-    selectedThemeId = selectedTheme;
-  } else if (selectedTheme is Map<String, dynamic>) {
-    // Supports a populated theme reference.
-    selectedThemeId =
-        selectedTheme["_id"]?.toString() ?? "";
-  } else {
-    selectedThemeId = "";
+    return PrescriptionLayout(
+
+      id:
+          json["_id"]?.toString() ?? "",
+
+      doctorId:
+          json["doctorId"]?.toString() ?? "",
+
+      headerHeightCm:
+          (json["headerHeightCm"] ?? 5.5).toDouble(),
+
+      footerHeightCm:
+          (json["footerHeightCm"] ?? 1.5).toDouble(),
+
+      leftMarginCm:
+          (json["leftMarginCm"] ?? 1.0).toDouble(),
+
+      rightMarginCm:
+          (json["rightMarginCm"] ?? 1.0).toDouble(),
+
+      topMarginCm:
+          (json["topMarginCm"] ?? 0.0).toDouble(),
+
+      bottomMarginCm:
+          (json["bottomMarginCm"] ?? 0.0).toDouble(),
+
+      pageSize:
+          json["pageSize"]?.toString() ?? "A4",
+
+      printLetterHead:
+          json["printLetterHead"] ?? true,
+
+      printSignature:
+          json["printSignature"] ?? true,
+
+      showPrescriptionQRCode:
+          json["showPrescriptionQRCode"] ?? true,
+
+      showWatermark:
+          json["showWatermark"] ?? false,
+
+      showPageNumber:
+          json["showPageNumber"] ?? false,
+
+      selectedTheme:
+          selectedThemeJson is Map
+              ? PrescriptionTheme.fromJson(
+                  Map<String, dynamic>.from(
+                    selectedThemeJson,
+                  ),
+                )
+              : null,
+    );
   }
 
-  return PrescriptionLayout(
-    selectedThemeId: selectedThemeId,
 
-    topMarginCm:
-        (json["topMarginCm"] ?? 0.5).toDouble(),
-
-    bottomMarginCm:
-        (json["bottomMarginCm"] ?? 0.5).toDouble(),
-
-    leftMarginCm:
-        (json["leftMarginCm"] ?? 0.5).toDouble(),
-
-    rightMarginCm:
-        (json["rightMarginCm"] ?? 0.5).toDouble(),
-
-    headerHeightCm:
-        (json["headerHeightCm"] ?? 5.5).toDouble(),
-
-    footerHeightCm:
-        (json["footerHeightCm"] ?? 2.0).toDouble(),
-
-    printLetterHead:
-        json["printLetterHead"] ?? true,
-
-    showPrescriptionQRCode:
-        json["showPrescriptionQRCode"] ?? true,
-
-    showWatermark:
-        json["showWatermark"] ?? true,
-
-    pageSize:
-        json["pageSize"] ?? "A4",
-
-    printSignature:
-        json["printSignature"] ?? true,
-  );
-}
+  //===========================================================================
+  // To JSON
+  //===========================================================================
 
   Map<String, dynamic> toJson() {
 
     return {
 
-      "selectedThemeId": selectedThemeId,
+      "_id":
+          id,
 
-      "topMarginCm": topMarginCm,
+      "doctorId":
+          doctorId,
 
-      "bottomMarginCm": bottomMarginCm,
+      "headerHeightCm":
+          headerHeightCm,
 
-      "leftMarginCm": leftMarginCm,
+      "footerHeightCm":
+          footerHeightCm,
 
-      "rightMarginCm": rightMarginCm,
+      "leftMarginCm":
+          leftMarginCm,
 
-      "headerHeightCm": headerHeightCm,
+      "rightMarginCm":
+          rightMarginCm,
 
-      "footerHeightCm": footerHeightCm,
+      "topMarginCm":
+          topMarginCm,
 
-      "printLetterHead": printLetterHead,
+      "bottomMarginCm":
+          bottomMarginCm,
 
-      "showPrescriptionQRCode": showPrescriptionQRCode,
+      "pageSize":
+          pageSize,
 
-      "showWatermark": showWatermark,
+      "printLetterHead":
+          printLetterHead,
 
-      "pageSize": pageSize,
+      "printSignature":
+          printSignature,
 
-      "printSignature": printSignature,
+      "showPrescriptionQRCode":
+          showPrescriptionQRCode,
+
+      "showWatermark":
+          showWatermark,
+
+      "showPageNumber":
+          showPageNumber,
+
+      "selectedTheme":
+          selectedTheme?.toJson(),
+
     };
   }
 }
