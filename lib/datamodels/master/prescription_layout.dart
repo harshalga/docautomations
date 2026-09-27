@@ -163,55 +163,51 @@ class PrescriptionLayout {
   // To JSON
   //===========================================================================
 
-  Map<String, dynamic> toJson() {
+ Map<String, dynamic> toJson() {
+  return {
+    "_id": id,
 
-    return {
+    "doctorId":
+        doctorId,
 
-      "_id":
-          id,
+    "headerHeightCm":
+        headerHeightCm,
 
-      "doctorId":
-          doctorId,
+    "footerHeightCm":
+        footerHeightCm,
 
-      "headerHeightCm":
-          headerHeightCm,
+    "leftMarginCm":
+        leftMarginCm,
 
-      "footerHeightCm":
-          footerHeightCm,
+    "rightMarginCm":
+        rightMarginCm,
 
-      "leftMarginCm":
-          leftMarginCm,
+    "topMarginCm":
+        topMarginCm,
 
-      "rightMarginCm":
-          rightMarginCm,
+    "bottomMarginCm":
+        bottomMarginCm,
 
-      "topMarginCm":
-          topMarginCm,
+    "pageSize":
+        pageSize,
 
-      "bottomMarginCm":
-          bottomMarginCm,
+    "printLetterHead":
+        printLetterHead,
 
-      "pageSize":
-          pageSize,
+    "printSignature":
+        printSignature,
 
-      "printLetterHead":
-          printLetterHead,
+    "showPrescriptionQRCode":
+        showPrescriptionQRCode,
 
-      "printSignature":
-          printSignature,
+    "showWatermark":
+        showWatermark,
 
-      "showPrescriptionQRCode":
-          showPrescriptionQRCode,
+    "showPageNumber":
+        showPageNumber,
 
-      "showWatermark":
-          showWatermark,
-
-      "showPageNumber":
-          showPageNumber,
-
-      "selectedTheme":
-          selectedTheme?.toJson(),
-
-    };
-  }
+    "selectedThemeId":
+        selectedTheme?.toJson(),
+  };
+}
 }

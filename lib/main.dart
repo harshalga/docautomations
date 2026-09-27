@@ -715,6 +715,7 @@ Future<void> main() async {
   final applicationBootstrapper = ApplicationBootstrapper(
     doctorRepository: doctorRepository,
     referenceDataRepository: referenceDataRepository,
+    layoutRepository: layoutRepository,
     assetManager: assetManager,
     localStorage: localStorage,
   );

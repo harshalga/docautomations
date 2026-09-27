@@ -1,10 +1,12 @@
 import 'package:docautomations/datamodels/master/master_data.dart';
+import 'package:docautomations/datamodels/master/prescription_layout.dart';
 
 import 'package:docautomations/device_assets/asset_manager.dart';
 import 'package:docautomations/device_assets/asset_type.dart';
 
 import 'package:docautomations/repositories/doctor_repository.dart';
 import 'package:docautomations/repositories/reference_data_repository.dart';
+import 'package:docautomations/repositories/layout_repository.dart';
 
 import 'package:docautomations/storage/local_storage_service.dart';
 
@@ -17,6 +19,8 @@ class ApplicationBootstrapper {
 
   final ReferenceDataRepository referenceDataRepository;
 
+  final LayoutRepository layoutRepository;
+
   final AssetManager assetManager;
 
   final LocalStorageService localStorage;
@@ -28,6 +32,7 @@ class ApplicationBootstrapper {
   const ApplicationBootstrapper({
     required this.doctorRepository,
     required this.referenceDataRepository,
+    required this.layoutRepository,
     required this.assetManager,
     required this.localStorage,
   });
@@ -124,19 +129,38 @@ class ApplicationBootstrapper {
     );
 
     //----------------------------------------------------------------------
-    // Step 8: Build Master Data
+    // Step 8: Load Prescription Layout
+    //----------------------------------------------------------------------
+
+    final layoutResult =
+        await layoutRepository.getDoctorLayout();
+
+    if (!layoutResult.success) {
+      throw Exception(
+        layoutResult.message,
+      );
+    }
+
+    final prescriptionLayout =
+        layoutResult.data as PrescriptionLayout;
+
+    //----------------------------------------------------------------------
+    // Step 9: Build Master Data
     //----------------------------------------------------------------------
 
     final masterData = MasterData(
       doctorProfile: doctorProfile,
       countries: countries,
+      prescriptionLayout: prescriptionLayout,
     );
 
     //----------------------------------------------------------------------
-    // Step 9: Cache Master Data
+    // Step 10: Cache Master Data
     //----------------------------------------------------------------------
 
-    await localStorage.saveMasterData(masterData);
+    await localStorage.saveMasterData(
+      masterData,
+    );
 
     return masterData;
   }
@@ -146,7 +170,9 @@ class ApplicationBootstrapper {
   //==========================================================================
 
   Future<MasterData> refresh() {
-    return initialize(forceRefresh: true);
+    return initialize(
+      forceRefresh: true,
+    );
   }
 
   //==========================================================================

@@ -2,12 +2,17 @@ import 'dart:convert';
 
 import 'package:docautomations/datamodels/master/country.dart';
 import 'package:docautomations/datamodels/master/master_data.dart';
+import 'package:docautomations/datamodels/master/prescription_layout.dart';
 import 'package:docautomations/datamodels/response/doctor_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorageService {
   static const String _doctorProfileKey = "doctor_profile";
+
   static const String _countriesKey = "countries";
+
+  static const String _prescriptionLayoutKey =
+      "prescription_layout";
 
   const LocalStorageService();
 
@@ -19,7 +24,8 @@ class LocalStorageService {
     String key,
     Map<String, dynamic> json,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs =
+        await SharedPreferences.getInstance();
 
     await prefs.setString(
       key,
@@ -30,9 +36,11 @@ class LocalStorageService {
   Future<Map<String, dynamic>?> loadJson(
     String key,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs =
+        await SharedPreferences.getInstance();
 
-    final value = prefs.getString(key);
+    final value =
+        prefs.getString(key);
 
     if (value == null || value.isEmpty) {
       return null;
@@ -47,7 +55,8 @@ class LocalStorageService {
     String key,
     List<Map<String, dynamic>> list,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs =
+        await SharedPreferences.getInstance();
 
     await prefs.setString(
       key,
@@ -58,9 +67,11 @@ class LocalStorageService {
   Future<List<dynamic>> loadList(
     String key,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs =
+        await SharedPreferences.getInstance();
 
-    final value = prefs.getString(key);
+    final value =
+        prefs.getString(key);
 
     if (value == null || value.isEmpty) {
       return [];
@@ -74,13 +85,15 @@ class LocalStorageService {
   Future<void> remove(
     String key,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs =
+        await SharedPreferences.getInstance();
 
     await prefs.remove(key);
   }
 
   Future<void> clear() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs =
+        await SharedPreferences.getInstance();
 
     await prefs.clear();
   }
@@ -90,23 +103,41 @@ class LocalStorageService {
   //==============================================================
 
   Future<MasterData?> loadMasterData() async {
-    final doctor = await loadDoctorProfile();
+    final doctor =
+        await loadDoctorProfile();
 
     if (doctor == null) {
+      return null;
+    }
+
+    final layout =
+        await loadPrescriptionLayout();
+
+    if (layout == null) {
       return null;
     }
 
     return MasterData(
       doctorProfile: doctor,
       countries: await loadCountries(),
+      prescriptionLayout: layout,
     );
   }
 
   Future<void> saveMasterData(
     MasterData data,
   ) async {
-    await saveDoctorProfile(data.doctorProfile);
-    await saveCountries(data.countries);
+    await saveDoctorProfile(
+      data.doctorProfile,
+    );
+
+    await saveCountries(
+      data.countries,
+    );
+
+    await savePrescriptionLayout(
+      data.prescriptionLayout,
+    );
   }
 
   //==============================================================
@@ -123,7 +154,8 @@ class LocalStorageService {
   }
 
   Future<DoctorProfile?> loadDoctorProfile() async {
-    final json = await loadJson(
+    final json =
+        await loadJson(
       _doctorProfileKey,
     );
 
@@ -131,11 +163,15 @@ class LocalStorageService {
       return null;
     }
 
-    return DoctorProfile.fromJson(json);
+    return DoctorProfile.fromJson(
+      json,
+    );
   }
 
   Future<void> clearDoctorProfile() async {
-    await remove(_doctorProfileKey);
+    await remove(
+      _doctorProfileKey,
+    );
   }
 
   //==============================================================
@@ -148,13 +184,16 @@ class LocalStorageService {
     await saveList(
       _countriesKey,
       countries
-          .map((e) => e.toJson())
+          .map(
+            (e) => e.toJson(),
+          )
           .toList(),
     );
   }
 
   Future<List<Country>> loadCountries() async {
-    final list = await loadList(
+    final list =
+        await loadList(
       _countriesKey,
     );
 
@@ -168,7 +207,44 @@ class LocalStorageService {
   }
 
   Future<void> clearCountries() async {
-    await remove(_countriesKey);
+    await remove(
+      _countriesKey,
+    );
+  }
+
+  //==============================================================
+  // Prescription Layout
+  //==============================================================
+
+  Future<void> savePrescriptionLayout(
+    PrescriptionLayout layout,
+  ) async {
+    await saveJson(
+      _prescriptionLayoutKey,
+      layout.toJson(),
+    );
+  }
+
+  Future<PrescriptionLayout?>
+      loadPrescriptionLayout() async {
+    final json =
+        await loadJson(
+      _prescriptionLayoutKey,
+    );
+
+    if (json == null) {
+      return null;
+    }
+
+    return PrescriptionLayout.fromJson(
+      json,
+    );
+  }
+
+  Future<void> clearPrescriptionLayout() async {
+    await remove(
+      _prescriptionLayoutKey,
+    );
   }
 
   //==============================================================
@@ -178,5 +254,6 @@ class LocalStorageService {
   Future<void> clearMasters() async {
     await clearDoctorProfile();
     await clearCountries();
+    await clearPrescriptionLayout();
   }
 }
