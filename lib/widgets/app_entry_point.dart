@@ -3,8 +3,8 @@ import 'package:docautomations/screens/menubar/menubar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:docautomations/application/application_bootstrapper.dart';
 import 'package:docautomations/providers/authentication_provider.dart';
+import 'package:docautomations/controllers/application_controller.dart';
 
 import 'package:docautomations/screens/auth/login_screen.dart';
 import 'package:docautomations/screens/auth/registration_screen.dart';
@@ -13,6 +13,7 @@ import 'package:docautomations/screens/splash/splash_screen.dart';
 import 'package:docautomations/datamodels/master/patient.dart';
 import 'package:docautomations/controllers/doctor_registration_controller.dart';
 import 'package:docautomations/repositories/doctor_repository.dart';
+
 
 
 //=============================================================================
@@ -141,11 +142,16 @@ class _AppEntryPointState extends State<AppEntryPoint> {
       // Bootstrap authenticated application
       //=======================================================================
 
-      final applicationBootstrapper =
-          context.read<ApplicationBootstrapper>();
+      // final applicationBootstrapper =
+      //     context.read<ApplicationBootstrapper>();
 
-      await applicationBootstrapper.initialize();
+      // await applicationBootstrapper.initialize();
 
+
+final applicationController =
+    context.read<ApplicationController>();
+
+await applicationController.initialize();
 
       if (!mounted) return;
 
@@ -197,12 +203,19 @@ class _AppEntryPointState extends State<AppEntryPoint> {
 
     try {
 
-      final applicationBootstrapper =
-          context.read<ApplicationBootstrapper>();
+      // final applicationBootstrapper =
+      //     context.read<ApplicationBootstrapper>();
 
-      await applicationBootstrapper.initialize(
-        forceRefresh: true,
-      );
+      // await applicationBootstrapper.initialize(
+      //   forceRefresh: true,
+      // );
+
+      final applicationController =
+    context.read<ApplicationController>();
+
+await applicationController.initialize(
+  forceRefresh: true,
+);
 
 
       if (!mounted) return;
@@ -358,16 +371,26 @@ void _handleNewPatientRequested() {
 
     try {
 
+      // final authenticationProvider =
+      //     context.read<AuthenticationProvider>();
+
+      // await authenticationProvider.logout();
+
+
+      // final applicationBootstrapper =
+      //     context.read<ApplicationBootstrapper>();
+
+      // await applicationBootstrapper.clearCache();
+
       final authenticationProvider =
-          context.read<AuthenticationProvider>();
+    context.read<AuthenticationProvider>();
 
-      await authenticationProvider.logout();
+await authenticationProvider.logout();
 
+final applicationController =
+    context.read<ApplicationController>();
 
-      final applicationBootstrapper =
-          context.read<ApplicationBootstrapper>();
-
-      await applicationBootstrapper.clearCache();
+await applicationController.clear();
 
     } catch (error) {
 

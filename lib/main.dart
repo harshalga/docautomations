@@ -630,13 +630,18 @@
 import 'package:docautomations/common/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:docautomations/services/layout_api_service.dart';
-import 'package:docautomations/repositories/layout_repository.dart';
+
 //-----------------------------------------------------------------------------
 // APPLICATION
 //-----------------------------------------------------------------------------
 
 import 'package:docautomations/widgets/app_entry_point.dart';
+
+//-----------------------------------------------------------------------------
+// Controller
+//-----------------------------------------------------------------------------
+
+import 'package:docautomations/controllers/application_controller.dart';
 
 //-----------------------------------------------------------------------------
 // PROVIDERS
@@ -650,6 +655,7 @@ import 'package:docautomations/providers/authentication_provider.dart';
 
 import 'package:docautomations/repositories/doctor_repository.dart';
 import 'package:docautomations/repositories/reference_data_repository.dart';
+import 'package:docautomations/repositories/layout_repository.dart';
 
 //-----------------------------------------------------------------------------
 // API SERVICES
@@ -657,6 +663,7 @@ import 'package:docautomations/repositories/reference_data_repository.dart';
 
 import 'package:docautomations/services/doctor_api_service.dart';
 import 'package:docautomations/services/reference_data_api_service.dart';
+import 'package:docautomations/services/layout_api_service.dart';
 
 //-----------------------------------------------------------------------------
 // APPLICATION SERVICES
@@ -727,6 +734,9 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+
+        
+
         //---------------------------------------------------------------------
         // AUTHENTICATION
         //---------------------------------------------------------------------
@@ -762,6 +772,12 @@ Future<void> main() async {
         Provider<ApplicationBootstrapper>.value(
           value: applicationBootstrapper,
         ),
+
+        ChangeNotifierProvider(
+  create: (_) => ApplicationController(
+    initializer: applicationBootstrapper,
+  ),
+),  
       ],
       child: const PrescriptorApp(),
     ),
