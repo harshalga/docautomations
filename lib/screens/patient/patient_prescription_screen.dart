@@ -11,6 +11,15 @@ import 'package:docautomations/repositories/prescription_repository.dart';
 
 import 'package:docautomations/screens/prescription/add_prescription.dart';
 import  'package:docautomations/datamodels/prescriptionData.dart';
+import 'package:docautomations/datamodels/master/master_data.dart';
+
+
+import 'dart:typed_data';
+
+import 'package:docautomations/datamodels/snapshot/prescription_snapshot.dart';
+import 'package:docautomations/device_assets/asset_manager.dart';
+import 'package:docautomations/services/prescription_pdf_service.dart';
+import 'package:docautomations/widgets/print_preview_screen.dart';
 
 
 class PatientPrescriptionScreen extends StatefulWidget {
@@ -46,6 +55,9 @@ class _PatientPrescriptionScreenState
     extends State<PatientPrescriptionScreen> {
 
   late final AddPrescriptionController controller;
+
+  late final PrescriptionPdfService pdfService;
+
 
   bool _initialized = false;
 
@@ -118,29 +130,34 @@ class _PatientPrescriptionScreenState
   DateTime? _followUpDate;
 
 
-  @override
-  void initState() {
+ @override
+void initState() {
+  super.initState();
 
-    super.initState();
+  final masterData =
+      context.read<MasterData>();
 
-    controller =
-        AddPrescriptionController(
+  controller =
+      AddPrescriptionController(
+        mode: widget.mode,
 
-      mode:
-          widget.mode,
+        patient: widget.patient,
 
-      patient:
-          widget.patient,
+        patientDoctor: widget.patientDoctor,
 
-      patientDoctor:
-          widget.patientDoctor,
+        prescriptionRepository:
+            context.read<PrescriptionRepository>(),
 
-      prescriptionRepository:
-          context.read<PrescriptionRepository>(),
+        masterData:
+            masterData,
+      );
 
-    );
-
-  }
+  pdfService =
+      PrescriptionPdfService(
+        assetManager:
+            context.read<AssetManager>(),
+      );
+}
 
 
   @override
@@ -1210,6 +1227,9 @@ class _PatientPrescriptionScreenState
 
 
   Future<void> _generatePrescription() async {
+  // =========================================================================
+  // Copy UI values into the prescription ViewModel
+  // =========================================================================
 
   controller.prescription
     ..chiefComplaint =
@@ -1228,32 +1248,184 @@ class _PatientPrescriptionScreenState
   controller.prescription.printLetterHead =
       controller.printLetterhead;
 
+  // =========================================================================
+  // Persist prescription
+  // =========================================================================
 
   final result =
       await controller.generatePrescription();
 
+  if (!mounted) {
+    return;
+  }
 
-  if (!mounted) return;
-
+  // =========================================================================
+  // Handle backend failure
+  // =========================================================================
 
   if (!result.success) {
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content:
-            Text(result.message),
+        content: Text(
+          result.message,
+        ),
       ),
     );
 
     return;
-
   }
 
+  // =========================================================================
+  // Extract backend response
+  // =========================================================================
 
-  // PDF generation comes here.
+  if (result.data is! Map) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Prescription was saved, but PDF data was not returned.",
+        ),
+      ),
+    );
+
+    return;
+  }
+
+  final data =
+      Map<String, dynamic>.from(
+    result.data as Map,
+  );
+
+  // =========================================================================
+  // Extract persisted snapshot
+  // =========================================================================
+
+  final snapshotJson =
+      data["snapshot"];
+
+  if (snapshotJson is! Map) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Prescription was saved, but its snapshot was not returned.",
+        ),
+      ),
+    );
+
+    return;
+  }
+
+  final snapshot =
+      PrescriptionSnapshot.fromJson(
+    Map<String, dynamic>.from(
+      snapshotJson,
+    ),
+  );
+
+  // =========================================================================
+  // Prescription date
+  // =========================================================================
+
+  final prescriptionDate =
+      data["prescriptionDate"]?.toString();
+
+  if (prescriptionDate == null ||
+      prescriptionDate.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Prescription was saved, but its date was not returned.",
+        ),
+      ),
+    );
+
+    return;
+  }
+
+  // =========================================================================
+  // Prescription QR
+  // =========================================================================
+  //
+  // The backend can later return a secure QR URL/token here.
+  //
+  // Example:
+  //
+  // https://prescriptor.app/r/abc123
+  //
+  // We intentionally do NOT put the prescription JSON into the QR code.
+  // =========================================================================
+
+  final prescriptionQrData =
+      data["prescriptionQrData"]?.toString();
+
+  // =========================================================================
+  // Generate PDF
+  // =========================================================================
+
+  try {
+    final Uint8List pdfBytes =
+        await pdfService.generatePrescriptionPdf(
+      snapshot: snapshot,
+
+      selectedTheme:
+          context
+              .read<MasterData>()
+              .prescriptionLayout
+              .selectedTheme,
+
+      prescriptionQrData:
+          prescriptionQrData,
+
+      prescriptionDate:
+          _formatPrescriptionDate(
+            prescriptionDate,
+          ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    // =========================================================================
+    // Open Print Preview
+    // =========================================================================
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            PrintPreviewScreen(
+          pdfBytes: pdfBytes,
+        ),
+      ),
+    );
+  } catch (error) {
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Unable to generate prescription PDF: $error",
+        ),
+      ),
+    );
+  }
 }
 
+String _formatPrescriptionDate(
+  String value,
+) {
+  final date =
+      DateTime.tryParse(value);
 
+  if (date == null) {
+    return value;
+  }
+
+  return _formatDate(date);
+}
   //-------------------------------------------------------------------------
   // Date picker
   //-------------------------------------------------------------------------

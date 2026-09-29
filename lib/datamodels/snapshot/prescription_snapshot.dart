@@ -1,8 +1,17 @@
 import 'package:docautomations/datamodels/prescriptionData.dart';
 
 /// ===========================================================================
-/// This is the exact object that gets encrypted and stored in
-/// GeneratedPrescDetails.encryptedPrescription
+/// Prescription Snapshot
+///
+/// This is the complete immutable object that gets encrypted and stored in
+/// GeneratedPrescDetails.encryptedPrescription.
+///
+/// It contains:
+///   - Doctor information at the time of prescription
+///   - Patient information at the time of prescription
+///   - Clinic information at the time of prescription
+///   - Prescription information
+///   - Layout/printing configuration used for the prescription
 /// ===========================================================================
 class PrescriptionSnapshot {
   final DoctorSnapshot doctor;
@@ -13,23 +22,45 @@ class PrescriptionSnapshot {
 
   final PrescriptionSnapshotData prescription;
 
+  final LayoutSnapshot layout;
+
   const PrescriptionSnapshot({
     required this.doctor,
     required this.patient,
     required this.clinic,
     required this.prescription,
+    required this.layout,
   });
 
+  //===========================================================================
+  // From JSON
+  //===========================================================================
+
   factory PrescriptionSnapshot.fromJson(
-      Map<String, dynamic> json) {
+    Map<String, dynamic> json,
+  ) {
     return PrescriptionSnapshot(
-      doctor: DoctorSnapshot.fromJson(json["doctor"] ?? {}),
-      patient: PatientSnapshot.fromJson(json["patient"] ?? {}),
-      clinic: ClinicSnapshot.fromJson(json["clinic"] ?? {}),
+      doctor: DoctorSnapshot.fromJson(
+        json["doctor"] ?? {},
+      ),
+      patient: PatientSnapshot.fromJson(
+        json["patient"] ?? {},
+      ),
+      clinic: ClinicSnapshot.fromJson(
+        json["clinic"] ?? {},
+      ),
       prescription: PrescriptionSnapshotData.fromJson(
-          json["prescription"] ?? {}),
+        json["prescription"] ?? {},
+      ),
+      layout: LayoutSnapshot.fromJson(
+        json["layout"] ?? {},
+      ),
     );
   }
+
+  //===========================================================================
+  // To JSON
+  //===========================================================================
 
   Map<String, dynamic> toJson() {
     return {
@@ -37,13 +68,16 @@ class PrescriptionSnapshot {
       "patient": patient.toJson(),
       "clinic": clinic.toJson(),
       "prescription": prescription.toJson(),
+      "layout": layout.toJson(),
     };
   }
 }
 
+
 /// ===========================================================================
 /// Doctor Snapshot
 /// ===========================================================================
+
 class DoctorSnapshot {
   final String doctorName;
 
@@ -66,18 +100,37 @@ class DoctorSnapshot {
     required this.email,
   });
 
+  //===========================================================================
+  // From JSON
+  //===========================================================================
+
   factory DoctorSnapshot.fromJson(
-      Map<String, dynamic> json) {
+    Map<String, dynamic> json,
+  ) {
     return DoctorSnapshot(
-      doctorName: json["doctorName"] ?? "",
-      qualification: json["qualification"] ?? "",
-      specialization: json["specialization"] ?? "",
+      doctorName:
+          json["doctorName"] ?? "",
+
+      qualification:
+          json["qualification"] ?? "",
+
+      specialization:
+          json["specialization"] ?? "",
+
       registrationNumber:
           json["registrationNumber"] ?? "",
-      mobileNumber: json["mobileNumber"] ?? "",
-      email: json["email"] ?? "",
+
+      mobileNumber:
+          json["mobileNumber"] ?? "",
+
+      email:
+          json["email"] ?? "",
     );
   }
+
+  //===========================================================================
+  // To JSON
+  //===========================================================================
 
   Map<String, dynamic> toJson() {
     return {
@@ -91,9 +144,11 @@ class DoctorSnapshot {
   }
 }
 
+
 /// ===========================================================================
 /// Clinic Snapshot
 /// ===========================================================================
+
 class ClinicSnapshot {
   final String clinicName;
 
@@ -116,17 +171,37 @@ class ClinicSnapshot {
     required this.pinCode,
   });
 
+  //===========================================================================
+  // From JSON
+  //===========================================================================
+
   factory ClinicSnapshot.fromJson(
-      Map<String, dynamic> json) {
+    Map<String, dynamic> json,
+  ) {
     return ClinicSnapshot(
-      clinicName: json["clinicName"] ?? "",
-      clinicAddress: json["clinicAddress"] ?? "",
-      city: json["city"] ?? "",
-      state: json["state"] ?? "",
-      country: json["country"] ?? "",
-      pinCode: json["pinCode"] ?? "",
+      clinicName:
+          json["clinicName"] ?? "",
+
+      clinicAddress:
+          json["clinicAddress"] ?? "",
+
+      city:
+          json["city"] ?? "",
+
+      state:
+          json["state"] ?? "",
+
+      country:
+          json["country"] ?? "",
+
+      pinCode:
+          json["pinCode"] ?? "",
     );
   }
+
+  //===========================================================================
+  // To JSON
+  //===========================================================================
 
   Map<String, dynamic> toJson() {
     return {
@@ -140,9 +215,11 @@ class ClinicSnapshot {
   }
 }
 
+
 /// ===========================================================================
 /// Patient Snapshot
 /// ===========================================================================
+
 class PatientSnapshot {
   final String ppid;
 
@@ -160,13 +237,13 @@ class PatientSnapshot {
 
   final String mobileNumber;
 
-  final String addressLine1  ;
+  final String addressLine1;
 
-  final String addressLine2  ;
+  final String addressLine2;
 
   final String country;
 
-  final String pinCode; 
+  final String pinCode;
 
   const PatientSnapshot({
     required this.ppid,
@@ -183,25 +260,59 @@ class PatientSnapshot {
     required this.pinCode,
   });
 
+  //===========================================================================
+  // From JSON
+  //===========================================================================
+
   factory PatientSnapshot.fromJson(
-      Map<String, dynamic> json) {
+    Map<String, dynamic> json,
+  ) {
     return PatientSnapshot(
-      ppid: json["ppid"] ?? "",
-      firstName: json["firstName"] ?? "",
-      middleName: json["middleName"] ?? "",
-      lastName: json["lastName"] ?? "",
-      dateOfBirth: json["dateOfBirth"] != null
-          ? DateTime.parse(json["dateOfBirth"])
-          : null,
-      ageAtVisit: json["ageAtVisit"] ?? 0,
-      gender: json["gender"] ?? "",
-      mobileNumber: json["mobileNumber"] ?? "",
-      addressLine1: json["addressLine1"] ?? "",
-      addressLine2: json["addressLine2"] ?? "",
-      country: json["country"] ?? "",
-      pinCode: json["pinCode"] ?? "",
+      ppid:
+          json["ppid"] ?? "",
+
+      firstName:
+          json["firstName"] ?? "",
+
+      middleName:
+          json["middleName"] ?? "",
+
+      lastName:
+          json["lastName"] ?? "",
+
+      dateOfBirth:
+          json["dateOfBirth"] != null
+              ? DateTime.tryParse(
+                  json["dateOfBirth"].toString(),
+                )
+              : null,
+
+      ageAtVisit:
+          json["ageAtVisit"] ?? 0,
+
+      gender:
+          json["gender"] ?? "",
+
+      mobileNumber:
+          json["mobileNumber"] ?? "",
+
+      addressLine1:
+          json["addressLine1"] ?? "",
+
+      addressLine2:
+          json["addressLine2"] ?? "",
+
+      country:
+          json["country"] ?? "",
+
+      pinCode:
+          json["pinCode"] ?? "",
     );
   }
+
+  //===========================================================================
+  // To JSON
+  //===========================================================================
 
   Map<String, dynamic> toJson() {
     return {
@@ -211,25 +322,41 @@ class PatientSnapshot {
       "lastName": lastName,
       "dateOfBirth":
           dateOfBirth?.toIso8601String(),
-      "ageAtVisit": ageAtVisit,
-      "gender": gender,
-      "mobileNumber": mobileNumber,
-      "addressLine1": addressLine1, 
-      "addressLine2": addressLine2,
-      "country": country,
-      "pinCode": pinCode,
+      "ageAtVisit":
+          ageAtVisit,
+      "gender":
+          gender,
+      "mobileNumber":
+          mobileNumber,
+      "addressLine1":
+          addressLine1,
+      "addressLine2":
+          addressLine2,
+      "country":
+          country,
+      "pinCode":
+          pinCode,
     };
   }
 
+  //===========================================================================
+  // Full Name
+  //===========================================================================
+
   String get fullName =>
       "$firstName $middleName $lastName"
-          .replaceAll(RegExp(r'\s+'), " ")
+          .replaceAll(
+            RegExp(r'\s+'),
+            " ",
+          )
           .trim();
 }
 
+
 /// ===========================================================================
-/// Prescription Snapshot
+/// Prescription Snapshot Data
 /// ===========================================================================
+
 class PrescriptionSnapshotData {
   final String chiefComplaint;
 
@@ -255,52 +382,95 @@ class PrescriptionSnapshotData {
     required this.medicines,
   });
 
+  //===========================================================================
+  // From JSON
+  //===========================================================================
+
   factory PrescriptionSnapshotData.fromJson(
-      Map<String, dynamic> json) {
+    Map<String, dynamic> json,
+  ) {
     return PrescriptionSnapshotData(
       chiefComplaint:
           json["chiefComplaint"] ?? "",
+
       examination:
           json["examination"] ?? "",
+
       diagnosis:
           json["diagnosis"] ?? "",
+
       advice:
           json["advice"] ?? "",
+
       remarks:
           json["remarks"] ?? "",
+
       followUpDate:
           json["followUpDate"] != null
-              ? DateTime.parse(
-                  json["followUpDate"])
+              ? DateTime.tryParse(
+                  json["followUpDate"].toString(),
+                )
               : null,
+
       medicines:
           (json["medicines"] as List? ?? [])
-              .map((e) => Prescriptiondata.fromJson(e))
+              .whereType<Map>()
+              .map(
+                (e) => Prescriptiondata.fromJson(
+                  Map<String, dynamic>.from(e),
+                ),
+              )
               .toList(),
     );
   }
 
+  //===========================================================================
+  // To JSON
+  //===========================================================================
+
   Map<String, dynamic> toJson() {
     return {
-      "chiefComplaint": chiefComplaint,
-      "examination": examination,
-      "diagnosis": diagnosis,
-      "advice": advice,
-      "remarks": remarks,
+      "chiefComplaint":
+          chiefComplaint,
+
+      "examination":
+          examination,
+
+      "diagnosis":
+          diagnosis,
+
+      "advice":
+          advice,
+
+      "remarks":
+          remarks,
+
       "followUpDate":
           followUpDate?.toIso8601String(),
+
       "medicines":
-          medicines.map((e) => e.toJson()).toList(),
+          medicines
+              .map(
+                (e) => e.toJson(),
+              )
+              .toList(),
     };
   }
-
-  
 }
 
-class LayoutSnapshot {
-  
 
-  final double headerHeightCm ;
+/// ===========================================================================
+/// Layout Snapshot
+///
+/// Stores the printing/layout configuration that was active when the
+/// prescription was generated.
+///
+/// This is part of the immutable prescription snapshot so that the
+/// prescription can later be reproduced using the same layout settings.
+/// ===========================================================================
+
+class LayoutSnapshot {
+  final double headerHeightCm;
 
   final double footerHeightCm;
 
@@ -312,17 +482,19 @@ class LayoutSnapshot {
 
   final double bottomMarginCm;
 
-  final String pageSize; 
+  final String pageSize;
 
   final bool printLetterHead;
 
   final bool printSignature;
 
-  final bool printQRCode;
+  final bool showPrescriptionQRCode;
+
+  final bool showWatermark;
+
+  final bool showPageNumber;
 
   final String selectedThemeId;
-
-  
 
   const LayoutSnapshot({
     required this.headerHeightCm,
@@ -331,45 +503,114 @@ class LayoutSnapshot {
     required this.rightMarginCm,
     required this.topMarginCm,
     required this.bottomMarginCm,
-    required this.pageSize,    
+    required this.pageSize,
     required this.printLetterHead,
     required this.printSignature,
-    required this.printQRCode,
+    required this.showPrescriptionQRCode,
+    required this.showWatermark,
+    required this.showPageNumber,
     required this.selectedThemeId,
   });
 
+  //===========================================================================
+  // From JSON
+  //===========================================================================
+
   factory LayoutSnapshot.fromJson(
-      Map<String, dynamic> json) {
+    Map<String, dynamic> json,
+  ) {
     return LayoutSnapshot(
-      headerHeightCm: (json["headerHeightCm"] ?? 4.0).toDouble(),
-      footerHeightCm: (json["footerHeightCm"] ?? 2.0).toDouble(),
-      leftMarginCm: (json["leftMarginCm"] ?? 1.0).toDouble(),
-      rightMarginCm: (json["rightMarginCm"] ?? 1.0).toDouble(),
-      topMarginCm: (json["topMarginCm"] ?? 1.0).toDouble(),
-      bottomMarginCm: (json["bottomMarginCm"] ?? 1.0).toDouble(),
-      pageSize: json["pageSize"] ?? "A4",            
-      printLetterHead: json["printLetterHead"] ?? true,
-      printSignature: json["printSignature"] ?? true,
-      printQRCode: json["printQRCode"] ?? true,
-      selectedThemeId: json["selectedThemeId"] ?? "",
+      headerHeightCm:
+          (json["headerHeightCm"] ?? 5.5)
+              .toDouble(),
+
+      footerHeightCm:
+          (json["footerHeightCm"] ?? 1.5)
+              .toDouble(),
+
+      leftMarginCm:
+          (json["leftMarginCm"] ?? 1.0)
+              .toDouble(),
+
+      rightMarginCm:
+          (json["rightMarginCm"] ?? 1.0)
+              .toDouble(),
+
+      topMarginCm:
+          (json["topMarginCm"] ?? 0.0)
+              .toDouble(),
+
+      bottomMarginCm:
+          (json["bottomMarginCm"] ?? 0.0)
+              .toDouble(),
+
+      pageSize:
+          json["pageSize"]?.toString() ?? "A4",
+
+      printLetterHead:
+          json["printLetterHead"] ?? true,
+
+      printSignature:
+          json["printSignature"] ?? true,
+
+      showPrescriptionQRCode:
+          json["showPrescriptionQRCode"] ?? true,
+
+      showWatermark:
+          json["showWatermark"] ?? false,
+
+      showPageNumber:
+          json["showPageNumber"] ?? false,
+
+      selectedThemeId:
+          json["selectedThemeId"]?.toString() ?? "",
     );
   }
 
- Map<String, dynamic> toJson() {
+  //===========================================================================
+  // To JSON
+  //===========================================================================
+
+  Map<String, dynamic> toJson() {
     return {
-      "headerHeightCm": headerHeightCm,
-      "footerHeightCm": footerHeightCm,      
-      "leftMarginCm": leftMarginCm,
-      "rightMarginCm": rightMarginCm,
-      "topMarginCm": topMarginCm,
-      "bottomMarginCm": bottomMarginCm,
-      "pageSize": pageSize,
-      "printLetterHead": printLetterHead,
-      "printSignature": printSignature,
-      "printQRCode": printQRCode,
-      "selectedThemeId": selectedThemeId,
+      "headerHeightCm":
+          headerHeightCm,
+
+      "footerHeightCm":
+          footerHeightCm,
+
+      "leftMarginCm":
+          leftMarginCm,
+
+      "rightMarginCm":
+          rightMarginCm,
+
+      "topMarginCm":
+          topMarginCm,
+
+      "bottomMarginCm":
+          bottomMarginCm,
+
+      "pageSize":
+          pageSize,
+
+      "printLetterHead":
+          printLetterHead,
+
+      "printSignature":
+          printSignature,
+
+      "showPrescriptionQRCode":
+          showPrescriptionQRCode,
+
+      "showWatermark":
+          showWatermark,
+
+      "showPageNumber":
+          showPageNumber,
+
+      "selectedThemeId":
+          selectedThemeId,
     };
   }
-
-  
 }

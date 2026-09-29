@@ -11,6 +11,8 @@ import 'package:docautomations/repositories/prescription_repository.dart';
 
 import 'package:docautomations/datamodels/master/patient_mode.dart';
 
+import 'package:docautomations/datamodels/master/master_data.dart';
+
 
 class AddPrescriptionController
     extends ChangeNotifier {
@@ -28,6 +30,7 @@ class AddPrescriptionController
     this.patient,
     this.patientDoctor,
     required this.prescriptionRepository,
+    required this.masterData,
   });
 
 
@@ -47,6 +50,13 @@ class AddPrescriptionController
   //===========================================================================
 
   final PrescriptionRepository prescriptionRepository;
+
+
+  //===========================================================================
+// Application Master Data
+//===========================================================================
+
+  final MasterData masterData;
 
 
   //===========================================================================
@@ -173,7 +183,8 @@ class AddPrescriptionController
 
     prescription.clear();
 
-    printLetterhead = true;
+    printLetterhead =
+    masterData.prescriptionLayout.printLetterHead;
 
     canGenerateNext = false;
 
@@ -238,7 +249,8 @@ class AddPrescriptionController
 
   prescription.clear();
 
-  printLetterhead = true;
+  printLetterhead =
+    masterData.prescriptionLayout.printLetterHead;
 
   canGenerateNext = false;
 
@@ -413,7 +425,8 @@ class AddPrescriptionController
   // Print Letterhead
   //-------------------------------------------------------------------------
 
-  printLetterhead = true;
+  printLetterhead =
+    masterData.prescriptionLayout.printLetterHead;
 
   prescription.printLetterHead =
       printLetterhead;
@@ -434,9 +447,155 @@ class AddPrescriptionController
 Map<String, dynamic> buildPrescriptionRequest({
   required Map<String, dynamic> patientSnapshot,
 }) {
+  //---------------------------------------------------------------------------
+  // Doctor
+  //---------------------------------------------------------------------------
+
+  final doctor =
+      masterData.doctorProfile.doctor;
+
+  final doctorSnapshot =
+      DoctorSnapshot(
+    doctorName:
+        doctor.doctorName,
+
+    qualification:
+        doctor.qualification,
+
+    specialization:
+        doctor.specialization,
+
+    registrationNumber:
+        doctor.medicalRegistrationNumber,
+
+    mobileNumber:
+        doctor.mobileNumber,
+
+    email:
+        doctor.email,
+  );
+
+  //---------------------------------------------------------------------------
+  // Clinic
+  //---------------------------------------------------------------------------
+
+  final clinicSnapshot =
+      ClinicSnapshot(
+    clinicName:
+        doctor.clinicName,
+
+    clinicAddress:
+        doctor.clinicAddress,
+
+    city:
+        doctor.city,
+
+    state:
+        doctor.state,
+
+    country:
+        _getCountryName(
+          doctor.countryid,
+        ),
+
+    pinCode:
+        doctor.pinCode,
+  );
+
+  //---------------------------------------------------------------------------
+  // Patient
+  //---------------------------------------------------------------------------
+
+  final patient =
+      PatientSnapshot.fromJson(
+    patientSnapshot,
+  );
+
+  //---------------------------------------------------------------------------
+  // Prescription
+  //---------------------------------------------------------------------------
+
+  final prescriptionSnapshot =
+      PrescriptionSnapshotData.fromJson(
+    prescription.toJson(),
+  );
+
+  //---------------------------------------------------------------------------
+  // Layout
+  //---------------------------------------------------------------------------
+
+  final layout =
+      masterData.prescriptionLayout;
+
+  final layoutSnapshot =
+      LayoutSnapshot(
+    headerHeightCm:
+        layout.headerHeightCm,
+
+    footerHeightCm:
+        layout.footerHeightCm,
+
+    leftMarginCm:
+        layout.leftMarginCm,
+
+    rightMarginCm:
+        layout.rightMarginCm,
+
+    topMarginCm:
+        layout.topMarginCm,
+
+    bottomMarginCm:
+        layout.bottomMarginCm,
+
+    pageSize:
+        layout.pageSize,
+
+    printLetterHead:
+        layout.printLetterHead,
+
+    printSignature:
+        layout.printSignature,
+
+    showPrescriptionQRCode:
+        layout.showPrescriptionQRCode,
+
+    showWatermark:
+        layout.showWatermark,
+
+    showPageNumber:
+        layout.showPageNumber,
+
+    selectedThemeId:
+        layout.selectedTheme?.id ?? "",
+  );
+
+  //---------------------------------------------------------------------------
+  // Complete Immutable Prescription Snapshot
+  //---------------------------------------------------------------------------
+
+  final snapshot =
+      PrescriptionSnapshot(
+    doctor:
+        doctorSnapshot,
+
+    patient:
+        patient,
+
+    clinic:
+        clinicSnapshot,
+
+    prescription:
+        prescriptionSnapshot,
+
+    layout:
+        layoutSnapshot,
+  );
+
+  //---------------------------------------------------------------------------
+  // Request
+  //---------------------------------------------------------------------------
 
   return {
-
     "patientDoctorId":
         patientDoctor?.id,
 
@@ -444,18 +603,28 @@ Map<String, dynamic> buildPrescriptionRequest({
         rootSnapshotId ??
         sourcePrescriptionId,
 
-    "snapshot": {
-
-      "patient":
-          patientSnapshot,
-
-      "prescription":
-          prescription.toJson(),
-
-    },
-
+    "snapshot":
+        snapshot.toJson(),
   };
+}
 
+
+String _getCountryName(
+  String? countryId,
+) {
+  if (countryId == null ||
+      countryId.isEmpty) {
+    return "";
+  }
+
+  for (final country
+      in masterData.countries) {
+    if (country.id == countryId) {
+      return country.countryName;
+    }
+  }
+
+  return "";
 }
   //===========================================================================
   // Populate Patient
