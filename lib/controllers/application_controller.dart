@@ -54,33 +54,47 @@ class ApplicationController extends ChangeNotifier {
   // Initialize
   //---------------------------------------------------------------------------
 
-  Future<void> initialize({
-    bool forceRefresh = false,
-  }) async {
-    if (_initialized && !forceRefresh) {
-      return;
-    }
+  //---------------------------------------------------------------------------
+// Initialize
+//---------------------------------------------------------------------------
 
-    _loading = true;
-    _errorMessage = null;
+Future<MasterData> initialize({
+  bool forceRefresh = false,
+}) async {
+
+  if (_initialized && !forceRefresh) {
+    return masterData;
+  }
+
+  _loading = true;
+  _errorMessage = null;
+
+  notifyListeners();
+
+  try {
+
+    _masterData =
+        await initializer.initialize(
+      forceRefresh: forceRefresh,
+    );
+
+    _initialized = true;
+
+    return _masterData!;
+
+  } catch (e) {
+
+    _errorMessage = e.toString();
+
+    rethrow;
+
+  } finally {
+
+    _loading = false;
 
     notifyListeners();
-
-    try {
-      _masterData =
-          await initializer.initialize(
-        forceRefresh: forceRefresh,
-      );
-
-      _initialized = true;
-    } catch (e) {
-      _errorMessage = e.toString();
-    } finally {
-      _loading = false;
-
-      notifyListeners();
-    }
   }
+}
 
   //---------------------------------------------------------------------------
   // Refresh

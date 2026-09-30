@@ -1,4 +1,6 @@
 
+import 'package:docautomations/datamodels/master/master_data.dart';
+import 'package:docautomations/datamodels/master/patient_mode.dart';
 import 'package:docautomations/screens/menubar/menubar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +15,7 @@ import 'package:docautomations/screens/splash/splash_screen.dart';
 import 'package:docautomations/datamodels/master/patient.dart';
 import 'package:docautomations/controllers/doctor_registration_controller.dart';
 import 'package:docautomations/repositories/doctor_repository.dart';
+import 'package:docautomations/screens/patient/patient_prescription_screen.dart';
 
 
 
@@ -60,6 +63,8 @@ class _AppEntryPointState extends State<AppEntryPoint> {
   //-------------------------------------------------------------------------
   // STARTUP STATE
   //-------------------------------------------------------------------------
+
+  MasterData? _masterData;
 
   _AppStartupState _startupState = _AppStartupState.initializing;
 
@@ -137,33 +142,57 @@ class _AppEntryPointState extends State<AppEntryPoint> {
       }
 
 
-      //=======================================================================
-      // STEP 3
-      // Bootstrap authenticated application
-      //=======================================================================
+//       //=======================================================================
+//       // STEP 3
+//       // Bootstrap authenticated application
+//       //=======================================================================
 
-      // final applicationBootstrapper =
-      //     context.read<ApplicationBootstrapper>();
+//       // final applicationBootstrapper =
+//       //     context.read<ApplicationBootstrapper>();
 
-      // await applicationBootstrapper.initialize();
+//       // await applicationBootstrapper.initialize();
 
+
+// final applicationController =
+//     context.read<ApplicationController>();
+
+// await applicationController.initialize();
+
+//       if (!mounted) return;
+
+
+//       //=======================================================================
+//       // STEP 4
+//       // Application is ready
+//       //=======================================================================
+
+//       setState(() {
+//         _startupState = _AppStartupState.ready;
+//       });
+
+//=======================================================================
+// STEP 3
+// Bootstrap authenticated application
+//=======================================================================
 
 final applicationController =
     context.read<ApplicationController>();
 
-await applicationController.initialize();
+final masterData =
+    await applicationController.initialize();
 
-      if (!mounted) return;
+if (!mounted) return;
 
 
-      //=======================================================================
-      // STEP 4
-      // Application is ready
-      //=======================================================================
+//=======================================================================
+// STEP 4
+// Application is ready
+//=======================================================================
 
-      setState(() {
-        _startupState = _AppStartupState.ready;
-      });
+setState(() {
+  _masterData = masterData;
+  _startupState = _AppStartupState.ready;
+});
 
     } catch (error) {
 
@@ -191,39 +220,29 @@ await applicationController.initialize();
   // AppEntryPoint then performs the authenticated application bootstrap.
   //
   //-------------------------------------------------------------------------
+Future<void> _handleLoginSuccess() async {
+  if (!mounted) return;
 
-  Future<void> _handleLoginSuccess() async {
+  setState(() {
+    _startupState = _AppStartupState.initializing;
+    _errorMessage = null;
+  });
+
+  try {
+    final applicationController =
+        context.read<ApplicationController>();
+
+    final masterData =
+        await applicationController.initialize(
+      forceRefresh: true,
+    );
 
     if (!mounted) return;
 
     setState(() {
-      _startupState = _AppStartupState.initializing;
-      _errorMessage = null;
+      _masterData = masterData;
+      _startupState = _AppStartupState.ready;
     });
-
-    try {
-
-      // final applicationBootstrapper =
-      //     context.read<ApplicationBootstrapper>();
-
-      // await applicationBootstrapper.initialize(
-      //   forceRefresh: true,
-      // );
-
-      final applicationController =
-    context.read<ApplicationController>();
-
-await applicationController.initialize(
-  forceRefresh: true,
-);
-
-
-      if (!mounted) return;
-
-      setState(() {
-        _startupState = _AppStartupState.ready;
-      });
-
     } catch (error, stackTrace) {
 
       if (!mounted) return;
@@ -236,14 +255,64 @@ await applicationController.initialize(
     stackTrace: stackTrace,
     label: 'BOOTSTRAP STACK TRACE',
   );
-
-      setState(() {
-        _startupState = _AppStartupState.error;
-        _errorMessage =
-            'Unable to load your application data.';
-      });
-    }
+    setState(() {
+      _errorMessage = error.toString();
+      _startupState = _AppStartupState.error;
+    });
   }
+}
+//   Future<void> _handleLoginSuccess() async {
+
+//     if (!mounted) return;
+
+//     setState(() {
+//       _startupState = _AppStartupState.initializing;
+//       _errorMessage = null;
+//     });
+
+//     try {
+
+//       // final applicationBootstrapper =
+//       //     context.read<ApplicationBootstrapper>();
+
+//       // await applicationBootstrapper.initialize(
+//       //   forceRefresh: true,
+//       // );
+
+//       final applicationController =
+//     context.read<ApplicationController>();
+
+// await applicationController.initialize(
+//   forceRefresh: true,
+// );
+
+
+//       if (!mounted) return;
+
+//       setState(() {
+//         _startupState = _AppStartupState.ready;
+//       });
+
+//     } catch (error, stackTrace) {
+
+//       if (!mounted) return;
+
+//       debugPrint(
+//         'Application bootstrap after login failed: $error',
+//       );
+
+//       debugPrintStack(
+//     stackTrace: stackTrace,
+//     label: 'BOOTSTRAP STACK TRACE',
+//   );
+
+//       setState(() {
+//         _startupState = _AppStartupState.error;
+//         _errorMessage =
+//             'Unable to load your application data.';
+//       });
+//     }
+//   }
 //-------------------------------------------------------------------------
 // REGISTRATION REQUESTED
 //-------------------------------------------------------------------------
@@ -344,11 +413,17 @@ void _handlePatientSelected(
 //
 //-----------------------------------------------------------------------------
 
+
+
 void _handleNewPatientRequested() {
-
-  // TODO:
-  // Open PatientRegistrationScreen.
-
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const PatientPrescriptionScreen(
+        mode: PatientMode.newPatient,
+      ),
+    ),
+  );
   debugPrint(
     'New patient registration requested.',
   );
@@ -439,21 +514,58 @@ await applicationController.clear();
         );
 
 
-      //=======================================================================
-      // APPLICATION READY
-      //=======================================================================
+      // //=======================================================================
+      // // APPLICATION READY
+      // //=======================================================================
 
-      case _AppStartupState.ready:
-      return Menubar(
-          key: const ValueKey('authenticated_menubar'),
-        body: PatientSearchScreen(
+      // case _AppStartupState.ready:
+      // return Menubar(
+      //     key: const ValueKey('authenticated_menubar'),
+      //   body: PatientSearchScreen(
            
-          //------------------------------------------------------------------------- // Existing Patient Selected //------------------------------------------------------------------------- // // Later this will open the ConsultationScreen for the selected patient. // //-------------------------------------------------------------------------
-           onPatientSelected: _handlePatientSelected, //------------------------------------------------------------------------- //
-           // New Patient Requested //------------------------------------------------------------------------- // // Later this will open PatientRegistrationScreen. // //------------------------------------------------------------------------- 
-           onNewPatientRequested: _handleNewPatientRequested,),
-          onLogout: _handleLogout,
-        );
+      //     //------------------------------------------------------------------------- // Existing Patient Selected //------------------------------------------------------------------------- // // Later this will open the ConsultationScreen for the selected patient. // //-------------------------------------------------------------------------
+      //      onPatientSelected: _handlePatientSelected, //------------------------------------------------------------------------- //
+      //      // New Patient Requested //------------------------------------------------------------------------- // // Later this will open PatientRegistrationScreen. // //------------------------------------------------------------------------- 
+      //      onNewPatientRequested: _handleNewPatientRequested,),
+      //     onLogout: _handleLogout,
+      //   );
+
+      //=======================================================================
+// APPLICATION READY
+//=======================================================================
+
+case _AppStartupState.ready:
+
+  final masterData = _masterData;
+
+  if (masterData == null) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  return Provider<MasterData>.value(
+    value: masterData,
+
+    child: Menubar(
+      key: const ValueKey(
+        'authenticated_menubar',
+      ),
+
+      body: PatientSearchScreen(
+        onPatientSelected:
+            _handlePatientSelected,
+
+        onNewPatientRequested:
+            _handleNewPatientRequested,
+      ),
+
+      onLogout:
+          _handleLogout,
+    ),
+  );
 
 
       //=======================================================================
