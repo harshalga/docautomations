@@ -91,72 +91,57 @@ class PrescriptionLayout {
   });
 
 
-  //===========================================================================
-  // JSON
-  //===========================================================================
+ factory PrescriptionLayout.fromJson(
+  Map<String, dynamic> json, {
+  PrescriptionTheme? selectedTheme,
+}) {
+  return PrescriptionLayout(
+    id:
+        json["_id"]?.toString() ?? "",
 
-  factory PrescriptionLayout.fromJson(
-    Map<String, dynamic> json,
-  ) {
+    doctorId:
+        json["doctorId"]?.toString() ?? "",
 
-    final selectedThemeJson =
-        json["selectedThemeId"];
+    headerHeightCm:
+        (json["headerHeightCm"] ?? 5.5).toDouble(),
 
+    footerHeightCm:
+        (json["footerHeightCm"] ?? 1.5).toDouble(),
 
-    return PrescriptionLayout(
+    leftMarginCm:
+        (json["leftMarginCm"] ?? 1.0).toDouble(),
 
-      id:
-          json["_id"]?.toString() ?? "",
+    rightMarginCm:
+        (json["rightMarginCm"] ?? 1.0).toDouble(),
 
-      doctorId:
-          json["doctorId"]?.toString() ?? "",
+    topMarginCm:
+        (json["topMarginCm"] ?? 0.0).toDouble(),
 
-      headerHeightCm:
-          (json["headerHeightCm"] ?? 5.5).toDouble(),
+    bottomMarginCm:
+        (json["bottomMarginCm"] ?? 0.0).toDouble(),
 
-      footerHeightCm:
-          (json["footerHeightCm"] ?? 1.5).toDouble(),
+    pageSize:
+        json["pageSize"]?.toString() ?? "A4",
 
-      leftMarginCm:
-          (json["leftMarginCm"] ?? 1.0).toDouble(),
+    printLetterHead:
+        json["printLetterHead"] ?? true,
 
-      rightMarginCm:
-          (json["rightMarginCm"] ?? 1.0).toDouble(),
+    printSignature:
+        json["printSignature"] ?? true,
 
-      topMarginCm:
-          (json["topMarginCm"] ?? 0.0).toDouble(),
+    showPrescriptionQRCode:
+        json["showPrescriptionQRCode"] ?? true,
 
-      bottomMarginCm:
-          (json["bottomMarginCm"] ?? 0.0).toDouble(),
+    showWatermark:
+        json["showWatermark"] ?? false,
 
-      pageSize:
-          json["pageSize"]?.toString() ?? "A4",
+    showPageNumber:
+        json["showPageNumber"] ?? false,
 
-      printLetterHead:
-          json["printLetterHead"] ?? true,
-
-      printSignature:
-          json["printSignature"] ?? true,
-
-      showPrescriptionQRCode:
-          json["showPrescriptionQRCode"] ?? true,
-
-      showWatermark:
-          json["showWatermark"] ?? false,
-
-      showPageNumber:
-          json["showPageNumber"] ?? false,
-
-      selectedTheme:
-          selectedThemeJson is Map
-              ? PrescriptionTheme.fromJson(
-                  Map<String, dynamic>.from(
-                    selectedThemeJson,
-                  ),
-                )
-              : null,
-    );
-  }
+    selectedTheme:
+        selectedTheme,
+  );
+}
 
 
   //===========================================================================
@@ -206,8 +191,10 @@ class PrescriptionLayout {
     "showPageNumber":
         showPageNumber,
 
+    // "selectedThemeId":
+    //     selectedTheme?.toJson(),
     "selectedThemeId":
-        selectedTheme?.toJson(),
+    selectedTheme?.id,
   };
 }
 }

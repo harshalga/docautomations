@@ -1,5 +1,6 @@
 import 'package:docautomations/datamodels/master/prescription_layout.dart';
 import 'package:docautomations/common/operation_result.dart';
+import 'package:docautomations/datamodels/master/prescription_theme.dart';
 import 'package:docautomations/services/layout_api_service.dart';
 
 
@@ -25,68 +26,132 @@ class LayoutRepository {
   // Get Doctor Layout
   //===========================================================================
 
-  Future<OperationResult> getDoctorLayout() async {
+  // Future<OperationResult> getDoctorLayout() async {
 
-    try {
+  //   try {
 
-      final response =
-          await apiService.getDoctorLayout();
-
-
-      if (response["success"] != true) {
-
-        return OperationResult.failure(
-
-          response["message"]?.toString() ??
-              "Unable to retrieve prescription layout.",
-
-          data:
-              response["data"],
-
-        );
-      }
+  //     final response =
+  //         await apiService.getDoctorLayout();
 
 
-      if (response["data"] is! Map) {
+  //     if (response["success"] != true) {
 
-        return OperationResult.failure(
-          "Invalid prescription layout response.",
-        );
-      }
+  //       return OperationResult.failure(
 
+  //         response["message"]?.toString() ??
+  //             "Unable to retrieve prescription layout.",
 
-      final layout =
-          PrescriptionLayout.fromJson(
+  //         data:
+  //             response["data"],
 
-        Map<String, dynamic>.from(
-          response["data"] as Map,
-        ),
-
-      );
+  //       );
+  //     }
 
 
-      return OperationResult.success(
+  //     if (response["data"] is! Map) {
 
-        response["message"]?.toString() ??
-            "Prescription layout retrieved successfully.",
+  //       return OperationResult.failure(
+  //         "Invalid prescription layout response.",
+  //       );
+  //     }
 
-        data:
-            layout,
 
-      );
+  //     final layout =
+  //         PrescriptionLayout.fromJson(
 
-    } catch (error) {
+  //       Map<String, dynamic>.from(
+  //         response["data"] as Map,
+  //       ),
 
+  //     );
+
+
+  //     return OperationResult.success(
+
+  //       response["message"]?.toString() ??
+  //           "Prescription layout retrieved successfully.",
+
+  //       data:
+  //           layout,
+
+  //     );
+
+  //   } catch (error) {
+
+  //     return OperationResult.failure(
+
+  //       "Unable to retrieve prescription layout: $error",
+
+  //     );
+
+  //   }
+
+  // }
+
+Future<OperationResult> getDoctorLayout() async {
+  try {
+    final response =
+        await apiService.getDoctorLayout();
+
+    if (response["success"] != true) {
       return OperationResult.failure(
-
-        "Unable to retrieve prescription layout: $error",
-
+        response["message"]?.toString() ??
+            "Unable to retrieve prescription layout.",
+        data: response["data"],
       );
-
     }
 
-  }
+    if (response["data"] is! Map) {
+      return OperationResult.failure(
+        "Invalid prescription layout response.",
+      );
+    }
 
+    final data =
+        Map<String, dynamic>.from(
+      response["data"] as Map,
+    );
+
+    if (data["layout"] is! Map) {
+      return OperationResult.failure(
+        "Invalid prescription layout data.",
+      );
+    }
+
+    final layoutJson =
+        Map<String, dynamic>.from(
+      data["layout"] as Map,
+    );
+
+    PrescriptionTheme? selectedTheme;
+
+    if (data["theme"] is Map) {
+      selectedTheme =
+          PrescriptionTheme.fromJson(
+        Map<String, dynamic>.from(
+          data["theme"] as Map,
+        ),
+      );
+    }
+
+    final layout =
+        PrescriptionLayout.fromJson(
+      layoutJson,
+      selectedTheme: selectedTheme,
+    );
+
+    return OperationResult.success(
+      response["message"]?.toString() ??
+          "Prescription layout retrieved successfully.",
+      data: layout,
+    );
+
+  } catch (error) {
+    return OperationResult.failure(
+      "Unable to retrieve prescription layout: $error",
+    );
+  }
+}
 
   //===========================================================================
   // Update Doctor Layout
