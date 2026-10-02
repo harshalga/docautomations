@@ -93,6 +93,10 @@ Future<OperationResult> getDoctorLayout() async {
     final response =
         await apiService.getDoctorLayout();
 
+    //-------------------------------------------------------------------------
+    // Validate API response
+    //-------------------------------------------------------------------------
+
     if (response["success"] != true) {
       return OperationResult.failure(
         response["message"]?.toString() ??
@@ -101,44 +105,43 @@ Future<OperationResult> getDoctorLayout() async {
       );
     }
 
+    //-------------------------------------------------------------------------
+    // Validate layout data
+    //-------------------------------------------------------------------------
+
     if (response["data"] is! Map) {
       return OperationResult.failure(
         "Invalid prescription layout response.",
       );
     }
 
-    final data =
+    //-------------------------------------------------------------------------
+    // response["data"] IS the PrescriptionLayout
+    //
+    // There is no:
+    //
+    // response["data"]["layout"]
+    //
+    // because the backend returns the populated PrescriptionLayout directly.
+    //-------------------------------------------------------------------------
+
+    final layoutJson =
         Map<String, dynamic>.from(
       response["data"] as Map,
     );
 
-    if (data["layout"] is! Map) {
-      return OperationResult.failure(
-        "Invalid prescription layout data.",
-      );
-    }
-
-    final layoutJson =
-        Map<String, dynamic>.from(
-      data["layout"] as Map,
-    );
-
-    PrescriptionTheme? selectedTheme;
-
-    if (data["theme"] is Map) {
-      selectedTheme =
-          PrescriptionTheme.fromJson(
-        Map<String, dynamic>.from(
-          data["theme"] as Map,
-        ),
-      );
-    }
+    //-------------------------------------------------------------------------
+    // Parse PrescriptionLayout
+    //-------------------------------------------------------------------------
 
     final layout =
         PrescriptionLayout.fromJson(
       layoutJson,
-      selectedTheme: selectedTheme,
     );
+
+    //-------------------------------------------------------------------------
+    // Success
+    //-------------------------------------------------------------------------
 
     return OperationResult.success(
       response["message"]?.toString() ??
@@ -147,9 +150,11 @@ Future<OperationResult> getDoctorLayout() async {
     );
 
   } catch (error) {
+
     return OperationResult.failure(
       "Unable to retrieve prescription layout: $error",
     );
+
   }
 }
 

@@ -656,6 +656,8 @@ import 'package:docautomations/providers/authentication_provider.dart';
 import 'package:docautomations/repositories/doctor_repository.dart';
 import 'package:docautomations/repositories/reference_data_repository.dart';
 import 'package:docautomations/repositories/layout_repository.dart';
+import 'package:docautomations/repositories/prescription_repository.dart';
+import 'package:docautomations/repositories/patient_repository.dart';
 
 //-----------------------------------------------------------------------------
 // API SERVICES
@@ -664,6 +666,8 @@ import 'package:docautomations/repositories/layout_repository.dart';
 import 'package:docautomations/services/doctor_api_service.dart';
 import 'package:docautomations/services/reference_data_api_service.dart';
 import 'package:docautomations/services/layout_api_service.dart';
+import 'package:docautomations/services/prescription_api_service.dart';
+import 'package:docautomations/services/patient_api_service.dart';
 
 //-----------------------------------------------------------------------------
 // APPLICATION SERVICES
@@ -698,6 +702,10 @@ Future<void> main() async {
 
 
   final layoutApiService =     LayoutApiService();
+
+  final prescriptionApiService =   PrescriptionApiService();
+
+  final patientApiService =     PatientApiService();
   //-------------------------------------------------------------------------
   // REPOSITORIES
   //-------------------------------------------------------------------------
@@ -715,6 +723,16 @@ Future<void> main() async {
   apiService: layoutApiService,
 );
 
+
+final prescriptionRepository =
+    PrescriptionRepository(
+  apiService: prescriptionApiService,
+);
+
+final patientRepository =
+    PatientRepository(
+  apiService: patientApiService,
+);
   //-------------------------------------------------------------------------
   // APPLICATION BOOTSTRAPPER
   //-------------------------------------------------------------------------
@@ -733,52 +751,58 @@ Future<void> main() async {
 
   runApp(
     MultiProvider(
-      providers: [
+     providers: [
 
-        
+  //---------------------------------------------------------------------
+  // AUTHENTICATION
+  //---------------------------------------------------------------------
 
-        //---------------------------------------------------------------------
-        // AUTHENTICATION
-        //---------------------------------------------------------------------
-
-        ChangeNotifierProvider(
-          create: (_) => AuthenticationProvider(),
-        ),
-
-        //---------------------------------------------------------------------
-        // APPLICATION DEPENDENCIES
-        //---------------------------------------------------------------------
-
-        Provider<DoctorRepository>.value(
-          value: doctorRepository,
-        ),
-
-        Provider<ReferenceDataRepository>.value(
-          value: referenceDataRepository,
-        ),
-  
-        Provider<LayoutRepository>.value(
-          value: layoutRepository,
-        ),
-        
-        Provider<AssetManager>.value(
-          value: assetManager,
-        ),
-
-        Provider<LocalStorageService>.value(
-          value: localStorage,
-        ),
-
-        Provider<ApplicationBootstrapper>.value(
-          value: applicationBootstrapper,
-        ),
-
-        ChangeNotifierProvider(
-  create: (_) => ApplicationController(
-    initializer: applicationBootstrapper,
+  ChangeNotifierProvider(
+    create: (_) => AuthenticationProvider(),
   ),
-),  
-      ],
+
+  //---------------------------------------------------------------------
+  // APPLICATION DEPENDENCIES
+  //---------------------------------------------------------------------
+
+  Provider<DoctorRepository>.value(
+    value: doctorRepository,
+  ),
+
+  Provider<ReferenceDataRepository>.value(
+    value: referenceDataRepository,
+  ),
+
+  Provider<LayoutRepository>.value(
+    value: layoutRepository,
+  ),
+
+  Provider<PrescriptionRepository>.value(
+    value: prescriptionRepository,
+  ),
+
+  Provider<PatientRepository>.value(
+  value: patientRepository,
+),
+
+  Provider<AssetManager>.value(
+    value: assetManager,
+  ),
+
+  Provider<LocalStorageService>.value(
+    value: localStorage,
+  ),
+
+  Provider<ApplicationBootstrapper>.value(
+    value: applicationBootstrapper,
+  ),
+
+  ChangeNotifierProvider(
+    create: (_) => ApplicationController(
+      initializer: applicationBootstrapper,
+    ),
+  ),
+],
       child: const PrescriptorApp(),
     ),
   );

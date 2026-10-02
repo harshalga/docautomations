@@ -1,3 +1,4 @@
+import 'package:docautomations/datamodels/master/patient_doctor.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
@@ -78,7 +79,11 @@ class PatientSearchScreen extends StatefulWidget {
   //-------------------------------------------------------------------------
 
   /// Called when an existing patient has been successfully found.
-  final ValueChanged<Patient> onPatientSelected;
+//  final ValueChanged<Patient> onPatientSelected;
+final void Function(
+  Patient patient,
+  PatientDoctor patientDoctor,
+) onPatientSelected;
 
 
   /// Called when the doctor wants to register a new patient.
@@ -119,7 +124,7 @@ class _PatientSearchScreenState
 
   Patient? _foundPatient;
 
-
+  PatientDoctor? _foundPatientDoctor;
   //-------------------------------------------------------------------------
   // LIFECYCLE
   //-------------------------------------------------------------------------
@@ -138,140 +143,139 @@ class _PatientSearchScreenState
   //-------------------------------------------------------------------------
 
   Future<void> _searchPatient() async {
+  final ppid =
+      _ppidController.text.trim();
 
-    final ppid =
-        _ppidController.text.trim();
+  if (ppid.isEmpty) {
+    setState(() {
+      _errorMessage =
+          'Please enter the patient PPID.';
 
+      _foundPatient = null;
+      _foundPatientDoctor = null;
+    });
 
-    //-------------------------------------------------------------------------
-    // Validate PPID
-    //-------------------------------------------------------------------------
+    return;
+  }
 
-    if (ppid.isEmpty) {
+  FocusScope.of(context).unfocus();
 
+  setState(() {
+    _isSearching = true;
+    _errorMessage = null;
+    _foundPatient = null;
+    _foundPatientDoctor = null;
+  });
+
+  try {
+    final repository =
+        context.read<PatientRepository>();
+
+    //=======================================================================
+    // STEP 1
+    // Search doctor-scoped PatientDoctor using PPID
+    //=======================================================================
+
+    final searchResult =
+        await repository.searchPatients(
+      searchText: ppid,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (!searchResult.success) {
       setState(() {
-
         _errorMessage =
-            'Please enter the patient PPID.';
-
-        _foundPatient =
-            null;
+            searchResult.message.isNotEmpty
+                ? searchResult.message
+                : 'Patient not found.';
       });
 
       return;
     }
 
+    final patientDoctors =
+        searchResult.data as List<PatientDoctor>;
 
-    FocusScope.of(context).unfocus();
+    if (patientDoctors.isEmpty) {
+      setState(() {
+        _errorMessage =
+            'Patient not found.';
+      });
 
+      return;
+    }
+
+    //=======================================================================
+    // STEP 2
+    // Get the PatientDoctor relationship
+    //=======================================================================
+
+    final patientDoctor =
+        patientDoctors.first;
+
+    //=======================================================================
+    // STEP 3
+    // Retrieve the actual Patient using patientId
+    //=======================================================================
+
+    final patientResult =
+        await repository.getPatient(
+      patientDoctor.patientId,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (!patientResult.success ||
+        patientResult.data is! Patient) {
+      setState(() {
+        _errorMessage =
+            patientResult.message.isNotEmpty
+                ? patientResult.message
+                : 'Patient information could not be retrieved.';
+      });
+
+      return;
+    }
+
+    final patient =
+        patientResult.data as Patient;
+
+    //=======================================================================
+    // STEP 4
+    // Patient found
+    //=======================================================================
 
     setState(() {
-
-      _isSearching =
-          true;
-
-      _errorMessage =
-          null;
-
-      _foundPatient =
-          null;
+      _foundPatient = patient;
+      _foundPatientDoctor = patientDoctor;
+      _errorMessage = null;
     });
 
+  } catch (e) {
 
-    try {
+    if (!mounted) {
+      return;
+    }
 
-      final repository =
-          context.read<PatientRepository>();
+    setState(() {
+      _errorMessage =
+          'Unable to search for the patient.';
+    });
 
+  } finally {
 
-      //=======================================================================
-      // Search patient
-      //=======================================================================
-
-      final result =
-          await repository.getPatient(
-        ppid,
-      );
-
-
-      if (!mounted) {
-        return;
-      }
-
-
-      if (!result.success) {
-
-        setState(() {
-
-          _errorMessage =
-              result.message.isNotEmpty
-                  ? result.message
-                  : 'Patient not found.';
-        });
-
-        return;
-      }
-
-
-      //=======================================================================
-      // Extract patient
-      //=======================================================================
-
-      final patient =
-          _extractPatient(result.data);
-
-
-      if (patient == null) {
-
-        setState(() {
-
-          _errorMessage =
-              'Patient information could not be read.';
-        });
-
-        return;
-      }
-
-
-      //=======================================================================
-      // Patient found
-      //=======================================================================
-
+    if (mounted) {
       setState(() {
-
-        _foundPatient =
-            patient;
-
-        _errorMessage =
-            null;
+        _isSearching = false;
       });
-
-
-    } catch (e) {
-
-      if (!mounted) {
-        return;
-      }
-
-
-      setState(() {
-
-        _errorMessage =
-            'Unable to search for the patient.';
-      });
-
-    } finally {
-
-      if (mounted) {
-
-        setState(() {
-
-          _isSearching =
-              false;
-        });
-      }
     }
   }
+}
 
 
   //-------------------------------------------------------------------------
@@ -391,20 +395,19 @@ class _PatientSearchScreenState
   //-------------------------------------------------------------------------
 
   void _selectPatient() {
+  final patient = _foundPatient;
+  final patientDoctor = _foundPatientDoctor;
 
-    final patient =
-        _foundPatient;
-
-
-    if (patient == null) {
-      return;
-    }
-
-
-    widget.onPatientSelected(
-      patient,
-    );
+  if (patient == null ||
+      patientDoctor == null) {
+    return;
   }
+
+  widget.onPatientSelected(
+    patient,
+    patientDoctor,
+  );
+}
 
 
   //-------------------------------------------------------------------------

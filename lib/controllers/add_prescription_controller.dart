@@ -79,6 +79,10 @@ class AddPrescriptionController
   Patient? get currentPatient =>
       _currentPatient;
 
+  void setPatient(Patient patient) {
+  _currentPatient = patient;
+  notifyListeners();
+}
 
   //===========================================================================
   // Prescription State

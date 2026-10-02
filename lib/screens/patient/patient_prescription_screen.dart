@@ -1,3 +1,4 @@
+import 'package:docautomations/repositories/prescription_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -6,7 +7,7 @@ import 'package:docautomations/datamodels/master/patient.dart';
 
 import 'package:docautomations/datamodels/master/patient_doctor.dart';
 import 'package:docautomations/datamodels/master/patient_mode.dart';
-import 'package:docautomations/repositories/prescription_repository.dart';
+
 
 
 import 'package:docautomations/screens/prescription/add_prescription.dart';
@@ -30,17 +31,18 @@ class PatientPrescriptionScreen extends StatefulWidget {
 
   final PatientDoctor? patientDoctor;
 
+  final MasterData masterData;
+
+
+  
+
 
   const PatientPrescriptionScreen({
-
-    super.key,
-
-    required this.mode,
-
-    this.patient,
-
-    this.patientDoctor,
-
+  super.key,
+  required this.mode,
+  this.patient,
+  this.patientDoctor,
+  required this.masterData,
   });
 
 
@@ -135,22 +137,17 @@ void initState() {
   super.initState();
 
   final masterData =
-      context.read<MasterData>();
+      widget.masterData;
 
-  controller =
-      AddPrescriptionController(
-        mode: widget.mode,
-
-        patient: widget.patient,
-
-        patientDoctor: widget.patientDoctor,
-
-        prescriptionRepository:
-            context.read<PrescriptionRepository>(),
-
-        masterData:
-            masterData,
-      );
+ controller = AddPrescriptionController(
+  mode: widget.mode,
+  patient: widget.patient,
+  patientDoctor: widget.patientDoctor,
+  prescriptionRepository:
+      context.read<PrescriptionRepository>(),
+  masterData:
+      widget.masterData,
+);
 
   pdfService =
       PrescriptionPdfService(
@@ -1226,7 +1223,54 @@ void initState() {
   }
 
 
+Patient _buildNewPatient() {
+  return Patient(
+    id: "",
+    ppid: "",
+    firstName: _firstNameController.text.trim(),
+    middleName: _middleNameController.text.trim(),
+    lastName: _lastNameController.text.trim(),
+    dob: _dob,
+    gender: _gender,
+    mobile: _mobileController.text.trim(),
+    email: _emailController.text.trim(),
+    addressLine1: _address1Controller.text.trim(),
+    addressLine2: _address2Controller.text.trim(),
+    city: _cityController.text.trim(),
+    state: _stateController.text.trim(),
+    countryId: "",
+    pinCode: _pinCodeController.text.trim(),
+  );
+}
+
   Future<void> _generatePrescription() async {
+
+
+    // =========================================================================
+  // Build patient from NEW patient form
+  // =========================================================================
+
+  if (widget.mode == PatientMode.newPatient) {
+
+    if (_firstNameController.text.trim().isEmpty ||
+        _lastNameController.text.trim().isEmpty) {
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "First Name and Last Name are required.",
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    final patient = _buildNewPatient();
+
+    controller.setPatient(patient);
+  }
+  
   // =========================================================================
   // Copy UI values into the prescription ViewModel
   // =========================================================================

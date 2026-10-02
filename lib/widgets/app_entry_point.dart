@@ -1,6 +1,8 @@
 
 import 'package:docautomations/datamodels/master/master_data.dart';
+import 'package:docautomations/datamodels/master/patient_doctor.dart';
 import 'package:docautomations/datamodels/master/patient_mode.dart';
+import 'package:docautomations/repositories/prescription_repository.dart';
 import 'package:docautomations/screens/menubar/menubar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -388,13 +390,27 @@ void _handleBackToLogin() {
 
 void _handlePatientSelected(
   Patient patient,
+  PatientDoctor patientDoctor,
 ) {
+  final masterData = _masterData;
 
-  // TODO:
-  // Navigate/open ConsultationScreen for this patient.
+  if (masterData == null) {
+    return;
+  }
 
-  debugPrint(
-    'Patient selected: ${patient.ppid}',
+  
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => PatientPrescriptionScreen(
+        mode: PatientMode.existingPatient,
+        patient: patient,
+        patientDoctor: patientDoctor,
+        masterData: masterData,
+        
+      ),
+    ),
   );
 }
 
@@ -416,16 +432,23 @@ void _handlePatientSelected(
 
 
 void _handleNewPatientRequested() {
+  final masterData = _masterData;
+
+  if (masterData == null) {
+    return;
+  }
+
+  
+
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (_) => const PatientPrescriptionScreen(
+      builder: (_) => PatientPrescriptionScreen(
         mode: PatientMode.newPatient,
+        masterData: masterData,
+        
       ),
     ),
-  );
-  debugPrint(
-    'New patient registration requested.',
   );
 }
 
