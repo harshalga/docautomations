@@ -17,11 +17,11 @@ class PatientViewModel extends ChangeNotifier {
   String middleName = "";
   String lastName = "";
 
-  DateTime? dateOfBirth;
+  DateTime? dob;
 
   String gender = "";
 
-  String mobileNumber = "";
+  String mobile = "";
 
   String email = "";
 
@@ -40,6 +40,8 @@ class PatientViewModel extends ChangeNotifier {
   String state = "";
 
   String country = "";
+
+  String countryId = "";
 
   String pinCode = "";
 

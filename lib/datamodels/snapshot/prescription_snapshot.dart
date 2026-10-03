@@ -1,3 +1,4 @@
+import 'package:docautomations/datamodels/master/patient.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
 
 /// ===========================================================================
@@ -222,25 +223,18 @@ class ClinicSnapshot {
 
 class PatientSnapshot {
   final String ppid;
-
   final String firstName;
-
   final String middleName;
-
   final String lastName;
-
-  final DateTime? dateOfBirth;
-
+  final DateTime? dob;
   final int ageAtVisit;
-
   final String gender;
-
-  final String mobileNumber;
-
+  final String mobile;
   final String addressLine1;
-
   final String addressLine2;
 
+  // Country information
+  final String countryId;
   final String country;
 
   final String pinCode;
@@ -250,12 +244,13 @@ class PatientSnapshot {
     required this.firstName,
     required this.middleName,
     required this.lastName,
-    this.dateOfBirth,
+    this.dob,
     required this.ageAtVisit,
     required this.gender,
-    required this.mobileNumber,
+    required this.mobile,
     required this.addressLine1,
     required this.addressLine2,
+    required this.countryId,
     required this.country,
     required this.pinCode,
   });
@@ -280,10 +275,10 @@ class PatientSnapshot {
       lastName:
           json["lastName"] ?? "",
 
-      dateOfBirth:
-          json["dateOfBirth"] != null
+      dob:
+          json["dob"] != null
               ? DateTime.tryParse(
-                  json["dateOfBirth"].toString(),
+                  json["dob"].toString(),
                 )
               : null,
 
@@ -293,8 +288,8 @@ class PatientSnapshot {
       gender:
           json["gender"] ?? "",
 
-      mobileNumber:
-          json["mobileNumber"] ?? "",
+      mobile:
+          json["mobile"] ?? "",
 
       addressLine1:
           json["addressLine1"] ?? "",
@@ -305,39 +300,67 @@ class PatientSnapshot {
       country:
           json["country"] ?? "",
 
+      countryId:
+          json["countryId"] ?? "",
+
       pinCode:
           json["pinCode"] ?? "",
     );
   }
+
+  factory PatientSnapshot.fromPatient({
+  required Patient patient,
+  required String country,
+  required int ageAtVisit,
+}) {
+  return PatientSnapshot(
+    ppid: patient.ppid,
+
+    firstName: patient.firstName,
+    middleName: patient.middleName,
+    lastName: patient.lastName,
+
+    dob: patient.dob,
+
+    ageAtVisit: ageAtVisit,
+
+    gender: patient.gender,
+
+    mobile: patient.mobile,
+
+    addressLine1: patient.addressLine1,
+    addressLine2: patient.addressLine2,
+
+    countryId: patient.countryId,
+    country: country,
+
+    pinCode: patient.pinCode,
+  );
+}
 
   //===========================================================================
   // To JSON
   //===========================================================================
 
   Map<String, dynamic> toJson() {
-    return {
-      "ppid": ppid,
-      "firstName": firstName,
-      "middleName": middleName,
-      "lastName": lastName,
-      "dateOfBirth":
-          dateOfBirth?.toIso8601String(),
-      "ageAtVisit":
-          ageAtVisit,
-      "gender":
-          gender,
-      "mobileNumber":
-          mobileNumber,
-      "addressLine1":
-          addressLine1,
-      "addressLine2":
-          addressLine2,
-      "country":
-          country,
-      "pinCode":
-          pinCode,
-    };
-  }
+  return {
+    "ppid": ppid,
+    "firstName": firstName,
+    "middleName": middleName,
+    "lastName": lastName,
+    "dob": dob?.toIso8601String(),
+    "ageAtVisit": ageAtVisit,
+    "gender": gender,
+    "mobile": mobile,
+    "addressLine1": addressLine1,
+    "addressLine2": addressLine2,
+
+    "countryId": countryId,
+    "country": country,
+
+    "pinCode": pinCode,
+  };
+}
 
   //===========================================================================
   // Full Name

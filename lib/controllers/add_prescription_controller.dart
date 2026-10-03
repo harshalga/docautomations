@@ -448,9 +448,11 @@ class AddPrescriptionController
 
 }
 
-Map<String, dynamic> buildPrescriptionRequest({
-  required Map<String, dynamic> patientSnapshot,
-}) {
+// Map<String, dynamic> buildPrescriptionRequest({
+//   required Map<String, dynamic> patientSnapshot,
+// }) 
+Map<String, dynamic> buildPrescriptionRequest() 
+{
   //---------------------------------------------------------------------------
   // Doctor
   //---------------------------------------------------------------------------
@@ -510,10 +512,26 @@ Map<String, dynamic> buildPrescriptionRequest({
   // Patient
   //---------------------------------------------------------------------------
 
-  final patient =
-      PatientSnapshot.fromJson(
-    patientSnapshot,
+  //---------------------------------------------------------------------------
+// Patient
+//---------------------------------------------------------------------------
+
+if (_currentPatient == null) {
+  throw StateError(
+    "Patient information is required.",
   );
+}
+
+final patient =
+    PatientSnapshot.fromPatient(
+  patient: _currentPatient!,
+  country: _getCountryName(
+    _currentPatient!.countryId,
+  ),
+  ageAtVisit: _calculateAge(
+    _currentPatient!.dob,
+  ),
+);
 
   //---------------------------------------------------------------------------
   // Prescription
@@ -629,6 +647,25 @@ String _getCountryName(
   }
 
   return "";
+}
+
+int _calculateAge(DateTime? dob) {
+  if (dob == null) {
+    return 0;
+  }
+
+  final today = DateTime.now();
+
+  int age =
+      today.year - dob.year;
+
+  if (today.month < dob.month ||
+      (today.month == dob.month &&
+          today.day < dob.day)) {
+    age--;
+  }
+
+  return age;
 }
   //===========================================================================
   // Populate Patient
@@ -766,10 +803,7 @@ Future<OperationResult> generatePrescription() async {
   //-----------------------------------------------------------------------
 
   final request =
-      buildPrescriptionRequest(
-    patientSnapshot:
-        _currentPatient!.toJson(),
-  );
+      buildPrescriptionRequest();
 
 
   //-----------------------------------------------------------------------

@@ -394,7 +394,7 @@ final footerImage =
              pw.Expanded(
   child: _infoText(
     "DOB",
-    _stringValue(patient.dateOfBirth),
+    _stringValue(patient.dob),
   ),
 ),
 
