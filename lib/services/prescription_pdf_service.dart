@@ -407,13 +407,13 @@ pw.Expanded(
             ],
           ),
 
-          if (patient.mobileNumber.isNotEmpty)
+          if (patient.mobile.isNotEmpty)
             pw.Padding(
               padding:
                   const pw.EdgeInsets.only(top: 4),
               child: _infoText(
                 "Mobile",
-                patient.mobileNumber,
+                patient.mobile,
               ),
             ),
 

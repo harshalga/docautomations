@@ -68,15 +68,15 @@ class PatientViewModel extends ChangeNotifier {
   }
 
   int? get age {
-    if (dateOfBirth == null) return null;
+    if (dob == null) return null;
 
     final today = DateTime.now();
 
-    int years = today.year - dateOfBirth!.year;
+    int years = today.year - dob!.year;
 
-    if (today.month < dateOfBirth!.month ||
-        (today.month == dateOfBirth!.month &&
-            today.day < dateOfBirth!.day)) {
+    if (today.month < dob!.month ||
+        (today.month == dob!.month &&
+            today.day < dob!.day)) {
       years--;
     }
 
@@ -102,7 +102,7 @@ class PatientViewModel extends ChangeNotifier {
 
     gender = json["gender"] ?? "";
 
-    mobileNumber = json["mobileNumber"] ?? "";
+    mobile = json["mobile"] ?? "";
 
     email = json["email"] ?? "";
 
@@ -126,9 +126,9 @@ class PatientViewModel extends ChangeNotifier {
 
     chronicDiseases = json["chronicDiseases"] ?? "";
 
-    if (json["dateOfBirth"] != null) {
-      dateOfBirth = DateTime.parse(
-        json["dateOfBirth"],
+    if (json["dob"] != null) {
+      dob = DateTime.parse(
+        json["dob"],
       );
     }
 
@@ -148,11 +148,11 @@ class PatientViewModel extends ChangeNotifier {
     middleName = "";
     lastName = "";
 
-    dateOfBirth = null;
+    dob = null;
 
     gender = "";
 
-    mobileNumber = "";
+    mobile = "";
 
     email = "";
 
@@ -183,9 +183,9 @@ class PatientViewModel extends ChangeNotifier {
       "firstName": firstName,
       "middleName": middleName,
       "lastName": lastName,
-      "dateOfBirth": dateOfBirth?.toIso8601String(),
+      "dob": dob?.toIso8601String(),
       "gender": gender,
-      "mobileNumber": mobileNumber,
+      "mobile": mobile,
       "email": email,
       "addressLine1": addressLine1,
       "addressLine2": addressLine2,
