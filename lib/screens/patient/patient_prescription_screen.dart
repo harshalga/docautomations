@@ -131,6 +131,9 @@ class _PatientPrescriptionScreenState
 
   DateTime? _followUpDate;
 
+  // Selected country from MasterData
+  String? _selectedCountryId;
+
 
  @override
 void initState() {
@@ -156,6 +159,20 @@ void initState() {
       );
 }
 
+
+void _initializeDefaultCountry() {
+  if (_selectedCountryId != null &&
+      _selectedCountryId!.isNotEmpty) {
+    return;
+  }
+
+  for (final country in widget.masterData.countries) {
+    if (country.countryName.toLowerCase() == "india") {
+      _selectedCountryId = country.id;
+      return;
+    }
+  }
+}
 
   @override
   void didChangeDependencies() {
@@ -184,6 +201,12 @@ void initState() {
       }
 
       _populateScreenFromController();
+
+      if (widget.mode == PatientMode.newPatient &&
+    (_selectedCountryId == null ||
+        _selectedCountryId!.isEmpty)) {
+  _initializeDefaultCountry();
+}
 
       setState(() {});
 
@@ -261,6 +284,9 @@ void initState() {
             _formatDate(_dob!);
 
       }
+
+      _selectedCountryId =
+    patient.countryId;
 
     }
 
@@ -808,7 +834,41 @@ void initState() {
           ],
 
         ),
+const SizedBox(height: 0),
 
+// Country
+DropdownButtonFormField<String>(
+  initialValue: _selectedCountryId,
+
+  decoration: const InputDecoration(
+    labelText: "Country *",
+    border: OutlineInputBorder(),
+  ),
+
+  items: widget.masterData.countries
+      .map(
+        (country) => DropdownMenuItem<String>(
+          value: country.id,
+          child: Text(
+            country.countryName,
+          ),
+        ),
+      )
+      .toList(),
+
+  onChanged: controller.isLoading
+      ? null
+      : (value) {
+
+          setState(() {
+            _selectedCountryId =
+                value;
+          });
+
+        },
+),
+
+const SizedBox(height: 12),
         _textField(
           "PIN Code",
           _pinCodeController,
@@ -1238,7 +1298,7 @@ Patient _buildNewPatient() {
     addressLine2: _address2Controller.text.trim(),
     city: _cityController.text.trim(),
     state: _stateController.text.trim(),
-    countryId: "",
+    countryId: _selectedCountryId!,
     pinCode: _pinCodeController.text.trim(),
   );
 }
@@ -1266,11 +1326,25 @@ Patient _buildNewPatient() {
       return;
     }
 
+     if (_selectedCountryId == null ||
+      _selectedCountryId!.isEmpty) {
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Please select a country.",
+        ),
+      ),
+    );
+
+    return;
+  }
+
     final patient = _buildNewPatient();
 
     controller.setPatient(patient);
   }
-  
+
   // =========================================================================
   // Copy UI values into the prescription ViewModel
   // =========================================================================

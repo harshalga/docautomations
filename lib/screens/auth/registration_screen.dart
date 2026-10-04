@@ -253,12 +253,28 @@ class _RegistrationScreenState
 
       setState(() {
 
-        _countries = countries;
+  _countries = countries;
 
-        _isLoadingCountries = false;
+  _isLoadingCountries = false;
 
-        _countryError = null;
-      });
+  _countryError = null;
+
+  // Default country to India
+  if (_selectedCountry == null) {
+
+    for (final country in countries) {
+
+      if (country.countryName
+          .trim()
+          .toLowerCase() == "india") {
+
+        _selectedCountry = country;
+
+        break;
+      }
+    }
+  }
+});
 
     } catch (e) {
 
