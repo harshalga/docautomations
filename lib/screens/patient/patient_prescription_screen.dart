@@ -1486,8 +1486,8 @@ Patient _buildNewPatient() {
       snapshot: snapshot,
 
       selectedTheme:
-          context
-              .read<MasterData>()
+          
+               widget.masterData
               .prescriptionLayout
               .selectedTheme,
 
