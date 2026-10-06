@@ -21,6 +21,8 @@ class AddPrescriptionController
 
       String? rootSnapshotId;
 
+      String? returnedPpid;
+
   //===========================================================================
   // Constructor
   //===========================================================================
@@ -846,6 +848,23 @@ Future<OperationResult> generatePrescription() async {
       rootSnapshotId =
           data["rootSnapshotId"] as String?;
 
+      final ppid =
+    data["patientPpid"]?.toString();
+
+      returnedPpid =ppid;
+          
+
+         if (ppid != null &&
+    ppid.isNotEmpty &&
+    _currentPatient != null) {
+
+  _currentPatient =
+      _patientWithPpid(
+    _currentPatient!,
+    ppid,
+  );
+}
+
     }
 
 
@@ -865,6 +884,29 @@ Future<OperationResult> generatePrescription() async {
 
   }
 
+}
+
+Patient _patientWithPpid(
+  Patient patient,
+  String ppid,
+) {
+  return Patient(
+    id: patient.id,
+    ppid: ppid ,
+    firstName: patient.firstName,
+    middleName: patient.middleName,
+    lastName: patient.lastName,
+    dob: patient.dob,
+    gender: patient.gender,
+    mobile: patient.mobile,
+    email: patient.email,
+    addressLine1: patient.addressLine1,
+    addressLine2: patient.addressLine2,
+    city: patient.city,
+    state: patient.state,
+    countryId: patient.countryId,
+    pinCode: patient.pinCode,
+  );
 }
   //===========================================================================
   // Reset Prescription

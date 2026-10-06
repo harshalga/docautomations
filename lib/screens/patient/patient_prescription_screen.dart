@@ -1460,21 +1460,34 @@ Patient _buildNewPatient() {
     return;
   }
 
-  // =========================================================================
-  // Prescription QR
-  // =========================================================================
-  //
-  // The backend can later return a secure QR URL/token here.
-  //
-  // Example:
-  //
-  // https://prescriptor.app/r/abc123
-  //
-  // We intentionally do NOT put the prescription JSON into the QR code.
-  // =========================================================================
+  // // =========================================================================
+  // // Prescription QR
+  // // =========================================================================
+  // //
+  // // The backend can later return a secure QR URL/token here.
+  // //
+  // // Example:
+  // //
+  // // https://prescriptor.app/r/abc123
+  // //
+  // // We intentionally do NOT put the prescription JSON into the QR code.
+  // // =========================================================================
 
-  final prescriptionQrData =
-      data["prescriptionQrData"]?.toString();
+  // final prescriptionQrData =
+  //     data["prescriptionQrData"]?.toString();
+
+  // =========================================================================
+// Patient QR
+// =========================================================================
+//
+// The QR code contains only the patient's PPID.
+// No prescription, diagnosis, medicine, or clinical data is stored in QR.
+// =========================================================================
+
+final prescriptionQrData =
+    _buildPatientQrData(
+  snapshot.patient.ppid,
+);
 
   // =========================================================================
   // Generate PDF
@@ -1530,6 +1543,12 @@ Patient _buildNewPatient() {
       ),
     );
   }
+}
+
+String _buildPatientQrData(
+  String ppid,
+) {
+  return "PPID:$ppid";
 }
 
 String _formatPrescriptionDate(
