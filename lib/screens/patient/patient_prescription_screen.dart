@@ -840,6 +840,8 @@ const SizedBox(height: 0),
 DropdownButtonFormField<String>(
   initialValue: _selectedCountryId,
 
+  isExpanded: true,
+
   decoration: const InputDecoration(
     labelText: "Country *",
     border: OutlineInputBorder(),
@@ -849,8 +851,11 @@ DropdownButtonFormField<String>(
       .map(
         (country) => DropdownMenuItem<String>(
           value: country.id,
+
           child: Text(
             country.countryName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       )
@@ -859,12 +864,9 @@ DropdownButtonFormField<String>(
   onChanged: controller.isLoading
       ? null
       : (value) {
-
           setState(() {
-            _selectedCountryId =
-                value;
+            _selectedCountryId = value;
           });
-
         },
 ),
 
@@ -1483,7 +1485,9 @@ Patient _buildNewPatient() {
 // The QR code contains only the patient's PPID.
 // No prescription, diagnosis, medicine, or clinical data is stored in QR.
 // =========================================================================
-
+debugPrint(
+  "QR PPID = [${snapshot.patient.ppid}]",
+);
 final prescriptionQrData =
     _buildPatientQrData(
   snapshot.patient.ppid,
@@ -1548,7 +1552,7 @@ final prescriptionQrData =
 String _buildPatientQrData(
   String ppid,
 ) {
-  return "PPID:$ppid";
+  return ppid.trim();
 }
 
 String _formatPrescriptionDate(

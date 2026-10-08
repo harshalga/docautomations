@@ -9,3 +9,15 @@ class MedicineType {
 
   MedicineType(this.name, this.icon, this.unit);
 }
+
+// class MedicineType {
+//   final String name;
+//   final String iconPath;
+//   final String unit;
+
+//   MedicineType(
+//     this.name,
+//     this.iconPath,
+//     this.unit,
+//   );
+// }
