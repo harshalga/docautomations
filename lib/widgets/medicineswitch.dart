@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:docautomations/validationhandling/validation.dart';
 import 'package:docautomations/validationhandling/validator.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
 class MedicineSwitch extends StatefulWidget {
   final Prescriptiondata prescription;
@@ -26,57 +27,68 @@ class MedicineSwitchState extends State<MedicineSwitch> {
   final tabNameController = TextEditingController();
   final doseController = TextEditingController();
 
-  /// Medicine type list
+  // /// Medicine type list
+  // final List<MedicineType> types = [
+  //   MedicineType("Tablet", Image.asset(
+  //   "assets/icon/tablet.png",
+  //   width: 28,
+  //   height: 28,
+  //   fit: BoxFit.contain,
+  // ), "mg"),
+  //   MedicineType("Capsule", Image.asset(
+  //   "assets/icon/capsule.png",
+  //   width: 28,
+  //   height: 28,
+  //   fit: BoxFit.contain,
+  // ), "mg"),
+  //   MedicineType("Syrup", Image.asset(
+  //   "assets/icon/bottle.png",
+  //   width: 28,
+  //   height: 28,
+  //   fit: BoxFit.contain,
+  // ) , "ml"),
+  //   MedicineType("Ointment", Image.asset(
+  //   "assets/icon/ointment.png",
+  //   width: 28,
+  //   height: 28,
+  //   fit: BoxFit.contain,
+  // ) , "gm"), // tube-like icon
+  //   MedicineType("Injection",Image.asset(
+  //   "assets/icon/injection.png",
+  //   width: 28,
+  //   height: 28,
+  //   fit: BoxFit.contain,
+  // ) , "ml"),
+  //   MedicineType("Inhalation", Image.asset(
+  //   "assets/icon/inhaler.png",
+  //   width: 28,
+  //   height: 28,
+  //   fit: BoxFit.contain,
+  // ) , "puffs"),
+  //   MedicineType("Drops",Image.asset(
+  //   "assets/icon/eye-dropper.png",
+  //   width: 28,
+  //   height: 28,
+  //   fit: BoxFit.contain,
+  // ) , "drops"),
+  //   MedicineType("Others", Image.asset(
+  //   "assets/icon/first-aid-kit.png",
+  //   width: 28,
+  //   height: 28,
+  //   fit: BoxFit.contain,
+  // ) , ""), // no unit needed
+  // ];
+
   final List<MedicineType> types = [
-    MedicineType("Tablet", Image.asset(
-    "assets/icon/tablet.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  ), "mg"),
-    MedicineType("Capsule", Image.asset(
-    "assets/icon/capsule.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  ), "mg"),
-    MedicineType("Syrup", Image.asset(
-    "assets/icon/bottle.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  ) , "ml"),
-    MedicineType("Ointment", Image.asset(
-    "assets/icon/ointment.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  ) , "gm"), // tube-like icon
-    MedicineType("Injection",Image.asset(
-    "assets/icon/injection.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  ) , "ml"),
-    MedicineType("Inhalation", Image.asset(
-    "assets/icon/inhaler.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  ) , "puffs"),
-    MedicineType("Drops",Image.asset(
-    "assets/icon/eye-dropper.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  ) , "drops"),
-    MedicineType("Others", Image.asset(
-    "assets/icon/first-aid-kit.png",
-    width: 28,
-    height: 28,
-    fit: BoxFit.contain,
-  ) , ""), // no unit needed
-  ];
+  MedicineType("Tablet", "assets/icon/tablet.png", "mg"),
+  MedicineType("Capsule", "assets/icon/capsule.png", "mg"),
+  MedicineType("Syrup", "assets/icon/bottle.png", "ml"),
+  MedicineType("Ointment", "assets/icon/ointment.png", "gm"),
+  MedicineType("Injection", "assets/icon/injection.png", "ml"),
+  MedicineType("Inhalation", "assets/icon/inhaler.png", "puffs"),
+  MedicineType("Drops", "assets/icon/eye-dropper.png", "drops"),
+  MedicineType("Others", "assets/icon/first-aid-kit.png", ""),
+];
 
   @override
   void initState() {
@@ -133,61 +145,61 @@ class MedicineSwitchState extends State<MedicineSwitch> {
     });
   }
 
-  Widget _typeOptionTile(MedicineType med) {
-    final bool selected = selectedType == med.name;
+  // Widget _typeOptionTile(MedicineType med) {
+  //   final bool selected = selectedType == med.name;
 
-    return GestureDetector(
-      onTap: () => _selectType(med.name),
-      child: Container(
-        width: 110,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.primary : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: selected ? AppColors.primary : Colors.grey.shade400,
-            width: 1.5,
-          ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 6,
-                    offset: const Offset(0, 4),
-                  )
-                ]
-              : [],
-        ),
-        child: Column(
-          children: [
-            IconTheme(
-      data: IconThemeData(
-        color: selected  ? Colors.white : Colors.black87,
-        size: 26,
-      ),
-      child: med.icon,
-    ),
-            // Icon(
-            //   med.icon,
-            //   size: 28,
-            //   color: selected ? Colors.white : Colors.black87,
-            // ),
-            const SizedBox(height: 6),
-            Text(
-              med.name,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: selected ? Colors.white : Colors.black87,
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
+  //   return GestureDetector(
+  //     onTap: () => _selectType(med.name),
+  //     child: Container(
+  //       width: 110,
+  //       padding: const EdgeInsets.symmetric(vertical: 14),
+  //       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+  //       decoration: BoxDecoration(
+  //         color: selected ? AppColors.primary : Colors.grey.shade100,
+  //         borderRadius: BorderRadius.circular(12),
+  //         border: Border.all(
+  //           color: selected ? AppColors.primary : Colors.grey.shade400,
+  //           width: 1.5,
+  //         ),
+  //         boxShadow: selected
+  //             ? [
+  //                 BoxShadow(
+  //                   color: AppColors.primary.withValues(alpha: 0.3),
+  //                   blurRadius: 6,
+  //                   offset: const Offset(0, 4),
+  //                 )
+  //               ]
+  //             : [],
+  //       ),
+  //       child: Column(
+  //         children: [
+  //           IconTheme(
+  //     data: IconThemeData(
+  //       color: selected  ? Colors.white : Colors.black87,
+  //       size: 26,
+  //     ),
+  //     child: med.icon,
+  //   ),
+  //           // Icon(
+  //           //   med.icon,
+  //           //   size: 28,
+  //           //   color: selected ? Colors.white : Colors.black87,
+  //           // ),
+  //           const SizedBox(height: 6),
+  //           Text(
+  //             med.name,
+  //             textAlign: TextAlign.center,
+  //             style: TextStyle(
+  //               fontSize: 13,
+  //               fontWeight: FontWeight.w600,
+  //               color: selected ? Colors.white : Colors.black87,
+  //             ),
+  //           )
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -289,20 +301,136 @@ class MedicineSwitchState extends State<MedicineSwitch> {
   }
 
 
-  Widget _buildMedicineTypeSelector() {
+
+//   Widget _buildMedicineTypeSelector() {
+//   return Column(
+//     crossAxisAlignment: CrossAxisAlignment.start,
+//     children: [
+//       const Text(
+//         "Medicine Type",
+//         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+//       ),
+//       const SizedBox(height: 10),
+
+//       GridView.count(
+//         crossAxisCount: 4,              // ⭐️ 4 per row
+//         crossAxisSpacing: 10,
+//         mainAxisSpacing: 10,
+//         shrinkWrap: true,
+//         physics: const NeverScrollableScrollPhysics(),
+
+//         children: types.map((type) {
+//           final bool isSelected =
+//               widget.prescription.medicineType == type.name;
+
+//           return GestureDetector(
+//             onTap:  ()=>_selectType(type.name),
+ 
+//             child: Container(
+//               height: 96,
+//               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+//               decoration: BoxDecoration(
+//                 borderRadius: BorderRadius.circular(12),
+//                 color: isSelected
+//                     ? Colors.red.shade900
+//                     : Colors.grey.shade200,
+//                 border: Border.all(
+//                   color: isSelected
+//                       ? const Color.fromARGB(255, 218, 3, 57)
+//                       : Colors.grey.shade400,
+//                   width: 1.5,
+//                 ),
+//                 boxShadow: isSelected
+//                     ? [
+//                         BoxShadow(
+//                           color: AppColors.secondary.withValues(alpha: 0.2),
+//                           blurRadius: 6,
+//                           offset: const Offset(0, 3),
+//                         )
+//                       ]
+//                     : [],
+//               ),
+
+// //               child: Column(
+// //                 mainAxisAlignment: MainAxisAlignment.center,
+// //                 children: [
+// //                   // Icon(
+// //                   //   type.icon,
+// //                   //   size: 26,
+// //                   //   color: isSelected ? Colors.white : Colors.black87,
+// //                   // ),
+// //                   IconTheme(
+// //   data: IconThemeData(
+// //     color: isSelected ? Colors.white : Colors.black87,
+// //     size: 26,
+// //   ),
+// //   child: type.icon,
+// // ),
+// //                   const SizedBox(height: 6),
+// //                   Text(
+// //                     type.name,
+// //                     style: TextStyle(
+// //                       fontWeight: FontWeight.w600,
+// //                       fontSize: 12,
+// //                       color: isSelected ? Colors.white : Colors.black87,
+// //                     ),
+// //                     textAlign: TextAlign.center,
+// //                   )
+// //                 ],
+// //               ),
+// child: Column(
+//   mainAxisAlignment: MainAxisAlignment.center,
+//   crossAxisAlignment: CrossAxisAlignment.center, // 👈 ADD HERE
+//   children: [
+//     SizedBox(
+//       height: 32,
+//       child: type.icon,
+//     ),
+//     const SizedBox(height: 4),
+//     // Text(
+//     //   type.name,
+//     //   textAlign: TextAlign.center,
+//     //   maxLines: 1,
+//     //   overflow: TextOverflow.ellipsis,
+//     //   style: TextStyle(
+//     //     fontWeight: FontWeight.w600,
+//     //     fontSize: 12,
+//     //     color: isSelected ? Colors.white : Colors.black87,
+//     //   ),
+//     // ),
+//   ],
+// ),
+
+//             ),
+//           );
+//         }).toList(),
+//       ),
+//     ],
+//   );
+// }
+
+ Widget _buildMedicineTypeSelector() {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       const Text(
         "Medicine Type",
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
       ),
+
       const SizedBox(height: 10),
 
       GridView.count(
-        crossAxisCount: 4,              // ⭐️ 4 per row
+        crossAxisCount: 4, // 4 per row
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
+
+        // Makes each Medicine Type tile square
+        childAspectRatio: 1.0,
+
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
 
@@ -311,83 +439,130 @@ class MedicineSwitchState extends State<MedicineSwitch> {
               widget.prescription.medicineType == type.name;
 
           return GestureDetector(
-            onTap:  ()=>_selectType(type.name),
- 
+            onTap: () => _selectType(type.name),
+
             child: Container(
-              height: 96,
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+              padding: const EdgeInsets.all(5),
+
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
+
                 color: isSelected
                     ? Colors.red.shade900
                     : Colors.grey.shade200,
+
                 border: Border.all(
                   color: isSelected
                       ? const Color.fromARGB(255, 218, 3, 57)
                       : Colors.grey.shade400,
                   width: 1.5,
                 ),
+
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: AppColors.secondary.withValues(alpha: 0.2),
+                          color: AppColors.secondary.withValues(
+                            alpha: 0.2,
+                          ),
                           blurRadius: 6,
                           offset: const Offset(0, 3),
-                        )
+                        ),
                       ]
                     : [],
               ),
 
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   // Icon(
-//                   //   type.icon,
-//                   //   size: 26,
-//                   //   color: isSelected ? Colors.white : Colors.black87,
-//                   // ),
-//                   IconTheme(
-//   data: IconThemeData(
-//     color: isSelected ? Colors.white : Colors.black87,
-//     size: 26,
-//   ),
-//   child: type.icon,
-// ),
-//                   const SizedBox(height: 6),
-//                   Text(
-//                     type.name,
-//                     style: TextStyle(
-//                       fontWeight: FontWeight.w600,
-//                       fontSize: 12,
-//                       color: isSelected ? Colors.white : Colors.black87,
-//                     ),
-//                     textAlign: TextAlign.center,
-//                   )
-//                 ],
-//               ),
-child: Column(
-  mainAxisAlignment: MainAxisAlignment.center,
-  crossAxisAlignment: CrossAxisAlignment.center, // 👈 ADD HERE
-  children: [
-    SizedBox(
-      height: 32,
-      child: type.icon,
-    ),
-    const SizedBox(height: 4),
-    // Text(
-    //   type.name,
-    //   textAlign: TextAlign.center,
-    //   maxLines: 1,
-    //   overflow: TextOverflow.ellipsis,
-    //   style: TextStyle(
-    //     fontWeight: FontWeight.w600,
-    //     fontSize: 12,
-    //     color: isSelected ? Colors.white : Colors.black87,
-    //   ),
-    // ),
-  ],
-),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
 
+                children: [
+                  SizedBox(
+                    width: 42,
+                    height: 42,
+
+                    child: Image.asset(
+                      type.iconPath,
+                      fit: BoxFit.contain,
+
+                      // =====================================================
+                      // WEB IMAGE LOADING HANDLING
+                      // =====================================================
+                      frameBuilder: (
+                        BuildContext context,
+                        Widget child,
+                        int? frame,
+                        bool wasSynchronouslyLoaded,
+                      ) {
+                        // ---------------------------------------------------
+                        // ANDROID / iOS
+                        // ---------------------------------------------------
+                        // Always show the image normally.
+                        if (!kIsWeb) {
+                          return child;
+                        }
+
+                        // ---------------------------------------------------
+                        // WEB - IMAGE STILL LOADING
+                        // ---------------------------------------------------
+                        // Show the medicine name instead of the image.
+                        if (frame == null &&
+                            !wasSynchronouslyLoaded) {
+                          return Center(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                type.name,
+                                maxLines: 1,
+                                softWrap: false,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.black87,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        // ---------------------------------------------------
+                        // WEB - IMAGE LOADED
+                        // ---------------------------------------------------
+                        // Hide the text and show the actual image.
+                        return child;
+                      },
+
+                      // =====================================================
+                      // IMAGE ERROR
+                      // =====================================================
+                      errorBuilder: (
+                        BuildContext context,
+                        Object error,
+                        StackTrace? stackTrace,
+                      ) {
+                        return Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              type.name,
+                              maxLines: 1,
+                              softWrap: false,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.black87,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }).toList(),
