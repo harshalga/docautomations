@@ -2,6 +2,7 @@
 import 'package:docautomations/datamodels/master/master_data.dart';
 import 'package:docautomations/datamodels/master/patient_doctor.dart';
 import 'package:docautomations/datamodels/master/patient_mode.dart';
+
 import 'package:docautomations/repositories/prescription_repository.dart';
 import 'package:docautomations/screens/menubar/menubar.dart';
 import 'package:flutter/material.dart';
@@ -390,15 +391,14 @@ void _handleBackToLogin() {
 
 void _handlePatientSelected(
   Patient patient,
-  PatientDoctor patientDoctor,
+  PatientDoctor? patientDoctor,
+  Map<String, dynamic>? prescription,
 ) {
   final masterData = _masterData;
 
   if (masterData == null) {
     return;
   }
-
-  
 
   Navigator.push(
     context,
@@ -407,8 +407,8 @@ void _handlePatientSelected(
         mode: PatientMode.existingPatient,
         patient: patient,
         patientDoctor: patientDoctor,
+        prescription: prescription,
         masterData: masterData,
-        
       ),
     ),
   );

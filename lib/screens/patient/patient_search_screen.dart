@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'package:docautomations/datamodels/master/patient.dart';
 import 'package:docautomations/repositories/patient_repository.dart';
+import 'package:docautomations/datamodels/master/patient_search_result.dart';
 
 
 //=============================================================================
@@ -79,10 +80,10 @@ class PatientSearchScreen extends StatefulWidget {
   //-------------------------------------------------------------------------
 
   /// Called when an existing patient has been successfully found.
-//  final ValueChanged<Patient> onPatientSelected;
 final void Function(
   Patient patient,
-  PatientDoctor patientDoctor,
+  PatientDoctor? patientDoctor,
+  Map<String, dynamic>? prescription,
 ) onPatientSelected;
 
 
@@ -125,6 +126,8 @@ class _PatientSearchScreenState
   Patient? _foundPatient;
 
   PatientDoctor? _foundPatientDoctor;
+
+  Map<String, dynamic>? _foundPrescription;
   //-------------------------------------------------------------------------
   // LIFECYCLE
   //-------------------------------------------------------------------------
@@ -138,206 +141,222 @@ class _PatientSearchScreenState
   }
 
 
-  //-------------------------------------------------------------------------
-  // SEARCH PATIENT
-  //-------------------------------------------------------------------------
+ 
 
-  Future<void> _searchPatient() async {
+//-------------------------------------------------------------------------
+// SEARCH PATIENT BY PPID
+//-------------------------------------------------------------------------
+//
+// The PPID may have been:
+//   • entered manually
+//   • obtained from a QR code
+//
+// The repository performs one backend request:
+//
+//   PPID
+//     ↓
+//   Patient
+//     ↓
+//   PatientDoctor
+//     ↓
+//   Latest Prescription
+//
+//-------------------------------------------------------------------------
+
+Future<void> _searchPatient() async {
+
   final ppid =
       _ppidController.text.trim();
 
+
+  //-------------------------------------------------------------------------
+  // Validate PPID
+  //-------------------------------------------------------------------------
+
   if (ppid.isEmpty) {
+
     setState(() {
+
       _errorMessage =
           'Please enter the patient PPID.';
 
-      _foundPatient = null;
-      _foundPatientDoctor = null;
+      _foundPatient =
+          null;
+
+      _foundPatientDoctor =
+          null;
+
+      _foundPrescription =
+          null;
+
     });
 
     return;
+
   }
+
 
   FocusScope.of(context).unfocus();
 
+
+  //-------------------------------------------------------------------------
+  // Start searching
+  //-------------------------------------------------------------------------
+
   setState(() {
-    _isSearching = true;
-    _errorMessage = null;
-    _foundPatient = null;
-    _foundPatientDoctor = null;
+
+    _isSearching =
+        true;
+
+    _errorMessage =
+        null;
+
+    _foundPatient =
+        null;
+
+    _foundPatientDoctor =
+        null;
+
+    _foundPrescription =
+        null;
+
   });
 
+
   try {
+
     final repository =
         context.read<PatientRepository>();
 
+
     //=======================================================================
-    // STEP 1
-    // Search doctor-scoped PatientDoctor using PPID
+    // Find Patient By PPID
     //=======================================================================
 
     final searchResult =
-        await repository.searchPatients(
-      searchText: ppid,
+        await repository.findPatientByPpid(
+      ppid,
     );
 
+
     if (!mounted) {
+
       return;
+
     }
 
+
+    //=======================================================================
+    // Backend Failure
+    //=======================================================================
+
     if (!searchResult.success) {
+
       setState(() {
+
         _errorMessage =
             searchResult.message.isNotEmpty
                 ? searchResult.message
                 : 'Patient not found.';
+
       });
 
       return;
+
     }
 
-    final patientDoctors =
-        searchResult.data as List<PatientDoctor>;
 
-    if (patientDoctors.isEmpty) {
+    //=======================================================================
+    // Validate Result
+    //=======================================================================
+
+    if (searchResult.data
+        is! PatientSearchResult) {
+
       setState(() {
+
         _errorMessage =
-            'Patient not found.';
+            'Invalid patient information received from server.';
+
       });
 
       return;
+
     }
 
-    //=======================================================================
-    // STEP 2
-    // Get the PatientDoctor relationship
-    //=======================================================================
-
-    final patientDoctor =
-        patientDoctors.first;
 
     //=======================================================================
-    // STEP 3
-    // Retrieve the actual Patient using patientId
+    // Extract Composite Result
     //=======================================================================
 
-    final patientResult =
-        await repository.getPatient(
-      patientDoctor.patientId,
+    final result =
+        searchResult.data
+            as PatientSearchResult;
+
+
+    //=======================================================================
+    // Patient Found
+    //=======================================================================
+
+    setState(() {
+
+      _foundPatient =
+          result.patient;
+
+      _foundPatientDoctor =
+          result.patientDoctor;
+
+      _foundPrescription =
+          result.prescription;
+
+      _errorMessage =
+          null;
+
+    });
+
+
+  }
+  catch (error) {
+
+    if (!mounted) {
+
+      return;
+
+    }
+
+
+    debugPrint(
+      'PATIENT PPID SEARCH ERROR: $error',
     );
 
-    if (!mounted) {
-      return;
-    }
-
-    if (!patientResult.success ||
-        patientResult.data is! Patient) {
-      setState(() {
-        _errorMessage =
-            patientResult.message.isNotEmpty
-                ? patientResult.message
-                : 'Patient information could not be retrieved.';
-      });
-
-      return;
-    }
-
-    final patient =
-        patientResult.data as Patient;
-
-    //=======================================================================
-    // STEP 4
-    // Patient found
-    //=======================================================================
 
     setState(() {
-      _foundPatient = patient;
-      _foundPatientDoctor = patientDoctor;
-      _errorMessage = null;
-    });
 
-  } catch (e) {
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
       _errorMessage =
           'Unable to search for the patient.';
+
     });
 
-  } finally {
+  }
+  finally {
 
     if (mounted) {
+
       setState(() {
-        _isSearching = false;
+
+        _isSearching =
+            false;
+
       });
+
     }
+
   }
+
 }
 
 
-  //-------------------------------------------------------------------------
-  // EXTRACT PATIENT
-  //-------------------------------------------------------------------------
-  //
-  // PatientRepository may return:
-  //
-  //   • Patient
-  //   • Map containing patient data
-  //
-  // Keep this conversion in the UI boundary so the rest of the screen works
-  // with a strongly typed Patient object.
-  //
-  //-------------------------------------------------------------------------
-
-  Patient? _extractPatient(
-    dynamic data,
-  ) {
-
-    if (data is Patient) {
-      return data;
-    }
-
-
-    if (data is Map<String, dynamic>) {
-
-      //=======================================================================
-      // Direct patient object
-      //=======================================================================
-
-      final patientData =
-          data['patient'];
-
-
-      if (patientData is Map<String, dynamic>) {
-
-        return Patient.fromJson(
-          patientData,
-        );
-      }
-
-
-      //=======================================================================
-      // Data itself is patient JSON
-      //=======================================================================
-
-      try {
-
-        return Patient.fromJson(
-          data,
-        );
-
-      } catch (_) {
-
-        return null;
-      }
-    }
-
-
-    return null;
-  }
+  
 
 
   //-------------------------------------------------------------------------
@@ -394,19 +413,39 @@ class _PatientSearchScreenState
   // SELECT FOUND PATIENT
   //-------------------------------------------------------------------------
 
-  void _selectPatient() {
-  final patient = _foundPatient;
-  final patientDoctor = _foundPatientDoctor;
+  //-------------------------------------------------------------------------
+// SELECT FOUND PATIENT
+//-------------------------------------------------------------------------
 
-  if (patient == null ||
-      patientDoctor == null) {
+void _selectPatient() {
+
+  final patient =
+      _foundPatient;
+
+  final patientDoctor =
+      _foundPatientDoctor;
+
+  final prescription =
+      _foundPrescription;
+
+
+  if (patient == null) {
+
     return;
+
   }
 
+
   widget.onPatientSelected(
+
     patient,
+
     patientDoctor,
+
+    prescription,
+
   );
+
 }
 
 

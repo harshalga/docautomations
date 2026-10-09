@@ -31,6 +31,8 @@ class PatientPrescriptionScreen extends StatefulWidget {
 
   final PatientDoctor? patientDoctor;
 
+  final Map<String, dynamic>? prescription;
+
   final MasterData masterData;
 
 
@@ -42,6 +44,7 @@ class PatientPrescriptionScreen extends StatefulWidget {
   required this.mode,
   this.patient,
   this.patientDoctor,
+   this.prescription,
   required this.masterData,
   });
 
@@ -146,7 +149,8 @@ void initState() {
   mode: widget.mode,
   patient: widget.patient,
   patientDoctor: widget.patientDoctor,
-  prescriptionRepository:
+  existingPrescription: widget.prescription,
+  prescriptionRepository://prescriptionRepository,
       context.read<PrescriptionRepository>(),
   masterData:
       widget.masterData,

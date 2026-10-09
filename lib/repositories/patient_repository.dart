@@ -2,6 +2,7 @@ import 'package:docautomations/common/operation_result.dart';
 import 'package:docautomations/datamodels/master/patient.dart';
 import 'package:docautomations/datamodels/master/patient_doctor.dart';
 import 'package:docautomations/services/patient_api_service.dart';
+import 'package:docautomations/datamodels/master/patient_search_result.dart';
 
 class PatientRepository {
   final PatientApiService apiService;
@@ -61,6 +62,83 @@ class PatientRepository {
     }
   }
 
+
+  //-------------------------------------------------------------------------
+  // FIND PATIENT BY PPID
+  //-------------------------------------------------------------------------
+  //
+  // The backend:
+  //
+  // 1. Finds Patient using PPID.
+  // 2. Finds PatientDoctor using patientId + authenticated doctorId.
+  // 3. Gets patientDoctorId.
+  // 4. Finds the latest GeneratedPrescDetails record.
+  //
+  // A missing prescription is NOT considered an error.
+  //
+  //-------------------------------------------------------------------------
+
+  Future<OperationResult> findPatientByPpid(
+    String ppid,
+  ) async {
+
+    try {
+
+      final response =
+          await apiService.findPatientByPpid(
+        ppid,
+      );
+
+
+      if (response["success"] != true) {
+
+        return OperationResult.failure(
+
+          response["message"]?.toString() ??
+              "Unable to find patient.",
+
+          data:
+              response["data"],
+
+        );
+
+      }
+
+
+      final data =
+          response["data"];
+
+
+      if (data == null) {
+
+        return OperationResult.failure(
+          "Patient data was not returned by the server.",
+        );
+
+      }
+
+
+      return OperationResult.success(
+
+        response["message"]?.toString() ??
+            "Patient retrieved successfully.",
+
+        data:
+            PatientSearchResult.fromJson(
+          Map<String, dynamic>.from(data),
+        ),
+
+      );
+
+    } catch (error) {
+
+      return OperationResult.failure(
+        "Unable to find patient: $error",
+      );
+
+    }
+
+  }
   //-------------------------------------------------------------------------
   // SEARCH PATIENTS
   //-------------------------------------------------------------------------

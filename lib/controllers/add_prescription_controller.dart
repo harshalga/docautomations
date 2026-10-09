@@ -31,6 +31,7 @@ class AddPrescriptionController
     required this.mode,
     this.patient,
     this.patientDoctor,
+    this.existingPrescription,
     required this.prescriptionRepository,
     required this.masterData,
   });
@@ -46,6 +47,7 @@ class AddPrescriptionController
 
   final PatientDoctor? patientDoctor;
 
+  final Map<String, dynamic>? existingPrescription;
 
   //===========================================================================
   // Repository
@@ -229,20 +231,6 @@ class AddPrescriptionController
   Future<void> _loadExistingPatient() async {
 
   //-------------------------------------------------------------------------
-  // Validate PatientDoctor
-  //-------------------------------------------------------------------------
-
-  if (patientDoctor == null) {
-
-    throw Exception(
-      "PatientDoctor is required "
-      "for Existing Patient mode.",
-    );
-
-  }
-
-
-  //-------------------------------------------------------------------------
   // Set Current Patient
   //-------------------------------------------------------------------------
 
@@ -256,7 +244,10 @@ class AddPrescriptionController
   prescription.clear();
 
   printLetterhead =
-    masterData.prescriptionLayout.printLetterHead;
+      masterData.prescriptionLayout.printLetterHead;
+
+  prescription.printLetterHead =
+      printLetterhead;
 
   canGenerateNext = false;
 
@@ -264,72 +255,40 @@ class AddPrescriptionController
 
   rootSnapshotId = null;
 
-  notifyListeners();
+
+  //-------------------------------------------------------------------------
+  // No Previous Prescription
+  //-------------------------------------------------------------------------
+
+  if (existingPrescription == null) {
+
+    debugPrint(
+      "EXISTING PATIENT: No previous prescription found.",
+    );
+
+    notifyListeners();
+
+    return;
+  }
 
 
   //-------------------------------------------------------------------------
-  // Retrieve Latest Prescription
+  // Existing Prescription
   //-------------------------------------------------------------------------
 
-  final result =
-      await prescriptionRepository
-          .getLatestPrescription(
-    patientDoctor!.id,
+  debugPrint(
+    "EXISTING PATIENT: Loading supplied prescription.",
   );
 
 
   //-------------------------------------------------------------------------
-  // No Prescription Available
-  //-------------------------------------------------------------------------
-
-  if (!result.success) {
-
-    debugPrint(
-      "Latest prescription not available: "
-      "${result.message}",
-    );
-
-    return;
-
-  }
-
-
-  //-------------------------------------------------------------------------
-  // Validate Response
-  //-------------------------------------------------------------------------
-
-  if (result.data == null) {
-
-    return;
-
-  }
-
-
-  if (result.data is! Map) {
-
-    debugPrint(
-      "Unexpected latest prescription response format.",
-    );
-
-    return;
-
-  }
-
-
-  //-------------------------------------------------------------------------
-  // Extract Response Metadata
-  //-------------------------------------------------------------------------
-  //
-  // The latest prescription is used ONLY as an editable template.
-  //
-  // It is NOT modified.
-  //
+  // Validate Prescription Response
   //-------------------------------------------------------------------------
 
   final responseData =
       Map<String, dynamic>.from(
-    result.data as Map,
-  );
+        existingPrescription!,
+      );
 
 
   //-------------------------------------------------------------------------
@@ -337,26 +296,15 @@ class AddPrescriptionController
   //-------------------------------------------------------------------------
 
   sourcePrescriptionId =
-      responseData["prescriptionId"] as String?;
+      responseData["prescriptionId"]?.toString();
 
 
   //-------------------------------------------------------------------------
   // Preserve Original Root
   //-------------------------------------------------------------------------
-  //
-  // First prescription:
-  //     rootSnapshotId = null
-  //
-  // First revision:
-  //     rootSnapshotId = original prescription ID
-  //
-  // Second revision:
-  //     rootSnapshotId = same original prescription ID
-  //
-  //-------------------------------------------------------------------------
 
   rootSnapshotId =
-      responseData["rootSnapshotId"] as String?;
+      responseData["rootSnapshotId"]?.toString();
 
 
   //-------------------------------------------------------------------------
@@ -370,12 +318,13 @@ class AddPrescriptionController
   if (snapshotData is! Map) {
 
     debugPrint(
-      "Latest prescription does not contain "
+      "Existing prescription does not contain "
       "a valid decrypted snapshot.",
     );
 
-    return;
+    notifyListeners();
 
+    return;
   }
 
 
@@ -385,22 +334,14 @@ class AddPrescriptionController
 
   final snapshot =
       PrescriptionSnapshot.fromJson(
-    Map<String, dynamic>.from(
-      snapshotData,
-    ),
-  );
+        Map<String, dynamic>.from(
+          snapshotData,
+        ),
+      );
 
 
   //-------------------------------------------------------------------------
   // Populate Prescription View Model
-  //-------------------------------------------------------------------------
-  //
-  // IMPORTANT:
-  //
-  // The snapshot is copied into the editable ViewModel.
-  //
-  // The original database prescription remains unchanged.
-  //
   //-------------------------------------------------------------------------
 
   final snapshotPrescription =
@@ -410,20 +351,27 @@ class AddPrescriptionController
   prescription
     ..chiefComplaint =
         snapshotPrescription.chiefComplaint
+
     ..examination =
         snapshotPrescription.examination
+
     ..diagnosis =
         snapshotPrescription.diagnosis
+
     ..advice =
         snapshotPrescription.advice
+
     ..remarks =
         snapshotPrescription.remarks
+
     ..followUpDate =
         snapshotPrescription.followUpDate
+
     ..medicines
         .addAll(
           snapshotPrescription.medicines,
         )
+
     ..isDirty = false;
 
 
@@ -432,7 +380,7 @@ class AddPrescriptionController
   //-------------------------------------------------------------------------
 
   printLetterhead =
-    masterData.prescriptionLayout.printLetterHead;
+      masterData.prescriptionLayout.printLetterHead;
 
   prescription.printLetterHead =
       printLetterhead;
@@ -447,8 +395,240 @@ class AddPrescriptionController
 
 
   notifyListeners();
-
 }
+
+//   Future<void> _loadExistingPatient() async {
+
+//   //-------------------------------------------------------------------------
+//   // Validate PatientDoctor
+//   //-------------------------------------------------------------------------
+
+//   // if (patientDoctor == null) {
+
+//   //   throw Exception(
+//   //     "PatientDoctor is required "
+//   //     "for Existing Patient mode.",
+//   //   );
+
+//   // }
+
+
+//   //-------------------------------------------------------------------------
+//   // Set Current Patient
+//   //-------------------------------------------------------------------------
+
+//   _currentPatient = patient;
+
+
+//   //-------------------------------------------------------------------------
+//   // Clear Existing Prescription State
+//   //-------------------------------------------------------------------------
+
+//   prescription.clear();
+
+//   printLetterhead =
+//     masterData.prescriptionLayout.printLetterHead;
+
+//   canGenerateNext = false;
+
+//   sourcePrescriptionId = null;
+
+//   rootSnapshotId = null;
+
+//   if (existingPrescription == null) {
+//   debugPrint(
+//     "EXISTING PATIENT: No previous prescription found.",
+//   );
+
+//   notifyListeners();
+//   return;
+// }
+
+//   notifyListeners();
+
+
+//   //-------------------------------------------------------------------------
+//   // Retrieve Latest Prescription
+//   //-------------------------------------------------------------------------
+
+//   final result =
+//       await prescriptionRepository
+//           .getLatestPrescription(
+//     patientDoctor!.id,
+//   );
+
+
+//   //-------------------------------------------------------------------------
+//   // No Prescription Available
+//   //-------------------------------------------------------------------------
+
+//   if (!result.success) {
+
+//     debugPrint(
+//       "Latest prescription not available: "
+//       "${result.message}",
+//     );
+
+//     return;
+
+//   }
+
+
+//   //-------------------------------------------------------------------------
+//   // Validate Response
+//   //-------------------------------------------------------------------------
+
+//   if (result.data == null) {
+
+//     return;
+
+//   }
+
+
+//   if (result.data is! Map) {
+
+//     debugPrint(
+//       "Unexpected latest prescription response format.",
+//     );
+
+//     return;
+
+//   }
+
+
+//   //-------------------------------------------------------------------------
+//   // Extract Response Metadata
+//   //-------------------------------------------------------------------------
+//   //
+//   // The latest prescription is used ONLY as an editable template.
+//   //
+//   // It is NOT modified.
+//   //
+//   //-------------------------------------------------------------------------
+
+//   final responseData =
+//       Map<String, dynamic>.from(
+//     result.data as Map,
+//   );
+
+
+//   //-------------------------------------------------------------------------
+//   // Remember Source Prescription
+//   //-------------------------------------------------------------------------
+
+//   sourcePrescriptionId =
+//       responseData["prescriptionId"] as String?;
+
+
+//   //-------------------------------------------------------------------------
+//   // Preserve Original Root
+//   //-------------------------------------------------------------------------
+//   //
+//   // First prescription:
+//   //     rootSnapshotId = null
+//   //
+//   // First revision:
+//   //     rootSnapshotId = original prescription ID
+//   //
+//   // Second revision:
+//   //     rootSnapshotId = same original prescription ID
+//   //
+//   //-------------------------------------------------------------------------
+
+//   rootSnapshotId =
+//       responseData["rootSnapshotId"] as String?;
+
+
+//   //-------------------------------------------------------------------------
+//   // Extract Decrypted Snapshot
+//   //-------------------------------------------------------------------------
+
+//   final snapshotData =
+//       responseData["snapshot"];
+
+
+//   if (snapshotData is! Map) {
+
+//     debugPrint(
+//       "Latest prescription does not contain "
+//       "a valid decrypted snapshot.",
+//     );
+
+//     return;
+
+//   }
+
+
+//   //-------------------------------------------------------------------------
+//   // Convert Decrypted Snapshot Into PrescriptionSnapshot
+//   //-------------------------------------------------------------------------
+
+//   final snapshot =
+//       PrescriptionSnapshot.fromJson(
+//     Map<String, dynamic>.from(
+//       snapshotData,
+//     ),
+//   );
+
+
+//   //-------------------------------------------------------------------------
+//   // Populate Prescription View Model
+//   //-------------------------------------------------------------------------
+//   //
+//   // IMPORTANT:
+//   //
+//   // The snapshot is copied into the editable ViewModel.
+//   //
+//   // The original database prescription remains unchanged.
+//   //
+//   //-------------------------------------------------------------------------
+
+//   final snapshotPrescription =
+//       snapshot.prescription;
+
+
+//   prescription
+//     ..chiefComplaint =
+//         snapshotPrescription.chiefComplaint
+//     ..examination =
+//         snapshotPrescription.examination
+//     ..diagnosis =
+//         snapshotPrescription.diagnosis
+//     ..advice =
+//         snapshotPrescription.advice
+//     ..remarks =
+//         snapshotPrescription.remarks
+//     ..followUpDate =
+//         snapshotPrescription.followUpDate
+//     ..medicines
+//         .addAll(
+//           snapshotPrescription.medicines,
+//         )
+//     ..isDirty = false;
+
+
+//   //-------------------------------------------------------------------------
+//   // Print Letterhead
+//   //-------------------------------------------------------------------------
+
+//   printLetterhead =
+//     masterData.prescriptionLayout.printLetterHead;
+
+//   prescription.printLetterHead =
+//       printLetterhead;
+
+
+//   //-------------------------------------------------------------------------
+//   // Prescription Is Ready
+//   //-------------------------------------------------------------------------
+
+//   canGenerateNext =
+//       prescription.canGeneratePrescription;
+
+
+//   notifyListeners();
+
+// }
 
 // Map<String, dynamic> buildPrescriptionRequest({
 //   required Map<String, dynamic> patientSnapshot,

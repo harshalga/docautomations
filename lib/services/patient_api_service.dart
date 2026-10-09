@@ -31,6 +31,43 @@ class PatientApiService {
       "/api/patients";
 
 
+
+
+
+  //===========================================================================
+  // Find Patient By PPID
+  //===========================================================================
+  //
+  // GET /api/patients/ppid/:ppid
+  //
+  // The backend uses the authenticated doctor ID from JWT.
+  //
+  // Returns:
+  //
+  // {
+  //   patient,
+  //   patientDoctor,
+  //   prescription
+  // }
+  //
+  // prescription may be null when the patient has never been
+  // prescribed by this doctor.
+  //
+  //===========================================================================
+
+  Future<Map<String, dynamic>> findPatientByPpid(
+    String ppid,
+  ) async {
+
+    final response =
+        await _dio.get(
+      "$_baseEndpoint/ppid/${Uri.encodeComponent(ppid.trim())}",
+    );
+
+    return Map<String, dynamic>.from(
+      response.data,
+    );
+  }
   //===========================================================================
   // Search Patients
   //===========================================================================
