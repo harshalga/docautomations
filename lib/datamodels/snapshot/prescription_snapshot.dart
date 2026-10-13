@@ -226,6 +226,7 @@ class PatientSnapshot {
   final String firstName;
   final String middleName;
   final String lastName;
+  final String? guardianPPID;
   final DateTime? dob;
   final int ageAtVisit;
   final String gender;
@@ -241,9 +242,11 @@ class PatientSnapshot {
 
   const PatientSnapshot({
     required this.ppid,
+     this.guardianPPID,
     required this.firstName,
     required this.middleName,
     required this.lastName,
+   
     this.dob,
     required this.ageAtVisit,
     required this.gender,
@@ -266,6 +269,9 @@ class PatientSnapshot {
       ppid:
           json["ppid"] ?? "",
 
+      guardianPPID:
+        json["guardianPPID"]?.toString(),
+
       firstName:
           json["firstName"] ?? "",
 
@@ -274,6 +280,8 @@ class PatientSnapshot {
 
       lastName:
           json["lastName"] ?? "",
+          
+      
 
       dob:
           json["dob"] != null
@@ -320,6 +328,9 @@ class PatientSnapshot {
     middleName: patient.middleName,
     lastName: patient.lastName,
 
+    guardianPPID:
+    patient.guardianPPID,
+
     dob: patient.dob,
 
     ageAtVisit: ageAtVisit,
@@ -345,6 +356,7 @@ class PatientSnapshot {
   Map<String, dynamic> toJson() {
   return {
     "ppid": ppid,
+    "guardianPPID": guardianPPID,
     "firstName": firstName,
     "middleName": middleName,
     "lastName": lastName,

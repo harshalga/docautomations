@@ -1,3 +1,4 @@
+import 'package:docautomations/commonwidget/ppid_qr_scanner_screen.dart';
 import 'package:docautomations/repositories/prescription_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -91,6 +92,9 @@ class _PatientPrescriptionScreenState
 
   final _address1Controller =
       TextEditingController();
+
+  final _guardianPPIDController =
+    TextEditingController();
 
   final _address2Controller =
       TextEditingController();
@@ -255,6 +259,9 @@ void _initializeDefaultCountry() {
       _lastNameController.text =
           patient.lastName;
 
+      _guardianPPIDController.text =
+          patient.guardianPPID ?? "";
+
       _mobileController.text =
           patient.mobile;
 
@@ -359,7 +366,7 @@ void _initializeDefaultCountry() {
     _cityController.dispose();
     _stateController.dispose();
     _pinCodeController.dispose();
-
+    _guardianPPIDController.dispose();
     _chiefComplaintController.dispose();
     _examinationController.dispose();
     _diagnosisController.dispose();
@@ -685,6 +692,30 @@ void _initializeDefaultCountry() {
   }
 
 
+Future<void> _scanGuardianPPID() async {
+  final scannedPPID =
+      await Navigator.of(context).push<String>(
+    MaterialPageRoute(
+      builder: (_) =>
+          const PpidQrScannerScreen(),
+    ),
+  );
+
+  if (!mounted) {
+    return;
+  }
+
+  if (scannedPPID == null ||
+      scannedPPID.trim().isEmpty) {
+    return;
+  }
+
+  setState(() {
+    _guardianPPIDController.text =
+        scannedPPID.trim().toUpperCase();
+  });
+}
+
   //-------------------------------------------------------------------------
   // New Patient Form
   //-------------------------------------------------------------------------
@@ -728,6 +759,31 @@ void _initializeDefaultCountry() {
           required: true,
         ),
 
+
+        //Guardian PPID
+
+const SizedBox(height: 12),
+
+TextFormField(
+  controller: _guardianPPIDController,
+  enabled: !controller.isLoading,
+  textCapitalization: TextCapitalization.characters,
+  decoration: InputDecoration(
+    labelText: "Guardian / Head of Family PPID",
+    hintText: "Optional",
+    helperText:
+        "Enter or scan the PPID of the guardian or head of family.",
+    prefixIcon: const Icon(Icons.family_restroom),
+    suffixIcon: IconButton(
+      icon: const Icon(Icons.qr_code_scanner),
+      tooltip: "Scan Guardian PPID",
+      onPressed: controller.isLoading
+          ? null
+          : _scanGuardianPPID,
+    ),
+    border: const OutlineInputBorder(),
+  ),
+),
         Row(
 
           children: [
@@ -1296,6 +1352,9 @@ Patient _buildNewPatient() {
     firstName: _firstNameController.text.trim(),
     middleName: _middleNameController.text.trim(),
     lastName: _lastNameController.text.trim(),
+    guardianPPID:  _guardianPPIDController.text.trim().isEmpty
+            ? null
+            : _guardianPPIDController.text.trim(),
     dob: _dob,
     gender: _gender,
     mobile: _mobileController.text.trim(),

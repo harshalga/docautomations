@@ -1076,6 +1076,7 @@ Patient _patientWithPpid(
     firstName: patient.firstName,
     middleName: patient.middleName,
     lastName: patient.lastName,
+    guardianPPID: patient.guardianPPID,
     dob: patient.dob,
     gender: patient.gender,
     mobile: patient.mobile,

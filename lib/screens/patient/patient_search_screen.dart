@@ -1,3 +1,4 @@
+import 'package:docautomations/commonwidget/ppid_qr_scanner_screen.dart';
 import 'package:docautomations/datamodels/master/patient_doctor.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -373,7 +374,7 @@ Future<void> _searchPatient() async {
 
       MaterialPageRoute(
         builder: (_) =>
-            const _PpidQrScannerScreen(),
+            const PpidQrScannerScreen(),
       ),
     );
 
@@ -1446,230 +1447,230 @@ if (date == null) { return 'Not available'; }
 }
 
 
-//=============================================================================
-// PPID QR SCANNER
-//=============================================================================
-//
-// This is deliberately kept private to the PatientSearchScreen.
-//
-// The scanner only has one responsibility:
-//
-//   Scan QR → return the scanned PPID.
-//
-// It does not search the backend itself.
-//
-//=============================================================================
+// //=============================================================================
+// // PPID QR SCANNER
+// //=============================================================================
+// //
+// // This is deliberately kept private to the PatientSearchScreen.
+// //
+// // The scanner only has one responsibility:
+// //
+// //   Scan QR → return the scanned PPID.
+// //
+// // It does not search the backend itself.
+// //
+// //=============================================================================
 
-class _PpidQrScannerScreen
-    extends StatefulWidget {
+// class _PpidQrScannerScreen
+//     extends StatefulWidget {
 
-  const _PpidQrScannerScreen();
+//   const _PpidQrScannerScreen();
 
 
-  @override
-  State<_PpidQrScannerScreen> createState() =>
-      _PpidQrScannerScreenState();
-}
+//   @override
+//   State<_PpidQrScannerScreen> createState() =>
+//       _PpidQrScannerScreenState();
+// }
 
 
-//=============================================================================
-// PPID QR SCANNER STATE
-//=============================================================================
+// //=============================================================================
+// // PPID QR SCANNER STATE
+// //=============================================================================
 
-class _PpidQrScannerScreenState
-    extends State<_PpidQrScannerScreen> {
+// class _PpidQrScannerScreenState
+//     extends State<_PpidQrScannerScreen> {
 
-  final MobileScannerController _scannerController =
-      MobileScannerController();
+//   final MobileScannerController _scannerController =
+//       MobileScannerController();
 
 
-  bool _hasScanned = false;
+//   bool _hasScanned = false;
 
 
-  @override
-  void dispose() {
+//   @override
+//   void dispose() {
 
-    _scannerController.dispose();
+//     _scannerController.dispose();
 
-    super.dispose();
-  }
+//     super.dispose();
+//   }
 
 
-  //-------------------------------------------------------------------------
-  // HANDLE SCAN
-  //-------------------------------------------------------------------------
+//   //-------------------------------------------------------------------------
+//   // HANDLE SCAN
+//   //-------------------------------------------------------------------------
 
-  void _handleBarcode(
-    BarcodeCapture capture,
-  ) {
+//   void _handleBarcode(
+//     BarcodeCapture capture,
+//   ) {
 
-    if (_hasScanned) {
-      return;
-    }
+//     if (_hasScanned) {
+//       return;
+//     }
 
 
-    for (final barcode in capture.barcodes) {
+//     for (final barcode in capture.barcodes) {
 
-      final value =
-          barcode.rawValue?.trim();
+//       final value =
+//           barcode.rawValue?.trim();
 
 
-      if (value == null ||
-          value.isEmpty) {
+//       if (value == null ||
+//           value.isEmpty) {
 
-        continue;
-      }
+//         continue;
+//       }
 
 
-      _hasScanned = true;
+//       _hasScanned = true;
 
 
-      _scannerController.stop();
+//       _scannerController.stop();
 
 
-      Navigator.of(context).pop(
-        value,
-      );
+//       Navigator.of(context).pop(
+//         value,
+//       );
 
 
-      return;
-    }
-  }
+//       return;
+//     }
+//   }
 
 
-  //-------------------------------------------------------------------------
-  // BUILD
-  //-------------------------------------------------------------------------
+//   //-------------------------------------------------------------------------
+//   // BUILD
+//   //-------------------------------------------------------------------------
 
-  @override
-  Widget build(BuildContext context) {
+//   @override
+//   Widget build(BuildContext context) {
 
-    final theme =
-        Theme.of(context);
+//     final theme =
+//         Theme.of(context);
 
 
-    return Scaffold(
+//     return Scaffold(
 
-      appBar:
-          AppBar(
+//       appBar:
+//           AppBar(
 
-        title:
-            const Text(
-          'Scan Patient QR Code',
-        ),
-      ),
+//         title:
+//             const Text(
+//           'Scan Patient QR Code',
+//         ),
+//       ),
 
 
-      body:
-          Stack(
+//       body:
+//           Stack(
 
-        fit:
-            StackFit.expand,
+//         fit:
+//             StackFit.expand,
 
-        children: [
+//         children: [
 
-          MobileScanner(
+//           MobileScanner(
 
-            controller:
-                _scannerController,
+//             controller:
+//                 _scannerController,
 
-            onDetect:
-                _handleBarcode,
-          ),
+//             onDetect:
+//                 _handleBarcode,
+//           ),
 
 
-          //===================================================================
-          // SCANNER OVERLAY
-          //===================================================================
+//           //===================================================================
+//           // SCANNER OVERLAY
+//           //===================================================================
 
-          Center(
+//           Center(
 
-            child:
-                Container(
+//             child:
+//                 Container(
 
-              width:
-                  270,
+//               width:
+//                   270,
 
-              height:
-                  180,
+//               height:
+//                   180,
 
-              decoration:
-                  BoxDecoration(
+//               decoration:
+//                   BoxDecoration(
 
-                border:
-                    Border.all(
-                  color:
-                      theme.colorScheme.primary,
-                  width:
-                      3,
-                ),
+//                 border:
+//                     Border.all(
+//                   color:
+//                       theme.colorScheme.primary,
+//                   width:
+//                       3,
+//                 ),
 
-                borderRadius:
-                    BorderRadius.circular(16),
-              ),
-            ),
-          ),
+//                 borderRadius:
+//                     BorderRadius.circular(16),
+//               ),
+//             ),
+//           ),
 
 
-          //===================================================================
-          // INSTRUCTION
-          //===================================================================
+//           //===================================================================
+//           // INSTRUCTION
+//           //===================================================================
 
-          Positioned(
+//           Positioned(
 
-            left:
-                24,
+//             left:
+//                 24,
 
-            right:
-                24,
+//             right:
+//                 24,
 
-            bottom:
-                48,
+//             bottom:
+//                 48,
 
-            child:
-                Container(
+//             child:
+//                 Container(
 
-              padding:
-                  const EdgeInsets.all(16),
+//               padding:
+//                   const EdgeInsets.all(16),
 
-              decoration:
-                  BoxDecoration(
+//               decoration:
+//                   BoxDecoration(
 
-                color:
-                    Colors.black.withValues(
-                  alpha: 0.70,
-                ),
+//                 color:
+//                     Colors.black.withValues(
+//                   alpha: 0.70,
+//                 ),
 
-                borderRadius:
-                    BorderRadius.circular(14),
-              ),
+//                 borderRadius:
+//                     BorderRadius.circular(14),
+//               ),
 
 
-              child:
-                  const Text(
+//               child:
+//                   const Text(
 
-                'Place the patient QR code inside the frame.',
+//                 'Place the patient QR code inside the frame.',
 
-                textAlign:
-                    TextAlign.center,
+//                 textAlign:
+//                     TextAlign.center,
 
-                style:
-                    TextStyle(
-                  color:
-                      Colors.white,
+//                 style:
+//                     TextStyle(
+//                   color:
+//                       Colors.white,
 
-                  fontSize:
-                      15,
+//                   fontSize:
+//                       15,
 
-                  fontWeight:
-                      FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+//                   fontWeight:
+//                       FontWeight.w600,
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
