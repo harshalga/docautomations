@@ -408,15 +408,39 @@ pw.Expanded(
             ],
           ),
 
-          if (patient.mobile.isNotEmpty)
-            pw.Padding(
-              padding:
-                  const pw.EdgeInsets.only(top: 4),
-              child: _infoText(
-                "Mobile",
-                patient.mobile,
-              ),
+          // if (patient.mobile.isNotEmpty)
+          //   pw.Padding(
+          //     padding:
+          //         const pw.EdgeInsets.only(top: 4),
+          //     child: _infoText(
+          //       "Mobile",
+          //       patient.mobile,
+          //     ),
+          //   ),
+
+          if (patient.mobile.isNotEmpty || patient.email.isNotEmpty)
+  pw.Padding(
+    padding: const pw.EdgeInsets.only(top: 4),
+    child: pw.Row(
+      children: [
+        if (patient.mobile.isNotEmpty)
+          pw.Expanded(
+            child: _infoText(
+              "Mobile",
+              patient.mobile,
             ),
+          ),
+
+        if (patient.email.isNotEmpty)
+          pw.Expanded(
+            child: _infoText(
+              "Email",
+              patient.email,
+            ),
+          ),
+      ],
+    ),
+  ),
 
           if (patient.addressLine1.isNotEmpty ||
               patient.addressLine2.isNotEmpty)
@@ -427,7 +451,9 @@ pw.Expanded(
                 "Address",
                 [
                   patient.addressLine1,
-                  patient.addressLine2,
+                  patient.addressLine2,                  
+                  patient.city,
+                  patient.state,
                   patient.country,
                   patient.pinCode,
                 ]

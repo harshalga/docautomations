@@ -231,8 +231,11 @@ class PatientSnapshot {
   final int ageAtVisit;
   final String gender;
   final String mobile;
+  final String email;
   final String addressLine1;
   final String addressLine2;
+  final String city;
+  final String state;
 
   // Country information
   final String countryId;
@@ -251,8 +254,11 @@ class PatientSnapshot {
     required this.ageAtVisit,
     required this.gender,
     required this.mobile,
+    required this.email,
     required this.addressLine1,
     required this.addressLine2,
+    required this.city,
+    required this.state,
     required this.countryId,
     required this.country,
     required this.pinCode,
@@ -299,11 +305,20 @@ class PatientSnapshot {
       mobile:
           json["mobile"] ?? "",
 
+          email:
+    json["email"]?.toString() ?? "",
+
       addressLine1:
           json["addressLine1"] ?? "",
 
       addressLine2:
           json["addressLine2"] ?? "",
+
+          city:
+    json["city"]?.toString() ?? "",
+
+state:
+    json["state"]?.toString() ?? "",
 
       country:
           json["country"] ?? "",
@@ -338,9 +353,11 @@ class PatientSnapshot {
     gender: patient.gender,
 
     mobile: patient.mobile,
-
+ email: patient.email,
     addressLine1: patient.addressLine1,
     addressLine2: patient.addressLine2,
+    city: patient.city,
+  state: patient.state,
 
     countryId: patient.countryId,
     country: country,
@@ -364,8 +381,11 @@ class PatientSnapshot {
     "ageAtVisit": ageAtVisit,
     "gender": gender,
     "mobile": mobile,
+    "email": email,
     "addressLine1": addressLine1,
     "addressLine2": addressLine2,
+    "city": city,
+"state": state,
 
     "countryId": countryId,
     "country": country,
