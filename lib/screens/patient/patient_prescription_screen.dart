@@ -1,4 +1,6 @@
 import 'package:docautomations/commonwidget/ppid_qr_scanner_screen.dart';
+import 'package:docautomations/datamodels/master/patient_search_result.dart';
+import 'package:docautomations/repositories/patient_repository.dart';
 import 'package:docautomations/repositories/prescription_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -180,6 +182,140 @@ void _initializeDefaultCountry() {
       return;
     }
   }
+}
+
+Future<void> _loadGuardianDetails(
+  String guardianPPID,
+) async {
+
+  final ppid =
+      guardianPPID.trim().toUpperCase();
+
+  if (ppid.isEmpty) {
+    return;
+  }
+
+  try {
+
+    final repository =
+        context.read<PatientRepository>();
+
+    final result =
+        await repository.findPatientByPpid(
+      ppid,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (!result.success) {
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        SnackBar(
+          content: Text(
+            result.message.isNotEmpty
+                ? result.message
+                : "Guardian not found.",
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    if (result.data
+        is! PatientSearchResult) {
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Invalid guardian information received.",
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    final searchResult =
+        result.data as PatientSearchResult;
+
+    final guardian =
+        searchResult.patient;
+
+    if (guardian == null) {
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Guardian not found.",
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    _populateFromGuardian(
+      guardian,
+    );
+
+  } catch (error) {
+
+    debugPrint(
+      "GUARDIAN PPID LOOKUP ERROR: $error",
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Unable to retrieve guardian information.",
+        ),
+      ),
+    );
+  }
+}
+
+
+void _populateFromGuardian(
+  Patient guardian,
+) {
+
+  setState(() {
+
+    _mobileController.text =
+        guardian.mobile;
+
+    _emailController.text =
+        guardian.email;
+
+    _address1Controller.text =
+        guardian.addressLine1;
+
+    _address2Controller.text =
+        guardian.addressLine2;
+
+    _cityController.text =
+        guardian.city;
+
+    _stateController.text =
+        guardian.state;
+
+    _pinCodeController.text =
+        guardian.pinCode;
+
+    _selectedCountryId =
+        guardian.countryId;
+  });
 }
 
   @override
@@ -693,8 +829,12 @@ void _initializeDefaultCountry() {
 
 
 Future<void> _scanGuardianPPID() async {
+
+  FocusScope.of(context).unfocus();
+
   final scannedPPID =
-      await Navigator.of(context).push<String>(
+      await Navigator.of(context)
+          .push<String>(
     MaterialPageRoute(
       builder: (_) =>
           const PpidQrScannerScreen(),
@@ -710,10 +850,18 @@ Future<void> _scanGuardianPPID() async {
     return;
   }
 
+  final ppid =
+      scannedPPID.trim().toUpperCase();
+
   setState(() {
+
     _guardianPPIDController.text =
-        scannedPPID.trim().toUpperCase();
+        ppid;
   });
+
+  await _loadGuardianDetails(
+    ppid,
+  );
 }
 
   //-------------------------------------------------------------------------
@@ -765,23 +913,51 @@ Future<void> _scanGuardianPPID() async {
 const SizedBox(height: 12),
 
 TextFormField(
-  controller: _guardianPPIDController,
-  enabled: !controller.isLoading,
-  textCapitalization: TextCapitalization.characters,
+  controller:
+      _guardianPPIDController,
+
+  enabled:
+      !controller.isLoading,
+
+  textCapitalization:
+      TextCapitalization.characters,
+
+  autocorrect: false,
+
+  onFieldSubmitted: (value) async {
+    await _loadGuardianDetails(value);
+  },
+
   decoration: InputDecoration(
-    labelText: "Guardian / Head of Family PPID",
-    hintText: "Optional",
+    labelText:
+        "Guardian / Head of Family PPID",
+
+    hintText:
+        "Enter or scan PPID",
+
     helperText:
-        "Enter or scan the PPID of the guardian or head of family.",
-    prefixIcon: const Icon(Icons.family_restroom),
-    suffixIcon: IconButton(
-      icon: const Icon(Icons.qr_code_scanner),
-      tooltip: "Scan Guardian PPID",
-      onPressed: controller.isLoading
-          ? null
-          : _scanGuardianPPID,
+        "Optional. Guardian contact and address can be used for the patient.",
+
+    prefixIcon: const Icon(
+      Icons.family_restroom,
     ),
-    border: const OutlineInputBorder(),
+
+    suffixIcon: IconButton(
+      tooltip:
+          "Scan Guardian PPID",
+
+      icon: const Icon(
+        Icons.qr_code_scanner_rounded,
+      ),
+
+      onPressed:
+          controller.isLoading
+              ? null
+              : _scanGuardianPPID,
+    ),
+
+    border:
+        const OutlineInputBorder(),
   ),
 ),
         Row(
@@ -1352,9 +1528,14 @@ Patient _buildNewPatient() {
     firstName: _firstNameController.text.trim(),
     middleName: _middleNameController.text.trim(),
     lastName: _lastNameController.text.trim(),
-    guardianPPID:  _guardianPPIDController.text.trim().isEmpty
-            ? null
-            : _guardianPPIDController.text.trim(),
+    guardianPPID:
+      _guardianPPIDController.text
+              .trim()
+              .isEmpty
+          ? null
+          : _guardianPPIDController.text
+              .trim()
+              .toUpperCase(),        
     dob: _dob,
     gender: _gender,
     mobile: _mobileController.text.trim(),
