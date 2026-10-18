@@ -393,43 +393,44 @@ final footerImage =
               ),
 
              pw.Expanded(
-  child: _infoText(
-    "DOB",
-    _stringValue(patient.dob),
-  ),
-),
+                child: _infoText(
+                 "DOB",
+                _stringValue(patient.dob),
+                  ),
+              ),
 
-pw.Expanded(
-  child: _infoText(
-    "Age",
-    _stringValue(patient.ageAtVisit),
-  ),
-),
+            pw.Expanded(
+              child: _infoText(
+                "Age",
+              _stringValue(patient.ageAtVisit),
+                ),
+                ),
             ],
           ),
 
-          // if (patient.mobile.isNotEmpty)
-          //   pw.Padding(
-          //     padding:
-          //         const pw.EdgeInsets.only(top: 4),
-          //     child: _infoText(
-          //       "Mobile",
-          //       patient.mobile,
-          //     ),
-          //   ),
+          if (patient.bloodGroup != null && patient.bloodGroup!.isNotEmpty)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 4),
+              child: _infoText(
+                "Blood Group",
+                patient.bloodGroup!,
+              ),
+            ),  
 
           if (patient.mobile.isNotEmpty || patient.email.isNotEmpty)
   pw.Padding(
     padding: const pw.EdgeInsets.only(top: 4),
     child: pw.Row(
       children: [
-        if (patient.mobile.isNotEmpty)
-          pw.Expanded(
-            child: _infoText(
-              "Mobile",
-              patient.mobile,
-            ),
-          ),
+        pw.SizedBox(
+          width: 200,
+          child: patient.mobile.isNotEmpty
+              ? _infoText(
+                  "Mobile",
+                  patient.mobile,
+                )
+              : pw.SizedBox(),
+        ),
 
         if (patient.email.isNotEmpty)
           pw.Expanded(

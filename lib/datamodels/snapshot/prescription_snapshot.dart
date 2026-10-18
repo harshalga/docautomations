@@ -228,6 +228,7 @@ class PatientSnapshot {
   final String lastName;
   final String? guardianPPID;
   final DateTime? dob;
+  final String? bloodGroup;
   final int ageAtVisit;
   final String gender;
   final String mobile;
@@ -252,6 +253,7 @@ class PatientSnapshot {
    
     this.dob,
     required this.ageAtVisit,
+    this.bloodGroup,
     required this.gender,
     required this.mobile,
     required this.email,
@@ -295,6 +297,9 @@ class PatientSnapshot {
                   json["dob"].toString(),
                 )
               : null,
+
+      bloodGroup:
+    json["bloodGroup"]?.toString(),
 
       ageAtVisit:
           json["ageAtVisit"] ?? 0,
@@ -348,6 +353,8 @@ state:
 
     dob: patient.dob,
 
+    bloodGroup: patient.bloodGroup,
+
     ageAtVisit: ageAtVisit,
 
     gender: patient.gender,
@@ -378,6 +385,7 @@ state:
     "middleName": middleName,
     "lastName": lastName,
     "dob": dob?.toIso8601String(),
+    "bloodGroup": bloodGroup,
     "ageAtVisit": ageAtVisit,
     "gender": gender,
     "mobile": mobile,

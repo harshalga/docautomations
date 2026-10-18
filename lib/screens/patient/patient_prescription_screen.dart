@@ -69,7 +69,18 @@ class _PatientPrescriptionScreenState
 
   bool _initialized = false;
 
+  String? _selectedBloodGroup;
 
+  static const List<String> _bloodGroups = [
+  "A+",
+  "A-",
+  "B+",
+  "B-",
+  "AB+",
+  "AB-",
+  "O+",
+  "O-",
+];
   //-------------------------------------------------------------------------
   // Controllers for NEW patient master data
   //-------------------------------------------------------------------------
@@ -1015,6 +1026,40 @@ TextFormField(
               ),
             ),
 
+            const SizedBox(width: 12),
+
+            Expanded(
+              child:
+                  DropdownButtonFormField<String>(
+                initialValue:
+                    _selectedBloodGroup,
+                decoration:
+                    const InputDecoration(
+                  labelText: "Blood Group",
+                  border:
+                      OutlineInputBorder(),
+                ),
+                items: _bloodGroups
+                    .map(
+                      (bg) =>
+                          DropdownMenuItem(
+                        value: bg,
+                        child: Text(bg),
+                      ),
+                    )
+                    .toList(),
+                onChanged:
+                    (value) {
+
+                  setState(() {
+                    _selectedBloodGroup =
+                        value;
+                  });
+
+                },
+              ),
+            ),
+        
           ],
 
         ),
@@ -1540,6 +1585,7 @@ Patient _buildNewPatient() {
     gender: _gender,
     mobile: _mobileController.text.trim(),
     email: _emailController.text.trim(),
+    bloodGroup: _selectedBloodGroup,
     addressLine1: _address1Controller.text.trim(),
     addressLine2: _address2Controller.text.trim(),
     city: _cityController.text.trim(),

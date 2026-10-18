@@ -14,6 +14,8 @@ class Patient {
 
   final String email;
 
+  final String? bloodGroup;
+
   final String? guardianPPID;
 
   final String addressLine1;
@@ -35,6 +37,7 @@ class Patient {
     required this.gender,
     required this.mobile,
     required this.email,
+    this.bloodGroup,
     this.guardianPPID,
     required this.addressLine1,
     required this.addressLine2,
@@ -69,6 +72,8 @@ class Patient {
       mobile: json["mobile"]?.toString() ?? "",
 
       email: json["email"]?.toString() ?? "",
+
+      bloodGroup: json["bloodGroup"]?.toString(),
 
       guardianPPID:json["guardianPPID"]?.toString(),
 
@@ -105,6 +110,10 @@ class Patient {
       "gender": gender,
       "mobile": mobile,
       "email": email,
+      "bloodGroup":
+    bloodGroup?.trim().isEmpty == true
+        ? null
+        : bloodGroup?.trim(),
       "guardianPPID":
     guardianPPID?.trim().isEmpty == true
         ? null
