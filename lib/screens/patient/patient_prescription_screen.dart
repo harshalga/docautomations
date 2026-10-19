@@ -144,6 +144,21 @@ class _PatientPrescriptionScreenState
   final _followUpDateController =
       TextEditingController();
 
+      final _heightFeetController =
+    TextEditingController();
+
+final _heightInchesController =
+    TextEditingController();
+
+final _weightController =
+    TextEditingController();
+
+final _systolicBPController =
+    TextEditingController();
+
+final _diastolicBPController =
+    TextEditingController();
+
 
   String _gender = "Male";
 
@@ -520,6 +535,11 @@ void _populateFromGuardian(
     _adviceController.dispose();
     _remarksController.dispose();
     _followUpDateController.dispose();
+    _heightFeetController.dispose();
+_heightInchesController.dispose();
+_weightController.dispose();
+_systolicBPController.dispose();
+_diastolicBPController.dispose();
 
     super.dispose();
 
@@ -1199,7 +1219,78 @@ const SizedBox(height: 12),
 
             ),
 
-            const SizedBox(height: 16),
+           const SizedBox(height: 12),
+
+Row(
+  children: [
+    Expanded(
+      child: _textField(
+        "Height (ft)",
+        _heightFeetController,
+        keyboardType: TextInputType.number,
+      ),
+    ),
+
+    const SizedBox(width: 12),
+
+    Expanded(
+      child: _textField(
+        "Height (in)",
+        _heightInchesController,
+        keyboardType: const TextInputType.numberWithOptions(
+          decimal: true,
+        ),
+      ),
+    ),
+
+    const SizedBox(width: 12),
+
+    Expanded(
+      child: _textField(
+        "Weight (kg)",
+        _weightController,
+        keyboardType: const TextInputType.numberWithOptions(
+          decimal: true,
+        ),
+      ),
+    ),
+  ],
+),
+
+const SizedBox(height: 12),
+
+Row(
+  children: [
+    Expanded(
+      child: _textField(
+        "Systolic BP",
+        _systolicBPController,
+        keyboardType: TextInputType.number,
+      ),
+    ),
+
+    const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8),
+      child: Text(
+        "/",
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+
+    Expanded(
+      child: _textField(
+        "Diastolic BP",
+        _diastolicBPController,
+        keyboardType: TextInputType.number,
+      ),
+    ),
+  ],
+),
+
+const SizedBox(height: 16),
 
             _textField(
               "Chief Complaint",
@@ -1531,6 +1622,62 @@ const SizedBox(height: 12),
   }
 
 
+double? _getHeightCm() {
+  final feetText =
+      _heightFeetController.text.trim();
+
+  final inchesText =
+      _heightInchesController.text.trim();
+
+  if (feetText.isEmpty &&
+      inchesText.isEmpty) {
+    return null;
+  }
+
+  final feet =
+      double.tryParse(feetText) ?? 0;
+
+  final inches =
+      double.tryParse(inchesText) ?? 0;
+
+  if (feet < 0 || inches < 0) {
+    return null;
+  }
+
+  return ((feet * 12) + inches) * 2.54;
+}
+
+double? _getWeightKg() {
+  final value =
+      _weightController.text.trim();
+
+  if (value.isEmpty) {
+    return null;
+  }
+
+  return double.tryParse(value);
+}
+
+int? _getSystolicBP() {
+  final value =
+      _systolicBPController.text.trim();
+
+  if (value.isEmpty) {
+    return null;
+  }
+
+  return int.tryParse(value);
+}
+int? _getDiastolicBP() {
+  final value =
+      _diastolicBPController.text.trim();
+
+  if (value.isEmpty) {
+    return null;
+  }
+
+  return int.tryParse(value);
+}
   //-------------------------------------------------------------------------
   // Generate
   //-------------------------------------------------------------------------
@@ -1595,9 +1742,39 @@ Patient _buildNewPatient() {
   );
 }
 
+bool _validateVitals() {
+  final systolic =
+      _systolicBPController.text.trim();
+
+  final diastolic =
+      _diastolicBPController.text.trim();
+
+  if (systolic.isEmpty &&
+      diastolic.isEmpty) {
+    return true;
+  }
+
+  if (systolic.isEmpty ||
+      diastolic.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Please enter both systolic and diastolic BP.",
+        ),
+      ),
+    );
+
+    return false;
+  }
+
+  return true;
+}
+
   Future<void> _generatePrescription() async {
 
-
+if (!_validateVitals()) {
+  return;
+}
     // =========================================================================
   // Build patient from NEW patient form
   // =========================================================================
@@ -1653,7 +1830,18 @@ Patient _buildNewPatient() {
     ..remarks =
         _remarksController.text.trim()
     ..followUpDate =
-        _followUpDate;
+        _followUpDate
+    ..heightCm =
+      _getHeightCm()
+
+  ..weightKg =
+      _getWeightKg()
+
+  ..systolicBP =
+      _getSystolicBP()
+
+  ..diastolicBP =
+      _getDiastolicBP();
 
   controller.prescription.printLetterHead =
       controller.printLetterhead;

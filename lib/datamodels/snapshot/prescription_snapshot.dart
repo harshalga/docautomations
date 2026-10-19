@@ -433,6 +433,11 @@ class PrescriptionSnapshotData {
 
   final DateTime? followUpDate;
 
+  final double? heightCm;
+final double? weightKg;
+final int? systolicBP;
+final int? diastolicBP;
+
   final List<Prescriptiondata> medicines;
 
   const PrescriptionSnapshotData({
@@ -442,6 +447,10 @@ class PrescriptionSnapshotData {
     required this.advice,
     required this.remarks,
     this.followUpDate,
+     this.heightCm,
+    this.weightKg,
+    this.systolicBP,
+    this.diastolicBP,
     required this.medicines,
   });
 
@@ -474,6 +483,17 @@ class PrescriptionSnapshotData {
                   json["followUpDate"].toString(),
                 )
               : null,
+heightCm:
+          (json["heightCm"] as num?)?.toDouble(),
+
+      weightKg:
+          (json["weightKg"] as num?)?.toDouble(),
+
+      systolicBP:
+          (json["systolicBP"] as num?)?.toInt(),
+
+      diastolicBP:
+          (json["diastolicBP"] as num?)?.toInt(),
 
       medicines:
           (json["medicines"] as List? ?? [])
@@ -510,6 +530,18 @@ class PrescriptionSnapshotData {
 
       "followUpDate":
           followUpDate?.toIso8601String(),
+
+           "heightCm":
+          heightCm,
+
+      "weightKg":
+          weightKg,
+
+      "systolicBP":
+          systolicBP,
+
+      "diastolicBP":
+          diastolicBP,
 
       "medicines":
           medicines

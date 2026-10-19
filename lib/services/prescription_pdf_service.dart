@@ -32,7 +32,275 @@ String _stringValue(dynamic value) {
   return value.toString();
 }
 
+pw.Widget _chiefComplaintWithVitals(
+  PrescriptionSnapshotData prescription,
+) {
+  final vitals = <String>[];
 
+  // ---------------------------------------------------------------------
+  // HEIGHT
+  // ---------------------------------------------------------------------
+
+  if (prescription.heightCm != null) {
+    final totalInches =
+        prescription.heightCm! / 2.54;
+
+    int feet = totalInches ~/ 12;
+
+    int inches =
+        (totalInches - (feet * 12)).round();
+
+    // Normalize 12 inches to the next foot.
+    if (inches == 12) {
+      feet++;
+      inches = 0;
+    }
+
+    vitals.add(
+      "Height: $feet'${inches}\"",
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // WEIGHT
+  // ---------------------------------------------------------------------
+
+  if (prescription.weightKg != null) {
+    vitals.add(
+      "Weight: ${prescription.weightKg!.toStringAsFixed(1)} kg",
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // BLOOD PRESSURE
+  // ---------------------------------------------------------------------
+
+  if (prescription.systolicBP != null ||
+      prescription.diastolicBP != null) {
+    final systolic =
+        prescription.systolicBP?.toString() ?? "-";
+
+    final diastolic =
+        prescription.diastolicBP?.toString() ?? "-";
+
+    vitals.add(
+      "BP: $systolic/$diastolic mmHg",
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // CHIEF COMPLAINT + VITALS
+  // ---------------------------------------------------------------------
+
+  return pw.Padding(
+    padding: const pw.EdgeInsets.only(
+      bottom: 7,
+    ),
+    child: pw.Row(
+      crossAxisAlignment:
+          pw.CrossAxisAlignment.start,
+      children: [
+
+        // ===============================================================
+        // LEFT SIDE - CHIEF COMPLAINT
+        // ===============================================================
+
+        pw.Expanded(
+          flex: 3,
+          child: pw.Column(
+            crossAxisAlignment:
+                pw.CrossAxisAlignment.start,
+            children: [
+
+              // Heading
+              pw.Text(
+                "Chief Complaint",
+                style: pw.TextStyle(
+                  fontSize: 9,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+
+              pw.SizedBox(height: 2),
+
+              // Details below heading
+              pw.Text(
+                prescription.chiefComplaint.isEmpty
+                    ? "-"
+                    : prescription.chiefComplaint,
+                style: const pw.TextStyle(
+                  fontSize: 9,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // ===============================================================
+        // RIGHT SIDE - VITALS
+        // ===============================================================
+
+        if (vitals.isNotEmpty)
+          pw.Expanded(
+            flex: 1,
+            child: pw.Column(
+              crossAxisAlignment:
+                  pw.CrossAxisAlignment.end,
+              children: vitals.map(
+                (value) {
+                  return pw.Padding(
+                    padding:
+                        const pw.EdgeInsets.only(
+                      bottom: 2,
+                    ),
+                    child: pw.Text(
+                      value,
+                      style: const pw.TextStyle(
+                        fontSize: 8,
+                      ),
+                    ),
+                  );
+                },
+              ).toList(),
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
+// pw.Widget _chiefComplaintWithVitals(
+//   PrescriptionSnapshotData prescription,
+// ) {
+//   final vitals = <String>[];
+
+//   // Height
+//   if (prescription.heightCm != null) {
+//     final totalInches =
+//         prescription.heightCm! / 2.54;
+
+//     final feet =
+//         totalInches ~/ 12;
+
+//     final inches =
+//         (totalInches - (feet * 12)).round();
+
+//     vitals.add(
+//       "Height: ${feet}'${inches}\"",
+//     );
+//   }
+
+//   // Weight
+//   if (prescription.weightKg != null) {
+//     vitals.add(
+//       "Weight: ${prescription.weightKg!.toStringAsFixed(1)} kg",
+//     );
+//   }
+
+//   // Blood Pressure
+//   if (prescription.systolicBP != null ||
+//       prescription.diastolicBP != null) {
+
+//     final systolic =
+//         prescription.systolicBP?.toString() ?? "-";
+
+//     final diastolic =
+//         prescription.diastolicBP?.toString() ?? "-";
+
+//     vitals.add(
+//       "BP: $systolic/$diastolic mmHg",
+//     );
+//   }
+
+//   return pw.Padding(
+//     padding: const pw.EdgeInsets.only(bottom: 5),
+
+//     child: pw.Row(
+//       crossAxisAlignment:
+//           pw.CrossAxisAlignment.start,
+
+//       children: [
+
+//         // -------------------------------------------------------------
+//         // CHIEF COMPLAINT
+//         // -------------------------------------------------------------
+
+//         pw.Expanded(
+//           flex: 3,
+
+//           child: pw.Row(
+//             crossAxisAlignment:
+//                 pw.CrossAxisAlignment.start,
+
+//             children: [
+
+//               pw.SizedBox(
+//                 width: 90,
+
+//                 child: pw.Text(
+//                   "Chief Complaint",
+//                   style: pw.TextStyle(
+//                     fontSize: 9,
+//                     fontWeight:
+//                         pw.FontWeight.bold,
+//                   ),
+//                 ),
+//               ),
+
+//               pw.Expanded(
+//                 child: pw.Text(
+//                   prescription.chiefComplaint.isEmpty
+//                       ? "-"
+//                       : prescription.chiefComplaint,
+
+//                   style: const pw.TextStyle(
+//                     fontSize: 9,
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+
+//         // -------------------------------------------------------------
+//         // VITALS
+//         // -------------------------------------------------------------
+
+//         if (vitals.isNotEmpty)
+//           pw.SizedBox(width: 15),
+
+//         if (vitals.isNotEmpty)
+//           pw.Expanded(
+//             flex: 2,
+
+//             child: pw.Column(
+//               crossAxisAlignment:
+//                   pw.CrossAxisAlignment.start,
+
+//               children: vitals.map(
+//                 (value) {
+//                   return pw.Padding(
+//                     padding:
+//                         const pw.EdgeInsets.only(
+//                       bottom: 2,
+//                     ),
+
+//                     child: pw.Text(
+//                       value,
+
+//                       style: const pw.TextStyle(
+//                         fontSize: 8,
+//                       ),
+//                     ),
+//                   );
+//                 },
+//               ).toList(),
+//             ),
+//           ),
+//       ],
+//     ),
+//   );
+// } // ends   _chiefComplaintWithVitals -----------
   // ===========================================================================
   // PUBLIC API
   // ===========================================================================
@@ -474,114 +742,141 @@ final footerImage =
   // CONSULTATION
   // ===========================================================================
 
-  pw.Widget _buildConsultation(
-    PrescriptionSnapshotData prescription,
-  ) {
-    final rows = <pw.Widget>[];
 
-    if (prescription.chiefComplaint.isNotEmpty) {
-      rows.add(
-        _consultationRow(
-          "Chief Complaint",
-          prescription.chiefComplaint,
-        ),
-      );
-    }
+pw.Widget _buildConsultation(
+  PrescriptionSnapshotData prescription,
+) {
+  final rows = <pw.Widget>[];
 
-    if (prescription.examination.isNotEmpty) {
-      rows.add(
-        _consultationRow(
-          "Examination",
-          prescription.examination,
-        ),
-      );
-    }
+  // ---------------------------------------------------------------------
+  // CHIEF COMPLAINT + VITALS
+  // ---------------------------------------------------------------------
 
-    if (prescription.diagnosis.isNotEmpty) {
-      rows.add(
-        _consultationRow(
-          "Diagnosis",
-          prescription.diagnosis,
-        ),
-      );
-    }
-
-    if (prescription.advice.isNotEmpty) {
-      rows.add(
-        _consultationRow(
-          "Advice",
-          prescription.advice,
-        ),
-      );
-    }
-
-    if (prescription.remarks.isNotEmpty) {
-      rows.add(
-        _consultationRow(
-          "Remarks",
-          prescription.remarks,
-        ),
-      );
-    }
-
-    if (prescription.followUpDate != null) {
-  rows.add(
-    _consultationRow(
-      "Follow-up",
-      _formatDate(
-        prescription.followUpDate!,
+  if (prescription.chiefComplaint.isNotEmpty ||
+      prescription.heightCm != null ||
+      prescription.weightKg != null ||
+      prescription.systolicBP != null ||
+      prescription.diastolicBP != null) {
+    rows.add(
+      _chiefComplaintWithVitals(
+        prescription,
       ),
-    ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // EXAMINATION
+  // ---------------------------------------------------------------------
+
+  if (prescription.examination.isNotEmpty) {
+    rows.add(
+      _consultationSection(
+        "Examination",
+        prescription.examination,
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // DIAGNOSIS
+  // ---------------------------------------------------------------------
+
+  if (prescription.diagnosis.isNotEmpty) {
+    rows.add(
+      _consultationSection(
+        "Diagnosis",
+        prescription.diagnosis,
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // ADVICE
+  // ---------------------------------------------------------------------
+
+  if (prescription.advice.isNotEmpty) {
+    rows.add(
+      _consultationSection(
+        "Advice",
+        prescription.advice,
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // REMARKS
+  // ---------------------------------------------------------------------
+
+  if (prescription.remarks.isNotEmpty) {
+    rows.add(
+      _consultationSection(
+        "Remarks",
+        prescription.remarks,
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // FOLLOW-UP
+  // ---------------------------------------------------------------------
+
+  if (prescription.followUpDate != null) {
+    rows.add(
+      _consultationSection(
+        "Follow-up",
+        _formatDate(
+          prescription.followUpDate!,
+        ),
+      ),
+    );
+  }
+
+  return pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.start,
+    children: rows,
   );
 }
 
-
-    return pw.Column(
+pw.Widget _consultationSection(
+  String label,
+  String value,
+) {
+  return pw.Padding(
+    padding: const pw.EdgeInsets.only(
+      bottom: 7,
+    ),
+    child: pw.Column(
       crossAxisAlignment:
           pw.CrossAxisAlignment.start,
-      children: rows,
-    );
-  }
+      children: [
+        // ---------------------------------------------------------------
+        // HEADING
+        // ---------------------------------------------------------------
 
-  pw.Widget _consultationRow(
-    String label,
-    String value,
-  ) {
-    return pw.Padding(
-      padding:
-          const pw.EdgeInsets.only(bottom: 5),
-
-      child: pw.Row(
-        crossAxisAlignment:
-            pw.CrossAxisAlignment.start,
-
-        children: [
-
-          pw.SizedBox(
-            width: 90,
-            child: pw.Text(
-              label,
-              style: pw.TextStyle(
-                fontSize: 9,
-                fontWeight:
-                    pw.FontWeight.bold,
-              ),
-            ),
+        pw.Text(
+          label,
+          style: pw.TextStyle(
+            fontSize: 9,
+            fontWeight: pw.FontWeight.bold,
           ),
+        ),
 
-          pw.Expanded(
-            child: pw.Text(
-              value,
-              style: const pw.TextStyle(
-                fontSize: 9,
-              ),
-            ),
+        pw.SizedBox(height: 2),
+
+        // ---------------------------------------------------------------
+        // DETAILS
+        // ---------------------------------------------------------------
+
+        pw.Text(
+          value.isEmpty ? "-" : value,
+          style: const pw.TextStyle(
+            fontSize: 9,
           ),
-        ],
-      ),
-    );
-  }
-
+        ),
+      ],
+    ),
+  );
+}
   // ===========================================================================
   // MEDICINES
   // ===========================================================================

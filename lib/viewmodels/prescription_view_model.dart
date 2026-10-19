@@ -24,6 +24,11 @@ class PrescriptionViewModel  {
 
   String remarks = "";
 
+  double? heightCm;
+double? weightKg;
+int? systolicBP;
+int? diastolicBP;
+
   //---------------------------------------------------------------------------
   // Follow-up
   //---------------------------------------------------------------------------
@@ -308,6 +313,11 @@ class PrescriptionViewModel  {
 
       "advice":
           advice,
+
+          "heightCm": heightCm,
+"weightKg": weightKg,
+"systolicBP": systolicBP,
+"diastolicBP": diastolicBP,
 
       "remarks":
           remarks,
