@@ -6,6 +6,9 @@ import 'package:docautomations/widgets/doctormaster.dart';
 import 'package:docautomations/widgets/doctorwelcomescreen.dart';
 import 'package:docautomations/screens/patient/patient_search_screen.dart';
 import 'package:docautomations/widgets/sharelogsscreen.dart';
+import 'package:provider/provider.dart';
+import 'package:docautomations/datamodels/master/master_data.dart';
+
 
 class Menubar extends StatefulWidget {
   final Widget body;
@@ -30,7 +33,7 @@ class _MenubarState extends State<Menubar> {
   // STATE
   //===========================================================================
 
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
 
   String _doctorName = 'Dr. Prescriptor';
   String _doctorInitials = 'DP';
@@ -69,18 +72,37 @@ class _MenubarState extends State<Menubar> {
   // DOCTOR INFORMATION
   //===========================================================================
 
-  Future<void> _loadDoctorInfo() async {
-    final prefs = await SharedPreferences.getInstance();
+  // Future<void> _loadDoctorInfo() async {
+  //   final prefs = await SharedPreferences.getInstance();
 
-    if (!mounted) return;
+  //   if (!mounted) return;
 
-    final name = prefs.getString('doctor_name') ?? 'Prescriptor';
+  //   final name = prefs.getString('doctor_name') ?? 'Prescriptor';
 
-    setState(() {
-      _doctorName = 'Dr. $name';
-      _doctorInitials = _getInitials(name);
-    });
-  }
+  //   setState(() {
+  //     _doctorName = 'Dr. $name';
+  //     _doctorInitials = _getInitials(name);
+  //   });
+  // }
+
+ 
+void _loadDoctorInfo()  {
+  
+
+  final masterData = context.read<MasterData>();
+
+  final name =
+      masterData.doctorProfile.doctor.doctorName.trim();
+
+  final doctorName =
+      name.isNotEmpty ? name : 'Prescriptor';
+
+  setState(() {
+    _doctorName = 'Dr. $doctorName';
+    _doctorInitials = _getInitials(doctorName);
+  });
+}
+
 
   String _getInitials(String name) {
     final parts = name
