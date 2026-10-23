@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:docautomations/widgets/AddPrescrip.dart';
 import 'package:docautomations/widgets/doctormaster.dart';
-import 'package:docautomations/widgets/doctorwelcomescreen.dart';
+import 'package:docautomations/screens/home/doctorwelcomescreen.dart';
 import 'package:docautomations/screens/patient/patient_search_screen.dart';
 import 'package:docautomations/widgets/sharelogsscreen.dart';
 import 'package:provider/provider.dart';
@@ -49,8 +49,9 @@ class _MenubarState extends State<Menubar> {
     super.initState();
 
     _screens = [
-      //const DoctorWelcomeScreen(),
-
+      // Index 0: Home
+      const DoctorWelcomeScreen(),
+       // Index 1: Find Patient
       // Initial screen supplied by AppEntryPoint.
       widget.body,
 
