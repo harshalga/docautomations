@@ -967,7 +967,7 @@ debugPrint(
     final response =
         await _dio.put(
 
-      "/api/doctor/profile",
+      "/api/doctors/profile",
 
       data:
           request,

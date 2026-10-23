@@ -1,3 +1,4 @@
+import 'package:docautomations/screens/settings/manage_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,6 +9,7 @@ import 'package:docautomations/screens/patient/patient_search_screen.dart';
 import 'package:docautomations/widgets/sharelogsscreen.dart';
 import 'package:provider/provider.dart';
 import 'package:docautomations/datamodels/master/master_data.dart';
+import 'package:docautomations/repositories/doctor_repository.dart';
 
 
 class Menubar extends StatefulWidget {
@@ -55,10 +57,17 @@ class _MenubarState extends State<Menubar> {
       // Initial screen supplied by AppEntryPoint.
       widget.body,
 
+
       // const Addprescrip(
       //   title: 'Patient Diagnosis',
       // ),
 
+      // Index 3: Manage Profile Settings
+  ManageProfileScreen(
+    doctorRepository: context.read<DoctorRepository>(),
+  ),
+
+    
       // const DoctorMaster(
       //   title: 'Profile Settings',
       // ),
@@ -214,13 +223,13 @@ void _loadDoctorInfo()  {
 
                 _buildMenuItem(
                   index: 2,
-                  title: 'Patient Diagnosis',
+                  title: 'Manage Profile',
                   icon: Icons.medical_services,
                 ),
 
                 _buildMenuItem(
                   index: 3,
-                  title: 'Profile Settings',
+                  title: 'Layout Settings',
                   icon: Icons.settings,
                 ),
 

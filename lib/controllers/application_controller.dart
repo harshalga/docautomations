@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:docautomations/application/application_bootstrapper.dart';
 import 'package:docautomations/datamodels/master/master_data.dart';
+import 'package:docautomations/datamodels/response/doctor_profile.dart';
+import 'package:docautomations/datamodels/response/doctor_profile.dart';
 
 class ApplicationController extends ChangeNotifier {
   //---------------------------------------------------------------------------
@@ -94,6 +96,23 @@ Future<MasterData> initialize({
 
     notifyListeners();
   }
+}
+
+
+void updateDoctorProfile(DoctorProfile doctorProfile) {
+  final currentData = _masterData;
+
+  if (currentData == null) {
+    throw StateError(
+      'ApplicationController has not been initialized.',
+    );
+  }
+
+  _masterData = currentData.copyWith(
+    doctorProfile: doctorProfile,
+  );
+
+  notifyListeners();
 }
 
   //---------------------------------------------------------------------------

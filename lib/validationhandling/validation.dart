@@ -43,9 +43,26 @@ class RequiredValidation<T> extends Validation<T> {
       return 'This field is required';
     }
 
-    if (value is String && (value as String).isEmpty) {
+    if (value is String && (value as String).trim().isEmpty) {
       return 'This field is required';
     }
+    return null;
+  }
+}
+
+class MobileNumberValidation extends Validation<String> {
+  const MobileNumberValidation();
+
+  @override
+  String? validate(BuildContext context, String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Contact number is required';
+    }
+
+    if (!RegExp(r'^[0-9]{10}$').hasMatch(value.trim())) {
+      return 'Enter a valid 10-digit mobile number';
+    }
+
     return null;
   }
 }
