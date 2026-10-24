@@ -325,8 +325,47 @@ class AuthenticationProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+//===========================================================================
+  // checkEmailExists
+  //===========================================================================
+Future<bool> checkEmailExists(String loginEmail) async {
+
+    final result =
+        await AuthService.checkEmailExists(
+            loginEmail: loginEmail,
+        );
+
+    if (result["success"] != true) {
+        throw Exception(
+            result["message"] ?? "Unable to verify email.",
+        );
+    }
+
+    return result["emailExists"] == true;
+
+}
 
 
+//-------------------------------------------------------------------------
+// RESET PASSWORD
+//-------------------------------------------------------------------------
+
+Future<bool> resetPassword({
+  required String loginEmail,
+  required String newPassword,
+}) async {
+  try {
+    final result = await AuthService.resetPassword(
+      loginEmail: loginEmail,
+      newPassword: newPassword,
+    );
+
+    return result['success'] == true;
+  } catch (error) {
+    debugPrint('Reset password failed: $error');
+    rethrow;
+  }
+}
   //===========================================================================
   // LOGIN
   //===========================================================================

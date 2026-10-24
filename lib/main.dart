@@ -677,12 +677,20 @@ import 'package:docautomations/application/application_bootstrapper.dart';
 import 'package:docautomations/device_assets/asset_manager.dart';
 import 'package:docautomations/storage/local_storage_service.dart';
 
+import 'package:docautomations/services/logger_service.dart';
+
 //-----------------------------------------------------------------------------
 // MAIN
 //-----------------------------------------------------------------------------
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  //-------------------------------------------------------------------------
+  // LOGGING SERVICE
+  //-------------------------------------------------------------------------
+
+  await LoggerService.init();
 
   //-------------------------------------------------------------------------
   // LOCAL SERVICES

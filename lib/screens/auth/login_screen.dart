@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'package:docautomations/screens/auth/forgot_password_screen.dart';
+import 'package:docautomations/services/logger_service.dart';
+
 import 'package:docautomations/providers/authentication_provider.dart';
+
+import 'dart:convert';
+import 'dart:typed_data';
+
+
 
 
 //=============================================================================
@@ -471,6 +482,26 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 28),
 
 
+                        //Forgot Password
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: authentication.isLoading
+                                  ? null
+                                  : _openForgotPassword,
+                              child: const Text(
+                                'Forgot Password?',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+
+
                         //=======================================================
                         // LOGIN BUTTON
                         //=======================================================
@@ -592,6 +623,80 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
 
                         const SizedBox(height: 32),
+
+const SizedBox(height: 24),
+
+                            // =====================================================
+                            // WATCH APP DEMO
+                            // =====================================================
+
+                            Card(
+                              color: Colors.red.shade50,
+                              elevation: 0,
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 6,
+                                ),
+                                leading: const Icon(
+                                  Icons.play_circle_fill,
+                                  color: Colors.red,
+                                  size: 36,
+                                ),
+                                title: const Text(
+                                  'Watch App Demo',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: const Text(
+                                  'See how to create prescriptions in just 2 minutes',
+                                ),
+                                trailing: const Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 16,
+                                ),
+                                onTap: _openDemoPlaylist,
+                              ),
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            // =====================================================
+                            // LOGIN SUPPORT / SHARE LOGS
+                            // =====================================================
+
+                            Card(
+                              color: Colors.blue.shade50,
+                              elevation: 0,
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 6,
+                                ),
+                                leading: const Icon(
+                                  Icons.support_agent,
+                                  color: Color.fromARGB(255, 30, 124, 218),
+                                  size: 36,
+                                ),
+                                title: const Text(
+                                  'Login Problem?',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: const Text(
+                                  'Tap here to send logs to support',
+                                ),
+                                trailing: const Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 16,
+                                ),
+                                onTap: _shareLogs,
+                              ),
+                            ),
+
+                            const SizedBox(height: 24),
 
 
                         //=======================================================
@@ -725,6 +830,236 @@ Widget _buildBranding(
 }
 
 
+Future<void> _openForgotPassword() async {
+
+    final email =
+        _loginEmailController.text.trim().toLowerCase();
+
+  if (email.isEmpty || !email.contains('@')) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Please enter a valid email address first.',
+        ),
+      ),
+    );
+    return;
+  }
+
+  FocusScope.of(context).unfocus();
+
+  final authenticationProvider =
+      context.read<AuthenticationProvider>();
+
+  try {
+        final exists =
+            await authenticationProvider.checkEmailExists(
+                email,
+            );
+
+        if (!mounted) return;
+
+        if (!exists) {
+
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text(
+                        "No account was found for this email address.",
+                    ),
+                ),
+            );
+
+            return;
+        }
+
+        await Navigator.of(context).push(
+            MaterialPageRoute(
+                builder: (_) => ForgotPasswordScreen(
+                    loginEmailId: email,
+                ),
+            ),
+        );
+
+    } catch (error) {
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    "Unable to verify the email. Please try again.",
+                ),
+            ),
+        );
+
+    }
+
+}
+//-------------------------------------------------------------------------
+  // Open Demo Playlist
+  //-------------------------------------------------------------------------
+Future<void> _openDemoPlaylist() async {
+  const String playlistUrl =
+      'https://www.youtube.com/playlist?list=PLLikLK39r_Zo';
+
+  final Uri uri = Uri.parse(playlistUrl);
+
+  try {
+    final launched = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
+
+    if (!launched) {
+      throw Exception('Unable to launch YouTube.');
+    }
+  } catch (_) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Unable to open YouTube.'),
+      ),
+    );
+  }
+}
+
+// //-------------------------------------------------------------------------
+//   //forgot password
+//   //-------------------------------------------------------------------------
+
+// Future<void> _forgotPassword() async {
+//   final email = _loginEmailController.text.trim();
+
+//   if (email.isEmpty || !email.contains('@')) {
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       const SnackBar(
+//         content: Text(
+//           'Please enter a valid email address first.',
+//         ),
+//       ),
+//     );
+//     return;
+//   }
+
+//   FocusScope.of(context).unfocus();
+
+//   final authenticationProvider =
+//       context.read<AuthenticationProvider>();
+
+//   try {
+//     final exists =
+//         await authenticationProvider.checkEmailExists(email);
+
+//     if (!mounted) return;
+
+//     if (!exists) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text(
+//             'No account found for this email address.',
+//           ),
+//         ),
+//       );
+//       return;
+//     }
+
+//     await Navigator.of(context).push(
+//       MaterialPageRoute(
+//         builder: (_) => ForgotPasswordScreen(
+//           loginEmailId: email,
+//         ),
+//       ),
+//     );
+//   } catch (_) {
+//     if (!mounted) return;
+
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       const SnackBar(
+//         content: Text(
+//           'Unable to verify email. Please try again.',
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+//-------------------------------------------------------------------------
+  // Share Logs
+  //-------------------------------------------------------------------------
+
+// Future<void> _shareLogs() async {
+//   try {
+//     final file = await LoggerService.getLogFile();
+
+//     if (!mounted) return;
+
+//     if (file == null) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text('No logs available'),
+//         ),
+//       );
+//       return;
+//     }
+
+//     await Share.shareXFiles(
+//       [XFile(file.path)],
+//       subject: 'Prescriptor App – Login Logs',
+//       text: 'Please find attached logs.',
+//     );
+//   } catch (_) {
+//     if (!mounted) return;
+
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       const SnackBar(
+//         content: Text('Unable to share logs'),
+//       ),
+//     );
+//   }
+// }
+
+
+Future<void> _shareLogs() async {
+  try {
+    final content = await LoggerService.getLogContent();
+
+    if (!mounted) return;
+
+    if (content == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No logs available'),
+        ),
+      );
+      return;
+    }
+
+    final bytes = Uint8List.fromList(
+      utf8.encode(content),
+    );
+
+    await Share.shareXFiles(
+      [
+        XFile.fromData(
+          bytes,
+          mimeType: 'text/plain',
+          name: 'app_logs.txt',
+        ),
+      ],
+      subject: 'Prescriptor App – Login Logs',
+      text: 'Please find attached logs.',
+    );
+  } catch (error) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Unable to share logs'),
+      ),
+    );
+  }
+}
 
 
   //-------------------------------------------------------------------------

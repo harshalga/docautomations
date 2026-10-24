@@ -120,6 +120,10 @@ class AuthService {
       "/api/doctors/logout";
 
 
+  static const String _checkEmailEndpoint =
+    "/api/doctors/check-email";
+
+
   //===========================================================================
   // Plain Authentication HTTP Client
   //
@@ -260,6 +264,7 @@ class AuthService {
     );
 
   }
+
 
 
   //===========================================================================
@@ -510,6 +515,26 @@ class AuthService {
 
   }
 
+//===========================================================================
+  // Logout
+  //
+  // Uses plain Dio.
+  //===========================================================================
+static Future<Map<String, dynamic>> checkEmailExists({
+  required String loginEmail,
+}) async {
+
+  final response = await _authDio.post(
+    _checkEmailEndpoint,
+    data: {
+      "loginEmail": loginEmail.trim().toLowerCase(),
+    },
+  );
+
+  return Map<String, dynamic>.from(
+    response.data as Map,
+  );
+}
 
   //===========================================================================
   // Logout
