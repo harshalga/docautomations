@@ -1783,22 +1783,22 @@ class _RegistrationScreenState
     String? value,
   ) {
 
-    final email =
+    final loginEmail =
         value?.trim() ?? '';
 
 
-    if (email.isEmpty) {
+    if (loginEmail.isEmpty) {
       return 'Please enter your email';
     }
 
 
-    final validEmail =
+    final validloginEmail =
         RegExp(
           r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
-        ).hasMatch(email);
+        ).hasMatch(loginEmail);
 
 
-    if (!validEmail) {
+    if (!validloginEmail) {
       return 'Please enter a valid email';
     }
 

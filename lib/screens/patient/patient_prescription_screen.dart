@@ -100,7 +100,7 @@ class _PatientPrescriptionScreenState
   final _mobileController =
       TextEditingController();
 
-  final _emailController =
+  final _loginEmailController =
       TextEditingController();
 
   final _address1Controller =
@@ -321,8 +321,8 @@ void _populateFromGuardian(
     _mobileController.text =
         guardian.mobile;
 
-    _emailController.text =
-        guardian.email;
+    _loginEmailController.text =
+        guardian.loginEmail;
 
     _address1Controller.text =
         guardian.addressLine1;
@@ -427,8 +427,8 @@ void _populateFromGuardian(
       _mobileController.text =
           patient.mobile;
 
-      _emailController.text =
-          patient.email;
+      _loginEmailController.text =
+          patient.loginEmail;
 
       _address1Controller.text =
           patient.addressLine1;
@@ -522,7 +522,7 @@ void _populateFromGuardian(
     _lastNameController.dispose();
     _dobController.dispose();
     _mobileController.dispose();
-    _emailController.dispose();
+    _loginEmailController.dispose();
     _address1Controller.dispose();
     _address2Controller.dispose();
     _cityController.dispose();
@@ -1095,7 +1095,7 @@ TextFormField(
 
         _textField(
           "Email",
-          _emailController,
+          _loginEmailController,
           keyboardType:
               TextInputType.emailAddress,
         ),
@@ -1731,7 +1731,7 @@ Patient _buildNewPatient() {
     dob: _dob,
     gender: _gender,
     mobile: _mobileController.text.trim(),
-    email: _emailController.text.trim(),
+    loginEmail: _loginEmailController.text.trim(),
     bloodGroup: _selectedBloodGroup,
     addressLine1: _address1Controller.text.trim(),
     addressLine2: _address2Controller.text.trim(),

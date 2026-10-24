@@ -1,15 +1,13 @@
 import 'package:docautomations/screens/settings/manage_profile_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:docautomations/widgets/AddPrescrip.dart';
-import 'package:docautomations/widgets/doctormaster.dart';
 import 'package:docautomations/screens/home/doctorwelcomescreen.dart';
-import 'package:docautomations/screens/patient/patient_search_screen.dart';
+
 import 'package:docautomations/widgets/sharelogsscreen.dart';
 import 'package:provider/provider.dart';
 import 'package:docautomations/datamodels/master/master_data.dart';
 import 'package:docautomations/repositories/doctor_repository.dart';
+import 'package:docautomations/controllers/application_controller.dart';
 
 
 class Menubar extends StatefulWidget {
@@ -37,8 +35,8 @@ class _MenubarState extends State<Menubar> {
 
   int _selectedIndex = 0;
 
-  String _doctorName = 'Dr. Prescriptor';
-  String _doctorInitials = 'DP';
+  // String _doctorName = 'Dr. Prescriptor';
+  // String _doctorInitials = 'DP';
 
   late final List<Widget> _screens;
 
@@ -75,43 +73,31 @@ class _MenubarState extends State<Menubar> {
       ShareLogsScreen(),
     ];
 
-    _loadDoctorInfo();
+    ///_loadDoctorInfo();
   }
 
   //===========================================================================
   // DOCTOR INFORMATION
   //===========================================================================
 
-  // Future<void> _loadDoctorInfo() async {
-  //   final prefs = await SharedPreferences.getInstance();
-
-  //   if (!mounted) return;
-
-  //   final name = prefs.getString('doctor_name') ?? 'Prescriptor';
-
-  //   setState(() {
-  //     _doctorName = 'Dr. $name';
-  //     _doctorInitials = _getInitials(name);
-  //   });
-  // }
-
+  
  
-void _loadDoctorInfo()  {
+// void _loadDoctorInfo()  {
   
 
-  final masterData = context.read<MasterData>();
+//   final masterData = context.read<MasterData>();
 
-  final name =
-      masterData.doctorProfile.doctor.doctorName.trim();
+//   final name =
+//       masterData.doctorProfile.doctor.doctorName.trim();
 
-  final doctorName =
-      name.isNotEmpty ? name : 'Prescriptor';
+//   final doctorName =
+//       name.isNotEmpty ? name : 'Prescriptor';
 
-  setState(() {
-    _doctorName = 'Dr. $doctorName';
-    _doctorInitials = _getInitials(doctorName);
-  });
-}
+//   setState(() {
+//     _doctorName = 'Dr. $doctorName';
+//     _doctorInitials = _getInitials(doctorName);
+//   });
+// }
 
 
   String _getInitials(String name) {
@@ -261,77 +247,89 @@ void _loadDoctorInfo()  {
   // DRAWER HEADER
   //===========================================================================
 
-  Widget _buildDrawerHeader() {
-    return SizedBox(
-      height: 220,
-      child: DrawerHeader(
-        margin: EdgeInsets.zero,
-        padding: EdgeInsets.zero,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/healthcare_2.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.lightBlue,
-                child: ClipOval(
-                  child: Image.asset(
-                    'assets/icon/app_logo.png',
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Center(
-                        child: Text(
-                          _doctorInitials,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
+  
+Widget _buildDrawerHeader() {
+  final masterData =
+      context.watch<ApplicationController>().masterData;
 
-              const SizedBox(height: 12),
+  final name =
+      masterData.doctorProfile.doctor.doctorName.trim();
 
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.55),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  _doctorName,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
+  final doctorName =
+      name.isNotEmpty ? 'Dr. $name' : 'Dr. Prescriptor';
+
+  final doctorInitials =
+      _getInitials(name.isNotEmpty ? name : 'Prescriptor');
+
+  return SizedBox(
+    height: 220,
+    child: DrawerHeader(
+      margin: EdgeInsets.zero,
+      padding: EdgeInsets.zero,
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('images/healthcare_2.png'),
+          fit: BoxFit.cover,
         ),
       ),
-    );
-  }
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 30,
+              backgroundColor: Colors.lightBlue,
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/icon/app_logo.png',
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Center(
+                      child: Text(
+                        doctorInitials,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.55),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                doctorName,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 
   //===========================================================================
   // MENU ITEM

@@ -659,8 +659,8 @@ Map<String, dynamic> buildPrescriptionRequest()
     mobileNumber:
         doctor.mobileNumber,
 
-    email:
-        doctor.email,
+    loginEmail:
+        doctor.loginEmail,
   );
 
   //---------------------------------------------------------------------------
@@ -1080,7 +1080,7 @@ Patient _patientWithPpid(
     dob: patient.dob,
     gender: patient.gender,
     mobile: patient.mobile,
-    email: patient.email,
+    loginEmail: patient.loginEmail,
     addressLine1: patient.addressLine1,
     addressLine2: patient.addressLine2,
     city: patient.city,

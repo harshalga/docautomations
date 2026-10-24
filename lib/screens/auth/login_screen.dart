@@ -100,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // TEXT CONTROLLERS
   //-------------------------------------------------------------------------
 
-  final TextEditingController _emailController =
+  final TextEditingController _loginEmailController =
       TextEditingController();
 
   final TextEditingController _passwordController =
@@ -121,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void dispose() {
 
-    _emailController.dispose();
+    _loginEmailController.dispose();
 
     _passwordController.dispose();
 
@@ -169,8 +169,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final success =
         await authenticationProvider.login(
 
-      email:
-          _emailController.text.trim(),
+      loginEmail:
+          _loginEmailController.text.trim(),
 
       password:
           _passwordController.text,
@@ -330,13 +330,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
                         //=======================================================
-                        // EMAIL
+                        // loginEmail
                         //=======================================================
 
                         TextFormField(
 
                           controller:
-                              _emailController,
+                              _loginEmailController,
 
                           keyboardType:
                               TextInputType.emailAddress,
@@ -367,15 +367,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           validator: (value) {
 
-                            final email =
+                            final loginEmail =
                                 value?.trim() ?? '';
 
-                            if (email.isEmpty) {
+                            if (loginEmail.isEmpty) {
 
                               return 'Please enter your email';
                             }
 
-                            if (!email.contains('@')) {
+                            if (!loginEmail.contains('@')) {
 
                               return 'Please enter a valid email';
                             }

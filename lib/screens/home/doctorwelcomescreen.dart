@@ -5,12 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import 'package:docautomations/datamodels/master/master_data.dart';
 import 'package:docautomations/common/appcolors.dart';
-import 'package:docautomations/common/common_widgets.dart';
 import 'package:docautomations/device_assets/asset_manager.dart';
 import 'package:docautomations/device_assets/asset_type.dart';
+import 'package:docautomations/controllers/application_controller.dart';
 
 class DoctorWelcomeScreen extends StatefulWidget {
   const DoctorWelcomeScreen({super.key});
@@ -161,7 +159,8 @@ class _DoctorWelcomeScreenState
 
   @override
   Widget build(BuildContext context) {
-    final masterData = context.watch<MasterData>();
+    final masterData =
+    context.watch<ApplicationController>().masterData;
 
     final doctor = masterData.doctorProfile.doctor;
     final theme = Theme.of(context);
@@ -184,7 +183,7 @@ class _DoctorWelcomeScreenState
     final contactDetails = [
       doctor.mobileNumber,
       doctor.alternateMobileNumber,
-      doctor.email,
+      doctor.loginEmail,
       doctor.website,
     ]
         .where((value) => value.trim().isNotEmpty)

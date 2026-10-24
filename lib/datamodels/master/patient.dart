@@ -12,7 +12,7 @@ class Patient {
 
   final String mobile;
 
-  final String email;
+  final String loginEmail;
 
   final String? bloodGroup;
 
@@ -36,7 +36,7 @@ class Patient {
     this.dob,
     required this.gender,
     required this.mobile,
-    required this.email,
+    required this.loginEmail,
     this.bloodGroup,
     this.guardianPPID,
     required this.addressLine1,
@@ -71,7 +71,7 @@ class Patient {
 
       mobile: json["mobile"]?.toString() ?? "",
 
-      email: json["email"]?.toString() ?? "",
+      loginEmail: json["loginEmail"]?.toString() ?? "",
 
       bloodGroup: json["bloodGroup"]?.toString(),
 
@@ -109,7 +109,7 @@ class Patient {
       "dob": dob?.toIso8601String(),
       "gender": gender,
       "mobile": mobile,
-      "email": email,
+      "loginEmail": loginEmail,
       "bloodGroup":
     bloodGroup?.trim().isEmpty == true
         ? null

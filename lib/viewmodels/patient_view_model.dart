@@ -23,7 +23,7 @@ class PatientViewModel extends ChangeNotifier {
 
   String mobile = "";
 
-  String email = "";
+  String loginEmail = "";
 
   //---------------------------------------------------------------------------
   // Address
@@ -104,7 +104,7 @@ class PatientViewModel extends ChangeNotifier {
 
     mobile = json["mobile"] ?? "";
 
-    email = json["email"] ?? "";
+    loginEmail = json["loginEmail"] ?? "";
 
     addressLine1 = json["addressLine1"] ?? "";
 
@@ -154,7 +154,7 @@ class PatientViewModel extends ChangeNotifier {
 
     mobile = "";
 
-    email = "";
+    loginEmail = "";
 
     addressLine1 = "";
     addressLine2 = "";
@@ -186,7 +186,7 @@ class PatientViewModel extends ChangeNotifier {
       "dob": dob?.toIso8601String(),
       "gender": gender,
       "mobile": mobile,
-      "email": email,
+      "loginEmail": loginEmail,
       "addressLine1": addressLine1,
       "addressLine2": addressLine2,
       "city": city,

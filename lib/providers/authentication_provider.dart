@@ -355,7 +355,7 @@ class AuthenticationProvider extends ChangeNotifier {
   //===========================================================================
 
   Future<bool> login({
-    required String email,
+    required String loginEmail,
     required String password,
   }) async {
 
@@ -367,7 +367,7 @@ class AuthenticationProvider extends ChangeNotifier {
 
       final result = await AuthService.login(
 
-        loginEmail: email,
+        loginEmail: loginEmail,
 
         password: password,
 

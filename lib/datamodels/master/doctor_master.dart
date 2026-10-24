@@ -13,7 +13,7 @@ class DoctorMaster {
 
   final String medicalRegistrationNumber;
 
-  final String registrationCouncil;
+  final String registrationAuthority;
 
   //---------------------------------------------------------------------------
   // Doctor
@@ -51,7 +51,7 @@ class DoctorMaster {
 
   final String alternateMobileNumber;
 
-  final String email;
+  final String loginEmail;
 
   final String website;
 
@@ -77,7 +77,7 @@ class DoctorMaster {
 
     required this.medicalRegistrationNumber,
 
-    required this.registrationCouncil,
+    required this.registrationAuthority,
 
     required this.doctorName,
 
@@ -103,7 +103,7 @@ class DoctorMaster {
 
     required this.alternateMobileNumber,
 
-    required this.email,
+    required this.loginEmail,
 
     required this.website,
 
@@ -125,8 +125,8 @@ class DoctorMaster {
       medicalRegistrationNumber:
           json["medicalRegistrationNumber"] ?? "",
 
-      registrationCouncil:
-          json["registrationCouncil"] ?? "",
+      registrationAuthority:
+          json["registrationAuthority"] ?? "",
 
       doctorName:
           json["name"] ?? "",
@@ -164,8 +164,8 @@ class DoctorMaster {
       alternateMobileNumber:
           json["alternateContact"] ?? "",
 
-      email:
-          json["email"] ?? "",
+      loginEmail:
+          json["loginEmail"] ?? "",
 
       website:
           json["website"] ?? "",
@@ -201,8 +201,8 @@ class DoctorMaster {
 
     "medicalRegistrationNumber":
         medicalRegistrationNumber,
-    "registrationCouncil":
-        registrationCouncil,
+    "registrationAuthority":
+        registrationAuthority,
 
     "name": doctorName,
     "qualification": qualification,
@@ -220,7 +220,7 @@ class DoctorMaster {
     "contact": mobileNumber,
     "alternateContact": alternateMobileNumber,
 
-    "email": email,
+    "loginEmail": loginEmail,
     "website": website,
 
     "isSubscribed": isSubscribed,

@@ -90,7 +90,7 @@ class DoctorSnapshot {
 
   final String mobileNumber;
 
-  final String email;
+  final String loginEmail;
 
   const DoctorSnapshot({
     required this.doctorName,
@@ -98,7 +98,7 @@ class DoctorSnapshot {
     required this.specialization,
     required this.registrationNumber,
     required this.mobileNumber,
-    required this.email,
+    required this.loginEmail,
   });
 
   //===========================================================================
@@ -124,8 +124,8 @@ class DoctorSnapshot {
       mobileNumber:
           json["mobileNumber"] ?? "",
 
-      email:
-          json["email"] ?? "",
+      loginEmail:
+          json["loginEmail"] ?? "",
     );
   }
 
@@ -140,7 +140,7 @@ class DoctorSnapshot {
       "specialization": specialization,
       "registrationNumber": registrationNumber,
       "mobileNumber": mobileNumber,
-      "email": email,
+      "loginEmail": loginEmail,
     };
   }
 }
@@ -232,7 +232,7 @@ class PatientSnapshot {
   final int ageAtVisit;
   final String gender;
   final String mobile;
-  final String email;
+  final String loginEmail;
   final String addressLine1;
   final String addressLine2;
   final String city;
@@ -256,7 +256,7 @@ class PatientSnapshot {
     this.bloodGroup,
     required this.gender,
     required this.mobile,
-    required this.email,
+    required this.loginEmail,
     required this.addressLine1,
     required this.addressLine2,
     required this.city,
@@ -310,8 +310,8 @@ class PatientSnapshot {
       mobile:
           json["mobile"] ?? "",
 
-          email:
-    json["email"]?.toString() ?? "",
+          loginEmail:
+    json["loginEmail"]?.toString() ?? "",
 
       addressLine1:
           json["addressLine1"] ?? "",
@@ -360,7 +360,7 @@ state:
     gender: patient.gender,
 
     mobile: patient.mobile,
- email: patient.email,
+ loginEmail: patient.loginEmail,
     addressLine1: patient.addressLine1,
     addressLine2: patient.addressLine2,
     city: patient.city,
@@ -389,7 +389,7 @@ state:
     "ageAtVisit": ageAtVisit,
     "gender": gender,
     "mobile": mobile,
-    "email": email,
+    "loginEmail": loginEmail,
     "addressLine1": addressLine1,
     "addressLine2": addressLine2,
     "city": city,

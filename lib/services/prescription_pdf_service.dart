@@ -685,7 +685,7 @@ final footerImage =
               ),
             ),  
 
-          if (patient.mobile.isNotEmpty || patient.email.isNotEmpty)
+          if (patient.mobile.isNotEmpty || patient.loginEmail.isNotEmpty)
   pw.Padding(
     padding: const pw.EdgeInsets.only(top: 4),
     child: pw.Row(
@@ -700,11 +700,11 @@ final footerImage =
               : pw.SizedBox(),
         ),
 
-        if (patient.email.isNotEmpty)
+        if (patient.loginEmail.isNotEmpty)
           pw.Expanded(
             child: _infoText(
               "Email",
-              patient.email,
+              patient.loginEmail,
             ),
           ),
       ],

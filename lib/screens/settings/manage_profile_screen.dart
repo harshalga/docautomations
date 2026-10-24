@@ -33,7 +33,7 @@ class _ManageProfileScreenState
   final _qualificationController = TextEditingController();
   final _specializationController = TextEditingController();
   final _registrationNumberController = TextEditingController();
-  final _registrationCouncilController = TextEditingController();
+  final _registrationAuthorityController = TextEditingController();
 
   final _clinicNameController = TextEditingController();
   final _clinicAddressController = TextEditingController();
@@ -44,7 +44,7 @@ class _ManageProfileScreenState
 
   final _mobileController = TextEditingController();
   final _alternateMobileController = TextEditingController();
-  final _emailController = TextEditingController();
+  final _loginEmailController = TextEditingController();
   final _websiteController = TextEditingController();
 
   bool _loading = false;
@@ -72,8 +72,8 @@ class _ManageProfileScreenState
     _specializationController.text = doctor.specialization;
     _registrationNumberController.text =
         doctor.medicalRegistrationNumber;
-    _registrationCouncilController.text =
-        doctor.registrationCouncil;
+    _registrationAuthorityController.text =
+        doctor.registrationAuthority;
 
     _clinicNameController.text = doctor.clinicName;
     _clinicAddressController.text = doctor.clinicAddress;
@@ -85,8 +85,8 @@ class _ManageProfileScreenState
     _mobileController.text = doctor.mobileNumber;
     _alternateMobileController.text =
         doctor.alternateMobileNumber;
-    _emailController.text = doctor.email;
-    debugPrint('Doctor email from profile: "${doctor.email}"');
+    _loginEmailController.text = doctor.loginEmail;
+    debugPrint('Doctor email from profile: "${doctor.loginEmail}"');
     _websiteController.text = doctor.website;
 
     _countryId = doctor.countryid?.isNotEmpty == true
@@ -102,7 +102,7 @@ class _ManageProfileScreenState
     _qualificationController.dispose();
     _specializationController.dispose();
     _registrationNumberController.dispose();
-    _registrationCouncilController.dispose();
+    _registrationAuthorityController.dispose();
 
     _clinicNameController.dispose();
     _clinicAddressController.dispose();
@@ -113,7 +113,7 @@ class _ManageProfileScreenState
 
     _mobileController.dispose();
     _alternateMobileController.dispose();
-    _emailController.dispose();
+    _loginEmailController.dispose();
     _websiteController.dispose();
 
     super.dispose();
@@ -208,8 +208,8 @@ Widget _field(
         doctorCode: original.doctorCode,
         medicalRegistrationNumber:
             _registrationNumberController.text.trim(),
-        registrationCouncil:
-            _registrationCouncilController.text.trim(),
+        registrationAuthority:
+            _registrationAuthorityController.text.trim(),
         doctorName: _nameController.text.trim(),
         qualification: _qualificationController.text.trim(),
         specialization: _specializationController.text.trim(),
@@ -223,7 +223,7 @@ Widget _field(
         mobileNumber: _mobileController.text.trim(),
         alternateMobileNumber:
             _alternateMobileController.text.trim(),
-        email: original.email,
+        loginEmail: original.loginEmail,
         website: _websiteController.text.trim(),
         isSubscribed: original.isSubscribed,
         subscriptionExpiry: original.subscriptionExpiry,
@@ -329,7 +329,7 @@ Widget _field(
                     ),
                     _field(
                       'Registration Council / Authority',
-                      _registrationCouncilController,
+                      _registrationAuthorityController,
                       required: true,
                     ),
                   ]),
@@ -387,7 +387,7 @@ Widget _field(
                     ),
                     _field(
                       'Login Email',
-                      _emailController,
+                      _loginEmailController,
                       readOnly: true,
                       keyboardType: TextInputType.emailAddress,
                     ),
