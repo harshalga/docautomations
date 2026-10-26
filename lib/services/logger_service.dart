@@ -93,12 +93,15 @@
 // }
 
 
+
 import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 
 import 'log_storage.dart';
+
+
 
 class LoggerService {
   static final Logger _logger = Logger(
@@ -133,7 +136,7 @@ class LoggerService {
     dynamic error,
     StackTrace? stack,
   }) async {
-    _logger.e(message, error: error, stackTrace: stack);
+    _logger.e(message);
 
     await LogStorage.write(
       'ERROR: $message\n'
@@ -155,15 +158,18 @@ class LoggerService {
     final message =
         'FlutterError: ${details.exceptionAsString()}';
 
-    _logger.e(
-      message,
-      error: details.exception,
-      stackTrace: details.stack,
-    );
+    _logger.e(message);
 
     await LogStorage.write(
       'FLUTTER_ERROR: $message\n'
       'Stack: ${details.stack}',
+    );
+
+    developer.log(
+      message,
+      name: 'app.logger',
+      error: details.exception,
+      stackTrace: details.stack,
     );
   }
 
@@ -173,18 +179,22 @@ class LoggerService {
   ) async {
     final message = 'Uncaught zoned error: $error';
 
-    _logger.e(
+    _logger.e(message);
+
+    await LogStorage.write(
+      'ZONED_ERROR: $message\n'
+      'Stack: $stack',
+    );
+
+    developer.log(
       message,
+      name: 'app.logger',
       error: error,
       stackTrace: stack,
     );
-
-    await LogStorage.write(
-      'ZONED_ERROR: $message\nStack: $stack',
-    );
   }
 
-  /// Returns log content on both native and web platforms.
+  /// Returns log content on native and web platforms.
   static Future<String?> getLogContent() async {
     final content = await LogStorage.read();
 

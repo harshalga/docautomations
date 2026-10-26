@@ -350,22 +350,51 @@ Future<bool> checkEmailExists(String loginEmail) async {
 // RESET PASSWORD
 //-------------------------------------------------------------------------
 
-Future<bool> resetPassword({
-  required String loginEmail,
-  required String newPassword,
-}) async {
-  try {
-    final result = await AuthService.resetPassword(
-      loginEmail: loginEmail,
-      newPassword: newPassword,
-    );
 
-    return result['success'] == true;
-  } catch (error) {
-    debugPrint('Reset password failed: $error');
-    rethrow;
+  //===========================================================================
+  // REQUEST PASSWORD RESET OTP
+  //===========================================================================
+
+  Future<bool> requestPasswordResetOtp({
+    required String loginEmail,
+  }) async {
+    try {
+      final result =
+          await AuthService.requestPasswordResetOtp(
+        loginEmail: loginEmail,
+      );
+
+      return result['success'] == true;
+    } catch (error) {
+      debugPrint('Request password reset OTP failed: $error');
+      rethrow;
+    }
   }
-}
+
+
+  //===========================================================================
+  // RESET PASSWORD USING OTP
+  //===========================================================================
+
+  Future<bool> resetPassword({
+    required String loginEmail,
+    required String otp,
+    required String newPassword,
+  }) async {
+    try {
+      final result = await AuthService.resetPassword(
+        loginEmail: loginEmail,
+        otp: otp,
+        newPassword: newPassword,
+      );
+
+      return result['success'] == true;
+    } catch (error) {
+      debugPrint('Reset password failed: $error');
+      rethrow;
+    }
+  }
+
   //===========================================================================
   // LOGIN
   //===========================================================================

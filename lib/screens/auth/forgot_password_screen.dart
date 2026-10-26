@@ -49,6 +49,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   String? _confirmPasswordError;
 
+  
+  final TextEditingController _otpController =
+      TextEditingController();
+
+  bool _otpRequested = false;
+
+  bool _requestingOtp = false;
+
+  String? _otpError;
+
+
   //-------------------------------------------------------------------------
   // LIFECYCLE
   //-------------------------------------------------------------------------
@@ -57,6 +68,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   void dispose() {
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
+    _otpController.dispose();
 
     super.dispose();
   }
@@ -100,6 +112,72 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         confirmPasswordError == null;
   }
 
+
+
+  Future<void> _requestOtp() async {
+    if (_requestingOtp || _loading) return;
+
+    FocusScope.of(context).unfocus();
+
+    setState(() {
+      _requestingOtp = true;
+      _otpError = null;
+    });
+
+    try {
+      final provider =
+          context.read<AuthenticationProvider>();
+
+      final success =
+          await provider.requestPasswordResetOtp(
+        loginEmail: widget.loginEmailId,
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        setState(() {
+          _otpRequested = true;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'If an account exists for this email, '
+              'a verification code will be sent.',
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Unable to request the code. Please try again.',
+            ),
+          ),
+        );
+      }
+    } catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Unable to request the code. Please try again.',
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _requestingOtp = false;
+        });
+      }
+    }
+  }
+
+
+
   //-------------------------------------------------------------------------
   // RESET PASSWORD
   //-------------------------------------------------------------------------
@@ -111,6 +189,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     if (!_validateFields()) return;
 
+    if (!_otpRequested) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Please request a verification code first.'),
+    ),
+  );
+  return;
+}
+
+final otp = _otpController.text.trim();
+
+if (!RegExp(r'^\d{6}$').hasMatch(otp)) {
+  setState(() {
+    _otpError = 'Enter the 6-digit verification code';
+  });
+  return;
+}
+
     setState(() {
       _loading = true;
     });
@@ -119,11 +215,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       final authenticationProvider =
           context.read<AuthenticationProvider>();
 
-      final success =
-          await authenticationProvider.resetPassword(
-        loginEmail: widget.loginEmailId.trim().toLowerCase(),
-        newPassword: _newPasswordController.text,
-      );
+      final success = await authenticationProvider.resetPassword(
+  loginEmail: widget.loginEmailId.trim().toLowerCase(),
+  otp: otp,
+  newPassword: _newPasswordController.text,
+);
 
       if (!mounted) return;
 
@@ -215,6 +311,57 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
 
                       const SizedBox(height: 32),
+
+
+                      
+  // OTP REQUEST BUTTON
+
+  SizedBox(
+    height: 48,
+    child: OutlinedButton(
+      onPressed:
+          (_loading || _requestingOtp) ? null : _requestOtp,
+      child: Text(
+        _requestingOtp
+            ? 'Requesting code...'
+            : _otpRequested
+                ? 'Resend verification code'
+                : 'Send verification code',
+      ),
+    ),
+  ),
+
+  const SizedBox(height: 20),
+
+  // OTP INPUT
+
+  TextField(
+    controller: _otpController,
+    enabled: !_loading && _otpRequested,
+    keyboardType: TextInputType.number,
+    maxLength: 6,
+    autocorrect: false,
+    enableSuggestions: false,
+    textInputAction: TextInputAction.next,
+    onChanged: (_) {
+      if (_otpError != null) {
+        setState(() {
+          _otpError = null;
+        });
+      }
+    },
+    decoration: InputDecoration(
+      labelText: 'Email verification code',
+      hintText: 'Enter the 6-digit code',
+      border: const OutlineInputBorder(),
+      counterText: '',
+      errorText: _otpError,
+      prefixIcon: const Icon(Icons.mark_email_read_outlined),
+    ),
+  ),
+
+  const SizedBox(height: 20),
+
 
                       // NEW PASSWORD
 

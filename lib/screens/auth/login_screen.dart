@@ -11,6 +11,13 @@ import 'package:docautomations/providers/authentication_provider.dart';
 
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:io' show Platform, File;
+
+import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
+
+
+
 
 
 
@@ -138,6 +145,135 @@ class _LoginScreenState extends State<LoginScreen> {
 
     super.dispose();
   }
+
+
+Future<void> _forgotPassword() async {
+  final email = _loginEmailController.text.trim();
+
+  if (email.isEmpty || !email.contains('@')) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Please enter a valid email address first.',
+        ),
+      ),
+    );
+    return;
+  }
+
+  FocusScope.of(context).unfocus();
+
+  // final authenticationProvider =
+  //     context.read<AuthenticationProvider>();
+
+  try {
+    // final exists =
+    //     await authenticationProvider.checkEmailExists(email);
+
+    // if (!mounted) return;
+
+    // if (!exists) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(
+    //       content: Text(
+    //         'No account found for this email address.',
+    //       ),
+    //     ),
+    //   );
+    //   return;
+    // }
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ForgotPasswordScreen(
+          loginEmailId: email,
+        ),
+      ),
+    );
+  } catch (_) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Unable to verify email. Please try again.',
+        ),
+      ),
+    );
+  }
+}
+
+
+Future<void> _openDemoPlaylist() async {
+  const String playlistUrl =
+      'https://www.youtube.com/playlist?list=PLLikLK39r_Zo';
+
+  final Uri uri = Uri.parse(playlistUrl);
+
+  try {
+    final launched = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
+
+    if (!launched) {
+      throw Exception('Unable to launch YouTube.');
+    }
+  } catch (_) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Unable to open YouTube.'),
+      ),
+    );
+  }
+}
+
+
+// Future<void> _shareLogs() async {
+//   try {
+//     final content = await LoggerService.getLogContent();
+
+//     if (!mounted) return;
+
+//     if (content == null) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text('No logs available'),
+//         ),
+//       );
+//       return;
+//     }
+
+//     final tempDir = await getTemporaryDirectory();
+//     final file = File(
+//       '${tempDir.path}/prescriptor_logs.txt',
+//     );
+
+//     await file.writeAsString(content, flush: true);
+
+//     if (!mounted) return;
+
+//     await Share.shareXFiles(
+//       [XFile(file.path)],
+//       subject: 'Prescriptor App – Login Logs',
+//       text: 'Please find attached logs.',
+//     );
+//   } catch (error) {
+//     if (!mounted) return;
+
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       const SnackBar(
+//         content: Text('Unable to share logs'),
+//       ),
+//     );
+
+//     debugPrint('Unable to share logs: $error');
+//   }
+// }
+
+
 
 
   //-------------------------------------------------------------------------
@@ -483,20 +619,37 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
                         //Forgot Password
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: authentication.isLoading
-                                  ? null
-                                  : _openForgotPassword,
-                              child: const Text(
-                                'Forgot Password?',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
+                          // Align(
+                          //   alignment: Alignment.centerRight,
+                          //   child: TextButton(
+                          //     onPressed: authentication.isLoading
+                          //         ? null
+                          //         : _openForgotPassword,
+                          //     child: const Text(
+                          //       'Forgot Password?',
+                          //       style: TextStyle(
+                          //         fontWeight: FontWeight.w600,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
+
+Align(
+  alignment: Alignment.centerRight,
+  child: TextButton(
+    onPressed: authentication.isLoading
+        ? null
+        : _forgotPassword,
+    child: const Text(
+      'Forgot Password?',
+      style: TextStyle(
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+  ),
+),
+
+const SizedBox(height: 12),
 
                           const SizedBox(height: 12),
 
@@ -895,34 +1048,7 @@ Future<void> _openForgotPassword() async {
     }
 
 }
-//-------------------------------------------------------------------------
-  // Open Demo Playlist
-  //-------------------------------------------------------------------------
-Future<void> _openDemoPlaylist() async {
-  const String playlistUrl =
-      'https://www.youtube.com/playlist?list=PLLikLK39r_Zo';
 
-  final Uri uri = Uri.parse(playlistUrl);
-
-  try {
-    final launched = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
-
-    if (!launched) {
-      throw Exception('Unable to launch YouTube.');
-    }
-  } catch (_) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Unable to open YouTube.'),
-      ),
-    );
-  }
-}
 
 // //-------------------------------------------------------------------------
 //   //forgot password
@@ -1020,13 +1146,16 @@ Future<void> _openDemoPlaylist() async {
 // }
 
 
+
+
+
 Future<void> _shareLogs() async {
   try {
     final content = await LoggerService.getLogContent();
 
     if (!mounted) return;
 
-    if (content == null) {
+    if (content == null || content.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('No logs available'),
@@ -1058,8 +1187,11 @@ Future<void> _shareLogs() async {
         content: Text('Unable to share logs'),
       ),
     );
+
+    debugPrint('Unable to share logs: $error');
   }
 }
+
 
 
   //-------------------------------------------------------------------------

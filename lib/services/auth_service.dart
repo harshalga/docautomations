@@ -1,83 +1,3 @@
-// import 'package:docautomations/network/dio_client.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-// class AuthService {
-//   static const storage = FlutterSecureStorage();
-
-//   static Future<String?> getToken() async {
-//     return await storage.read(key: "accessToken");
-//   }
-
-//   static Future<String?> getRefreshToken() async {
-//     return await storage.read(key: "refreshToken");
-//   }
-
-//   static Future<void> saveTokens({required String accessToken,
-//   required String refreshToken,}
-       
-//   ) async {
-//     await storage.write(
-//         key: "accessToken",
-//         value: accessToken);
-
-//     await storage.write(
-//         key: "refreshToken",
-//         value: refreshToken);
-//   }
-
-//   static Future<bool> refreshAccessToken() async {
-//     try {
-//       final refresh =
-//           await getRefreshToken();
-
-//       if (refresh == null) return false;
-
-//       final response =
-//           await DioClient.instance.post(
-//         "/api/doctor/refresh",
-//         data: {
-//           "refreshToken": refresh
-//         },
-//       );
-
-//       final newToken =
-//           response.data["accessToken"];
-
-//       await storage.write(
-//         key: "accessToken",
-//         value: newToken,
-//       );
-
-//       return true;
-
-//     } catch (e) {
-//       return false;
-//     }
-//   }
-
-//   // ==========================
-//   // LOGOUT
-//   // ==========================
-//   static Future<void> logout() async {
-//     try {
-//       await storage.delete(
-//         key: "accessToken",
-//       );
-
-//       await storage.delete(
-//         key: "refreshToken",
-//       );
-
-//       // Optional: clear all secure keys
-//       // await _storage.deleteAll();
-
-//       print("✅ User logged out");
-//     } catch (e) {
-//       print("❌ Logout error: $e");
-//     }
-//   }
-// }
-
 
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -122,6 +42,14 @@ class AuthService {
 
   static const String _checkEmailEndpoint =
     "/api/doctors/check-email";
+
+
+
+  static const String _requestPasswordResetEndpoint =
+      "/api/doctors/request-password-reset";
+
+  static const String _resetPasswordEndpoint =
+      "/api/doctors/reset-password";
 
 
   //===========================================================================
@@ -535,6 +463,49 @@ static Future<Map<String, dynamic>> checkEmailExists({
     response.data as Map,
   );
 }
+
+  //===========================================================================
+  // Request Password Reset OTP
+  //===========================================================================
+
+  static Future<Map<String, dynamic>> requestPasswordResetOtp({
+    required String loginEmail,
+  }) async {
+    final response = await _authDio.post(
+      _requestPasswordResetEndpoint,
+      data: {
+        "loginEmail": loginEmail.trim().toLowerCase(),
+      },
+    );
+
+    return Map<String, dynamic>.from(
+      response.data as Map,
+    );
+  }
+
+
+  //===========================================================================
+  // Reset Password Using OTP
+  //===========================================================================
+
+  static Future<Map<String, dynamic>> resetPassword({
+    required String loginEmail,
+    required String otp,
+    required String newPassword,
+  }) async {
+    final response = await _authDio.post(
+      _resetPasswordEndpoint,
+      data: {
+        "loginEmail": loginEmail.trim().toLowerCase(),
+        "otp": otp.trim(),
+        "newPassword": newPassword,
+      },
+    );
+
+    return Map<String, dynamic>.from(
+      response.data as Map,
+    );
+  }
 
   //===========================================================================
   // Logout
