@@ -68,37 +68,54 @@ class AuthService {
   // DioClient → AuthService → DioClient circular dependency
   //===========================================================================
 
-  static final Dio _authDio =
-      Dio(
+  // static final Dio _authDio =
+  //     Dio(
 
-        BaseOptions(
+  //       BaseOptions(
 
-          baseUrl:
-              AppConfig.baseUrl,
+  //         baseUrl:
+  //             AppConfig.baseUrl,
 
-          connectTimeout:
-              const Duration(
-                seconds: 15,
-              ),
+  //         connectTimeout:
+  //             const Duration(
+  //               seconds: 15,
+  //             ),
 
-          receiveTimeout:
-              const Duration(
-                seconds: 45,
-              ),
+  //         receiveTimeout:
+  //             const Duration(
+  //               seconds: 45,
+  //             ),
 
-          headers: {
+  //         headers: {
 
-            "Content-Type":
-                "application/json",
+  //           "Content-Type":
+  //               "application/json",
 
-            "Accept":
-                "application/json",
+  //           "Accept":
+  //               "application/json",
 
-          },
+  //         },
 
-        ),
+  //       ),
 
-      );
+  //     );
+
+  
+  static final Dio _authDio = Dio(
+    BaseOptions(
+      baseUrl: AppConfig.baseUrl,
+
+      connectTimeout: const Duration(seconds: 45),
+      receiveTimeout: const Duration(seconds: 45),
+      sendTimeout: const Duration(seconds: 30),
+
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+    ),
+  );
+
 
 
   //===========================================================================
