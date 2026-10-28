@@ -9,16 +9,49 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:docautomations/datamodels/snapshot/prescription_snapshot.dart';
 import 'package:docautomations/device_assets/asset_manager.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
+import 'package:docautomations/repositories/doctor_repository.dart';
 
 
 class PrescriptionPdfService {
   final AssetManager assetManager;
+  final DoctorRepository? doctorRepository;
 
   const PrescriptionPdfService({
     required this.assetManager,
+     this.doctorRepository,
   });
 
 
+
+Future<Uint8List?> _loadDoctorImage({
+  required bool isLogo,
+}) async {
+  // Prefer the authenticated doctor's server-managed image.
+  if (doctorRepository != null) {
+    try {
+      final bytes = isLogo
+          ? await doctorRepository!.downloadDoctorLogo()
+          : await doctorRepository!.downloadDoctorSignature();
+
+      if (bytes.isNotEmpty) {
+        return Uint8List.fromList(bytes);
+      }
+    } catch (_) {
+      // Do not silently substitute an older local signature or logo.
+      // The caller should decide how to handle the retrieval failure.
+      rethrow;
+    }
+
+    return null;
+  }
+
+  // Backward-compatible local asset loading when no repository is supplied.
+  final asset = await assetManager.loadAsset(
+    isLogo ? AssetType.logo : AssetType.signature,
+  );
+
+  return asset == null ? null : Uint8List.fromList(asset);
+}
 
 String _stringValue(dynamic value) {
   if (value == null) {
@@ -315,21 +348,29 @@ pw.Widget _chiefComplaintWithVitals(
 
     final pageFormat = _getPageFormat(layout.pageSize);
 
-   final logoAsset =
-    await assetManager.loadAsset(AssetType.logo);
+//    final logoAsset =
+//     await assetManager.loadAsset(AssetType.logo);
 
-final signatureAsset =
-    await assetManager.loadAsset(AssetType.signature);
+// final signatureAsset =
+//     await assetManager.loadAsset(AssetType.signature);
 
-final Uint8List? logoBytes =
-    logoAsset == null
-        ? null
-        : Uint8List.fromList(logoAsset);
+// final Uint8List? logoBytes =
+//     logoAsset == null
+//         ? null
+//         : Uint8List.fromList(logoAsset);
 
-final Uint8List? signatureBytes =
-    signatureAsset == null
-        ? null
-        : Uint8List.fromList(signatureAsset);
+// final Uint8List? signatureBytes =
+//     signatureAsset == null
+//         ? null
+//         : Uint8List.fromList(signatureAsset);
+
+final logoBytes = await _loadDoctorImage(
+  isLogo: true,
+);
+
+final signatureBytes = await _loadDoctorImage(
+  isLogo: false,
+);
 
     final document = pw.Document();
 

@@ -113,7 +113,9 @@ class ImageService {
 
   return ProcessedImage(
     bytes: compressed,
-    mimeType: _mimeType(extension),
+    ///mimeType: _mimeType(extension),
+     // _compressImage() always encodes the output as JPEG.
+  mimeType: 'image/jpeg',
     width: image.width,
     height: image.height,
     originalSizeInBytes: originalSize,

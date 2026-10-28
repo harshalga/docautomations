@@ -294,61 +294,61 @@ class DoctorRepository {
   }
 
 
-  //===========================================================================
-  // Upload Doctor Logo
-  //===========================================================================
+  // //===========================================================================
+  // // Upload Doctor Logo
+  // //===========================================================================
 
-  Future<OperationResult> uploadDoctorLogo({
+  // Future<OperationResult> uploadDoctorLogo({
 
-    required List<int> bytes,
+  //   required List<int> bytes,
 
-    required String mimeType,
+  //   required String mimeType,
 
-  }) async {
+  // }) async {
 
-    try {
+  //   try {
 
-      final response =
-          await apiService.uploadDoctorLogo(
+  //     final response =
+  //         await apiService.uploadDoctorLogo(
 
-        bytes: bytes,
+  //       bytes: bytes,
 
-        mimeType: mimeType,
+  //       mimeType: mimeType,
 
-      );
-
-
-      if (response["success"] == true) {
-
-        return OperationResult.success(
-
-          response["message"] ??
-              "Doctor logo uploaded successfully.",
-
-          data: response["data"],
-
-        );
-
-      }
+  //     );
 
 
-      return OperationResult.failure(
+  //     if (response["success"] == true) {
 
-        response["message"] ??
-            "Unable to upload doctor logo.",
+  //       return OperationResult.success(
 
-      );
+  //         response["message"] ??
+  //             "Doctor logo uploaded successfully.",
 
-    }
-    catch (error) {
+  //         data: response["data"],
 
-      return OperationResult.failure(
-        error.toString(),
-      );
+  //       );
 
-    }
+  //     }
 
-  }
+
+  //     return OperationResult.failure(
+
+  //       response["message"] ??
+  //           "Unable to upload doctor logo.",
+
+  //     );
+
+  //   }
+  //   catch (error) {
+
+  //     return OperationResult.failure(
+  //       error.toString(),
+  //     );
+
+  //   }
+
+  // }
 
 
   //===========================================================================
@@ -373,63 +373,161 @@ class DoctorRepository {
   }
 
 
-  //===========================================================================
-  // Upload Doctor Signature
-  //===========================================================================
+  // //===========================================================================
+  // // Upload Doctor Signature
+  // //===========================================================================
 
-  Future<OperationResult> uploadDoctorSignature({
+  // Future<OperationResult> uploadDoctorSignature({
 
-    required List<int> bytes,
+  //   required List<int> bytes,
 
-    required String mimeType,
+  //   required String mimeType,
 
-  }) async {
+  // }) async {
 
-    try {
+  //   try {
 
-      final response =
-          await apiService.uploadDoctorSignature(
+  //     final response =
+  //         await apiService.uploadDoctorSignature(
 
-        bytes: bytes,
+  //       bytes: bytes,
 
-        mimeType: mimeType,
+  //       mimeType: mimeType,
 
-      );
-
-
-      if (response["success"] == true) {
-
-        return OperationResult.success(
-
-          response["message"] ??
-              "Doctor signature uploaded successfully.",
-
-          data: response["data"],
-
-        );
-
-      }
+  //     );
 
 
-      return OperationResult.failure(
+  //     if (response["success"] == true) {
 
-        response["message"] ??
-            "Unable to upload doctor signature.",
+  //       return OperationResult.success(
 
-      );
+  //         response["message"] ??
+  //             "Doctor signature uploaded successfully.",
 
-    }
-    catch (error) {
+  //         data: response["data"],
 
-      return OperationResult.failure(
-        error.toString(),
-      );
+  //       );
 
-    }
+  //     }
 
+
+  //     return OperationResult.failure(
+
+  //       response["message"] ??
+  //           "Unable to upload doctor signature.",
+
+  //     );
+
+  //   }
+  //   catch (error) {
+
+  //     return OperationResult.failure(
+  //       error.toString(),
+  //     );
+
+  //   }
+
+  // }
+
+// ===========================================================================
+// Add Doctor Logo
+// ===========================================================================
+
+Future<OperationResult> addDoctorLogo({
+  required List<int> bytes,
+  required String fileName,
+  required String mimeType,
+}) async {
+  try {
+    final response = await apiService.addDoctorLogo(
+      bytes: bytes,
+      fileName: fileName,
+      mimeType: mimeType,
+    );
+
+    return OperationResult.success(
+      response['message'] ?? 'Doctor logo added successfully.',
+      data: response['data'],
+    );
+  } catch (error) {
+    return OperationResult.failure(error.toString());
   }
+}
 
+// ===========================================================================
+// Replace Doctor Logo
+// ===========================================================================
 
+Future<OperationResult> replaceDoctorLogo({
+  required List<int> bytes,
+  required String fileName,
+  required String mimeType,
+}) async {
+  try {
+    final response = await apiService.replaceDoctorLogo(
+      bytes: bytes,
+      fileName: fileName,
+      mimeType: mimeType,
+    );
+
+    return OperationResult.success(
+      response['message'] ?? 'Doctor logo replaced successfully.',
+      data: response['data'],
+    );
+  } catch (error) {
+    return OperationResult.failure(error.toString());
+  }
+}
+
+// ===========================================================================
+// Add Doctor Signature
+// ===========================================================================
+
+Future<OperationResult> addDoctorSignature({
+  required List<int> bytes,
+  required String fileName,
+  required String mimeType,
+}) async {
+  try {
+    final response = await apiService.addDoctorSignature(
+      bytes: bytes,
+      fileName: fileName,
+      mimeType: mimeType,
+    );
+
+    return OperationResult.success(
+      response['message'] ?? 'Doctor signature added successfully.',
+      data: response['data'],
+    );
+  } catch (error) {
+    return OperationResult.failure(error.toString());
+  }
+}
+
+// ===========================================================================
+// Replace Doctor Signature
+// ===========================================================================
+
+Future<OperationResult> replaceDoctorSignature({
+  required List<int> bytes,
+  required String fileName,
+  required String mimeType,
+}) async {
+  try {
+    final response = await apiService.replaceDoctorSignature(
+      bytes: bytes,
+      fileName: fileName,
+      mimeType: mimeType,
+    );
+
+    return OperationResult.success(
+      response['message'] ?? 'Doctor signature replaced successfully.',
+      data: response['data'],
+    );
+  } catch (error) {
+    return OperationResult.failure(error.toString());
+  }
+}
   //===========================================================================
   // Download Doctor Signature
   //===========================================================================
