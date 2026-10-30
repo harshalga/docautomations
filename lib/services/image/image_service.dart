@@ -92,12 +92,28 @@ class ImageService {
   // Resize
   //---------------------------------------------------------------------------
 
-  final resized = img.copyResize(
-    image,
-    width: resizeWidth,
-    height: resizeHeight,
-    interpolation: img.Interpolation.average,
-  );
+  // final resized = img.copyResize(
+  //   image,
+  //   width: resizeWidth,
+  //   height: resizeHeight,
+  //   interpolation: img.Interpolation.average,
+  // );
+
+  final scale = [
+  resizeWidth / image.width,
+  resizeHeight / image.height,
+  1.0,
+].reduce((a, b) => a < b ? a : b);
+
+final targetWidth = (image.width * scale).round().clamp(1, resizeWidth);
+final targetHeight = (image.height * scale).round().clamp(1, resizeHeight);
+
+final resized = img.copyResize(
+  image,
+  width: targetWidth,
+  height: targetHeight,
+  interpolation: img.Interpolation.average,
+);
 
   //---------------------------------------------------------------------------
   // Compress

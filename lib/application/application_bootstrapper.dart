@@ -1,3 +1,4 @@
+
 import 'package:docautomations/datamodels/master/master_data.dart';
 import 'package:docautomations/datamodels/master/prescription_layout.dart';
 
@@ -10,19 +11,17 @@ import 'package:docautomations/repositories/layout_repository.dart';
 
 import 'package:docautomations/storage/local_storage_service.dart';
 
+import 'package:docautomations/datamodels/response/doctor_profile.dart';
+
 class ApplicationBootstrapper {
   //--------------------------------------------------------------------------
   // Dependencies
   //--------------------------------------------------------------------------
 
   final DoctorRepository doctorRepository;
-
   final ReferenceDataRepository referenceDataRepository;
-
   final LayoutRepository layoutRepository;
-
   final AssetManager assetManager;
-
   final LocalStorageService localStorage;
 
   //--------------------------------------------------------------------------
@@ -44,109 +43,36 @@ class ApplicationBootstrapper {
   Future<MasterData> initialize({
     bool forceRefresh = false,
   }) async {
-    //----------------------------------------------------------------------
-    // Step 1: Try Local Cache
-    //----------------------------------------------------------------------
-
-    if (!forceRefresh) {
-      final cached = await localStorage.loadMasterData();
-
-      if (cached != null) {
-        return cached;
-      }
-    }
-
-    //----------------------------------------------------------------------
-    // Step 2: Download Doctor Profile
-    //----------------------------------------------------------------------
-
     final doctorProfile =
         await doctorRepository.fetchDoctorProfile();
 
-    //----------------------------------------------------------------------
-    // Step 3: Synchronize Doctor Logo
-    //----------------------------------------------------------------------
+    final doctorId = doctorProfile.doctor.id;
 
-    final logoMetadata =
-        doctorProfile.assets.getAsset(AssetType.logo);
+    if (doctorId.trim().isEmpty) {
+      throw Exception(
+        'Doctor ID is missing. Cannot synchronize doctor assets.',
+      );
+    }
 
-    await _synchronizeAsset(
-      assetType: AssetType.logo,
-      serverExists: logoMetadata.exists,
-      serverVersion: logoMetadata.version,
-      downloader: doctorRepository.downloadDoctorLogo,
+    await synchronizeDoctorAssets(
+      doctorId: doctorId,
+      doctorProfile: doctorProfile,
     );
-
-    //----------------------------------------------------------------------
-    // Step 4: Synchronize Doctor Signature
-    //----------------------------------------------------------------------
-
-    final signatureMetadata =
-        doctorProfile.assets.getAsset(AssetType.signature);
-
-    await _synchronizeAsset(
-      assetType: AssetType.signature,
-      serverExists: signatureMetadata.exists,
-      serverVersion: signatureMetadata.version,
-      downloader: doctorRepository.downloadDoctorSignature,
-    );
-
-    // //----------------------------------------------------------------------
-    // // Step 5: Synchronize Header
-    // //----------------------------------------------------------------------
-
-    // final headerMetadata =
-    //     doctorProfile.assets.getAsset(AssetType.header);
-
-    // await _synchronizeAsset(
-    //   assetType: AssetType.header,
-    //   serverExists: headerMetadata.exists,
-    //   serverVersion: headerMetadata.version,
-    //   downloader: doctorRepository.downloadDoctorHeader,
-    // );
-
-    // //----------------------------------------------------------------------
-    // // Step 6: Synchronize Footer
-    // //----------------------------------------------------------------------
-
-    // final footerMetadata =
-    //     doctorProfile.assets.getAsset(AssetType.footer);
-
-    // await _synchronizeAsset(
-    //   assetType: AssetType.footer,
-    //   serverExists: footerMetadata.exists,
-    //   serverVersion: footerMetadata.version,
-    //   downloader: doctorRepository.downloadDoctorFooter,
-    // );
-
-    //----------------------------------------------------------------------
-    // Step 7: Load Reference Data
-    //----------------------------------------------------------------------
 
     final countries =
         await referenceDataRepository.fetchCountries(
       forceRefresh: forceRefresh,
     );
 
-    //----------------------------------------------------------------------
-    // Step 8: Load Prescription Layout
-    //----------------------------------------------------------------------
-
     final layoutResult =
         await layoutRepository.getDoctorLayout();
 
     if (!layoutResult.success) {
-      throw Exception(
-        layoutResult.message,
-      );
+      throw Exception(layoutResult.message);
     }
 
     final prescriptionLayout =
         layoutResult.data as PrescriptionLayout;
-
-    //----------------------------------------------------------------------
-    // Step 9: Build Master Data
-    //----------------------------------------------------------------------
 
     final masterData = MasterData(
       doctorProfile: doctorProfile,
@@ -154,13 +80,7 @@ class ApplicationBootstrapper {
       prescriptionLayout: prescriptionLayout,
     );
 
-    //----------------------------------------------------------------------
-    // Step 10: Cache Master Data
-    //----------------------------------------------------------------------
-
-    await localStorage.saveMasterData(
-      masterData,
-    );
+    await localStorage.saveMasterData(masterData);
 
     return masterData;
   }
@@ -170,54 +90,179 @@ class ApplicationBootstrapper {
   //==========================================================================
 
   Future<MasterData> refresh() {
-    return initialize(
-      forceRefresh: true,
+    return initialize(forceRefresh: true);
+  }
+
+  
+  //==========================================================================
+  // Synchronize Both Doctor Assets
+  //==========================================================================
+
+  Future<void> synchronizeDoctorAssets({
+    required String doctorId,
+    required DoctorProfile doctorProfile,
+  }) async {
+    await synchronizeDoctorAsset(
+      doctorId: doctorId,
+      doctorProfile: doctorProfile,
+      assetType: AssetType.logo,
+    );
+
+    await synchronizeDoctorAsset(
+      doctorId: doctorId,
+      doctorProfile: doctorProfile,
+      assetType: AssetType.signature,
     );
   }
+
+  //==========================================================================
+  // Synchronize One Doctor Asset
+  //==========================================================================
+
+  Future<void> synchronizeDoctorAsset({
+    required String doctorId,
+    required DoctorProfile doctorProfile,
+    required AssetType assetType,
+  }) async {
+    final metadata = doctorProfile.assets.getAsset(assetType);
+
+    final Future<List<int>> Function() downloader;
+
+    switch (assetType) {
+      case AssetType.logo:
+        downloader = doctorRepository.downloadDoctorLogo;
+        break;
+
+      case AssetType.signature:
+        downloader = doctorRepository.downloadDoctorSignature;
+        break;
+
+      case AssetType.header:
+      case AssetType.footer:
+        throw UnsupportedError(
+          'Server synchronization is not implemented for ${assetType.name}.',
+        );
+    }
+
+    await _synchronizeAsset(
+      doctorId: doctorId,
+      assetType: assetType,
+      serverExists: metadata.exists,
+      serverVersion: metadata.version,
+      downloader: downloader,
+    );
+  }
+
+
+  // //==========================================================================
+  // // Synchronize Both Doctor Assets
+  // //==========================================================================
+
+  // Future<void> synchronizeDoctorAssets({
+  //   required String doctorId,
+  //   required DoctorProfile doctorProfile,
+  // }) async {
+  //   final logoMetadata =
+  //       doctorProfile.assets.getAsset(AssetType.logo);
+
+  //   await _synchronizeAsset(
+  //     doctorId: doctorId,
+  //     assetType: AssetType.logo,
+  //     serverExists: logoMetadata.exists,
+  //     serverVersion: logoMetadata.version,
+  //     downloader: doctorRepository.downloadDoctorLogo,
+  //   );
+
+  //   final signatureMetadata =
+  //       doctorProfile.assets.getAsset(AssetType.signature);
+
+  //   await _synchronizeAsset(
+  //     doctorId: doctorId,
+  //     assetType: AssetType.signature,
+  //     serverExists: signatureMetadata.exists,
+  //     serverVersion: signatureMetadata.version,
+  //     downloader: doctorRepository.downloadDoctorSignature,
+  //   );
+  // }
+
+  // //==========================================================================
+  // // Synchronize One Doctor Asset
+  // //==========================================================================
+
+  // Future<void> synchronizeDoctorAsset({
+  //   required String doctorId,
+  //   required DoctorProfile doctorProfile,
+  //   required AssetType assetType,
+  // }) async {
+  //   final metadata =
+  //       doctorProfile.assets.getAsset(assetType);
+
+  //   final Future<List<int>> Function() downloader;
+
+  //   switch (assetType) {
+  //     case AssetType.logo:
+  //       downloader = doctorRepository.downloadDoctorLogo;
+  //       break;
+
+  //     case AssetType.signature:
+  //       downloader = doctorRepository.downloadDoctorSignature;
+  //       break;
+
+  //     case AssetType.header:
+  //     case AssetType.footer:
+  //       throw UnsupportedError(
+  //         'Server synchronization is not implemented for ${assetType.name}.',
+  //       );
+  //   }
+
+  //   await _synchronizeAsset(
+  //     doctorId: doctorId,
+  //     assetType: assetType,
+  //     serverExists: metadata.exists,
+  //     serverVersion: metadata.version,
+  //     downloader: downloader,
+  //   );
+  // }
 
   //==========================================================================
   // Synchronize Asset
   //==========================================================================
 
   Future<void> _synchronizeAsset({
+    required String doctorId,
     required AssetType assetType,
     required bool serverExists,
     required int serverVersion,
     required Future<List<int>> Function() downloader,
   }) async {
-    //----------------------------------------------------------------------
-    // Step 1: Check Whether Asset Exists on Server
-    //----------------------------------------------------------------------
-
     if (!serverExists) {
+      await assetManager.deleteAsset(
+        doctorId,
+        assetType,
+      );
+
       return;
     }
 
-    //----------------------------------------------------------------------
-    // Step 2: Check Synchronization Requirement
-    //----------------------------------------------------------------------
-
     final requiredSync =
         await assetManager.needsSynchronization(
+      doctorId,
       assetType,
       serverVersion,
     );
 
-    if (!requiredSync) {
-      return;
-    }
-
-    //----------------------------------------------------------------------
-    // Step 3: Download Asset
-    //----------------------------------------------------------------------
+    if (!requiredSync) return;
 
     final bytes = await downloader();
 
-    //----------------------------------------------------------------------
-    // Step 4: Update Local Asset
-    //----------------------------------------------------------------------
+    if (bytes.isEmpty) {
+      throw Exception(
+        'Downloaded asset is empty: ${assetType.name}',
+      );
+    }
 
     await assetManager.updateAsset(
+      doctorId: doctorId,
       assetType: assetType,
       bytes: bytes,
       serverVersion: serverVersion,
@@ -228,9 +273,13 @@ class ApplicationBootstrapper {
   // Clear Local Cache
   //==========================================================================
 
-  Future<void> clearCache() async {
+  Future<void> clearCache({
+    String? doctorId,
+  }) async {
     await localStorage.clearMasters();
 
-    await assetManager.clearAssets();
+    if (doctorId != null && doctorId.trim().isNotEmpty) {
+      await assetManager.clearAssets(doctorId);
+    }
   }
 }

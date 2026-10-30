@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -9,15 +10,35 @@ import 'asset_type.dart';
 
 class AssetManagerPlatform {
 
-  static const String _assetFolder = "assets";
-  static const String _manifestFile =
-      "asset_manifest.json";
+  static const String _assetFolder = "doctor_assets";
+  static const String _manifestFile = "asset_manifest.json";
 
   //-------------------------------------------------------------------------
-  // Asset Folder
+  // Validate Doctor ID
   //-------------------------------------------------------------------------
 
-  Future<Directory> getAssetDirectory() async {
+  String _validateDoctorId(String doctorId) {
+    final id = doctorId.trim();
+
+    if (id.isEmpty) {
+      throw ArgumentError(
+        "Doctor ID cannot be empty.",
+      );
+    }
+
+    return id;
+  }
+
+  //-------------------------------------------------------------------------
+  // Doctor Asset Directory
+  //-------------------------------------------------------------------------
+
+  Future<Directory> getAssetDirectory(
+    String doctorId,
+  ) async {
+
+    final validDoctorId =
+        _validateDoctorId(doctorId);
 
     final documents =
         await getApplicationDocumentsDirectory();
@@ -26,15 +47,14 @@ class AssetManagerPlatform {
       p.join(
         documents.path,
         _assetFolder,
+        validDoctorId,
       ),
     );
 
     if (!await directory.exists()) {
-
       await directory.create(
         recursive: true,
       );
-
     }
 
     return directory;
@@ -45,11 +65,12 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<File> getAssetFile(
+    String doctorId,
     AssetType assetType,
   ) async {
 
     final directory =
-        await getAssetDirectory();
+        await getAssetDirectory(doctorId);
 
     return File(
       p.join(
@@ -63,10 +84,12 @@ class AssetManagerPlatform {
   // Manifest File
   //-------------------------------------------------------------------------
 
-  Future<File> _getManifestFile() async {
+  Future<File> _getManifestFile(
+    String doctorId,
+  ) async {
 
     final directory =
-        await getAssetDirectory();
+        await getAssetDirectory(doctorId);
 
     return File(
       p.join(
@@ -81,11 +104,15 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<bool> assetExists(
+    String doctorId,
     AssetType assetType,
   ) async {
 
     final file =
-        await getAssetFile(assetType);
+        await getAssetFile(
+      doctorId,
+      assetType,
+    );
 
     return file.exists();
   }
@@ -95,12 +122,16 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<void> saveAsset(
+    String doctorId,
     AssetType assetType,
     List<int> bytes,
   ) async {
 
     final file =
-        await getAssetFile(assetType);
+        await getAssetFile(
+      doctorId,
+      assetType,
+    );
 
     await file.writeAsBytes(
       bytes,
@@ -113,11 +144,15 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<List<int>?> loadAsset(
+    String doctorId,
     AssetType assetType,
   ) async {
 
     final file =
-        await getAssetFile(assetType);
+        await getAssetFile(
+      doctorId,
+      assetType,
+    );
 
     if (!await file.exists()) {
       return null;
@@ -131,23 +166,28 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<void> deleteAsset(
+    String doctorId,
     AssetType assetType,
   ) async {
 
     final file =
-        await getAssetFile(assetType);
+        await getAssetFile(
+      doctorId,
+      assetType,
+    );
 
     if (await file.exists()) {
       await file.delete();
     }
 
     var manifest =
-        await loadManifest();
+        await loadManifest(doctorId);
 
     manifest =
         manifest.remove(assetType);
 
     await saveManifest(
+      doctorId,
       manifest,
     );
   }
@@ -156,10 +196,12 @@ class AssetManagerPlatform {
   // Load Manifest
   //-------------------------------------------------------------------------
 
-  Future<AssetManifest> loadManifest() async {
+  Future<AssetManifest> loadManifest(
+    String doctorId,
+  ) async {
 
     final file =
-        await _getManifestFile();
+        await _getManifestFile(doctorId);
 
     if (!await file.exists()) {
       return const AssetManifest();
@@ -171,7 +213,7 @@ class AssetManagerPlatform {
         );
 
     return AssetManifest.fromJson(
-      json,
+      Map<String, dynamic>.from(json),
     );
   }
 
@@ -180,11 +222,12 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<void> saveManifest(
+    String doctorId,
     AssetManifest manifest,
   ) async {
 
     final file =
-        await _getManifestFile();
+        await _getManifestFile(doctorId);
 
     await file.writeAsString(
       jsonEncode(
@@ -199,27 +242,29 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<bool> needsSynchronization(
+    String doctorId,
     AssetType assetType,
     int serverVersion,
   ) async {
 
-    if (!await assetExists(assetType)) {
+    if (!await assetExists(
+      doctorId,
+      assetType,
+    )) {
       return true;
     }
 
     final manifest =
-        await loadManifest();
+        await loadManifest(doctorId);
 
     if (!manifest.contains(assetType)) {
       return true;
     }
 
     final localVersion =
-        manifest.getVersion(
-          assetType,
-        );
+        manifest.getVersion(assetType);
 
-    return serverVersion > localVersion;
+    return serverVersion != localVersion;
   }
 
   //-------------------------------------------------------------------------
@@ -227,45 +272,48 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<void> updateAsset({
+    required String doctorId,
     required AssetType assetType,
     required List<int> bytes,
     required int serverVersion,
   }) async {
 
     await saveAsset(
+      doctorId,
       assetType,
       bytes,
     );
 
     var manifest =
-        await loadManifest();
+        await loadManifest(doctorId);
 
     manifest =
         manifest.setVersion(
-          assetType,
-          serverVersion,
-        );
+      assetType,
+      serverVersion,
+    );
 
     await saveManifest(
+      doctorId,
       manifest,
     );
   }
 
   //-------------------------------------------------------------------------
-  // Clear Assets
+  // Clear Assets for One Doctor
   //-------------------------------------------------------------------------
 
-  Future<void> clearAssets() async {
+  Future<void> clearAssets(
+    String doctorId,
+  ) async {
 
     final directory =
-        await getAssetDirectory();
+        await getAssetDirectory(doctorId);
 
     if (await directory.exists()) {
-
       await directory.delete(
         recursive: true,
       );
-
     }
   }
 }

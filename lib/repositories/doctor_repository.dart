@@ -356,19 +356,20 @@ class DoctorRepository {
   //===========================================================================
 
   Future<List<int>> downloadDoctorLogo() async {
+    return await apiService.downloadDoctorLogo();
 
-    try {
+    // try {
 
-      return await apiService.downloadDoctorLogo();
+    //   return await apiService.downloadDoctorLogo();
 
-    }
-    catch (error) {
+    // }
+    // catch (error) {
 
-      throw Exception(
-        error.toString(),
-      );
+    //   throw Exception(
+    //     error.toString(),
+    //   );
 
-    }
+    // }
 
   }
 
@@ -533,21 +534,56 @@ Future<OperationResult> replaceDoctorSignature({
   //===========================================================================
 
   Future<List<int>> downloadDoctorSignature() async {
+     return await apiService.downloadDoctorSignature();
 
-    try {
+    // try {
 
-      return await apiService.downloadDoctorSignature();
+    //   return await apiService.downloadDoctorSignature();
 
-    }
-    catch (error) {
+    // }
+    // catch (error) {
 
-      throw Exception(
-        error.toString(),
-      );
+    //   throw Exception(
+    //     error.toString(),
+    //   );
 
-    }
+    // }
 
   }
+
+  //===========================================================================
+// Delete Doctor Logo
+//===========================================================================
+
+Future<OperationResult> deleteDoctorLogo() async {
+  try {
+    final response = await apiService.deleteDoctorLogo();
+
+    return OperationResult.success(
+      response['message'] ?? 'Clinic logo deleted successfully.',
+      data: response['data'],
+    );
+  } catch (error) {
+    return OperationResult.failure(error.toString());
+  }
+}
+
+//===========================================================================
+// Delete Doctor Signature
+//===========================================================================
+
+Future<OperationResult> deleteDoctorSignature() async {
+  try {
+    final response = await apiService.deleteDoctorSignature();
+
+    return OperationResult.success(
+      response['message'] ?? 'Doctor signature deleted successfully.',
+      data: response['data'],
+    );
+  } catch (error) {
+    return OperationResult.failure(error.toString());
+  }
+}
 
 }
 

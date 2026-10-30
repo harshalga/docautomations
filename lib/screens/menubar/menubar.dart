@@ -2,12 +2,13 @@ import 'package:docautomations/screens/settings/manage_profile_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'package:docautomations/screens/home/doctorwelcomescreen.dart';
-
+import 'package:docautomations/screens/assetmanagement/doctor_asset_management_screen.dart';
 import 'package:docautomations/widgets/sharelogsscreen.dart';
 import 'package:provider/provider.dart';
 import 'package:docautomations/datamodels/master/master_data.dart';
 import 'package:docautomations/repositories/doctor_repository.dart';
 import 'package:docautomations/controllers/application_controller.dart';
+
 
 
 class Menubar extends StatefulWidget {
@@ -60,11 +61,13 @@ class _MenubarState extends State<Menubar> {
       //   title: 'Patient Diagnosis',
       // ),
 
-      // Index 3: Manage Profile Settings
+      // Index 2: Manage Profile Settings
   ManageProfileScreen(
     doctorRepository: context.read<DoctorRepository>(),
   ),
 
+ // Index 3: Clinic Logo & Signature
+  const DoctorAssetManagementScreen(),
     
       // const DoctorMaster(
       //   title: 'Profile Settings',
@@ -215,9 +218,14 @@ class _MenubarState extends State<Menubar> {
 
                 _buildMenuItem(
                   index: 3,
-                  title: 'Layout Settings',
-                  icon: Icons.settings,
+                  title: 'Clinic Logo & Signature',
+                  icon: Icons.draw,
                 ),
+                // _buildMenuItem(
+                //   index: 3,
+                //   title: 'Layout Settings',
+                //   icon: Icons.settings,
+                // ),
 
                 _buildMenuItem(
                   index: 4,

@@ -1,13 +1,10 @@
 
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import 'package:docautomations/common/appcolors.dart';
-import 'package:docautomations/device_assets/asset_manager.dart';
-import 'package:docautomations/device_assets/asset_type.dart';
 import 'package:docautomations/controllers/application_controller.dart';
 
 class DoctorWelcomeScreen extends StatefulWidget {
@@ -18,19 +15,13 @@ class DoctorWelcomeScreen extends StatefulWidget {
       _DoctorWelcomeScreenState();
 }
 
-class _DoctorWelcomeScreenState
-    extends State<DoctorWelcomeScreen> {
+class _DoctorWelcomeScreenState extends State<DoctorWelcomeScreen> {
   String _appVersion = '';
-  Uint8List? _doctorLogo;
 
   @override
   void initState() {
     super.initState();
     _loadVersion();
-
-    // Load the logo from the synchronized local asset.
-    // Connect this to the read method exposed by AssetManager.
-    _loadLogo();
   }
 
   //--------------------------------------------------------------------------
@@ -57,36 +48,6 @@ class _DoctorWelcomeScreenState
       });
     }
   }
-
-  //--------------------------------------------------------------------------
-  // Doctor Logo
-  //--------------------------------------------------------------------------
-
-  Future<void> _loadLogo() async {
-  try {
-    final assetManager = context.read<AssetManager>();
-
-    final bytes = await assetManager.loadAsset(
-      AssetType.logo,
-    );
-
-    if (!mounted) return;
-
-    setState(() {
-      _doctorLogo = bytes == null || bytes.isEmpty
-          ? null
-          : Uint8List.fromList(bytes);
-    });
-  } catch (error) {
-    debugPrint('Unable to load doctor logo: $error');
-
-    if (!mounted) return;
-
-    setState(() {
-      _doctorLogo = null;
-    });
-  }
-}
 
   //--------------------------------------------------------------------------
   // Demo Playlist
@@ -159,8 +120,13 @@ class _DoctorWelcomeScreenState
 
   @override
   Widget build(BuildContext context) {
-    final masterData =
-    context.watch<ApplicationController>().masterData;
+    final applicationController =
+        context.watch<ApplicationController>();
+
+    final masterData = applicationController.masterData;
+
+    // Read logo directly from ApplicationController.
+    final doctorLogo = applicationController.doctorLogoBytes;
 
     final doctor = masterData.doctorProfile.doctor;
     final theme = Theme.of(context);
@@ -189,11 +155,8 @@ class _DoctorWelcomeScreenState
         .where((value) => value.trim().isNotEmpty)
         .toList();
 
-    // IMPORTANT:
-    // Replace this with the actual letterhead-printing
-    // setting in your PrescriptionLayout model.
     final bool letterheadEnabled =
-    masterData.prescriptionLayout.printLetterHead;
+        masterData.prescriptionLayout.printLetterHead;
 
     return Scaffold(
       appBar: AppBar(
@@ -241,18 +204,17 @@ class _DoctorWelcomeScreenState
                       width: 112,
                       height: 112,
                       decoration: BoxDecoration(
-                        color: theme
-                            .colorScheme.surfaceContainerHighest,
+                        color: theme.colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: theme.dividerColor,
                         ),
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child: _doctorLogo != null &&
-                              _doctorLogo!.isNotEmpty
+                      child: doctorLogo != null &&
+                              doctorLogo.isNotEmpty
                           ? Image.memory(
-                              _doctorLogo!,
+                              doctorLogo,
                               fit: BoxFit.contain,
                               errorBuilder: (_, __, ___) =>
                                   _buildLogoPlaceholder(context),
@@ -318,9 +280,7 @@ class _DoctorWelcomeScreenState
                       const SizedBox(height: 8),
                       ...contactDetails.map(
                         (detail) => Padding(
-                          padding: const EdgeInsets.only(
-                            top: 3,
-                          ),
+                          padding: const EdgeInsets.only(top: 3),
                           child: Text(
                             detail,
                             textAlign: TextAlign.center,
@@ -367,8 +327,7 @@ class _DoctorWelcomeScreenState
                       color: Colors.red.shade50,
                       elevation: 2,
                       child: ListTile(
-                        contentPadding:
-                            const EdgeInsets.symmetric(
+                        contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 8,
                         ),
@@ -408,8 +367,7 @@ class _DoctorWelcomeScreenState
                       child: Padding(
                         padding: const EdgeInsets.all(8),
                         child: Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.email_outlined,
@@ -422,8 +380,7 @@ class _DoctorWelcomeScreenState
                                 color: AppColors.primary,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                decoration:
-                                    TextDecoration.underline,
+                                decoration: TextDecoration.underline,
                               ),
                             ),
                           ],

@@ -1,57 +1,43 @@
+
 import 'dart:typed_data';
 import 'dart:convert';
 
 import 'package:docautomations/datamodels/master/prescription_theme.dart';
 import 'package:docautomations/device_assets/asset_type.dart';
+import 'package:docautomations/device_assets/asset_manager.dart';
+
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import 'package:docautomations/datamodels/snapshot/prescription_snapshot.dart';
-import 'package:docautomations/device_assets/asset_manager.dart';
 import 'package:docautomations/datamodels/prescriptionData.dart';
-import 'package:docautomations/repositories/doctor_repository.dart';
-
 
 class PrescriptionPdfService {
   final AssetManager assetManager;
-  final DoctorRepository? doctorRepository;
 
   const PrescriptionPdfService({
     required this.assetManager,
-     this.doctorRepository,
   });
 
+  //--------------------------------------------------------------------------
+  // Load Doctor Image From Local Cache
+  //--------------------------------------------------------------------------
 
+  Future<Uint8List?> _loadDoctorImage({
+    required String doctorId,
+    required AssetType assetType,
+  }) async {
+    final bytes = await assetManager.loadAsset(
+      doctorId,
+      assetType,
+    );
 
-Future<Uint8List?> _loadDoctorImage({
-  required bool isLogo,
-}) async {
-  // Prefer the authenticated doctor's server-managed image.
-  if (doctorRepository != null) {
-    try {
-      final bytes = isLogo
-          ? await doctorRepository!.downloadDoctorLogo()
-          : await doctorRepository!.downloadDoctorSignature();
-
-      if (bytes.isNotEmpty) {
-        return Uint8List.fromList(bytes);
-      }
-    } catch (_) {
-      // Do not silently substitute an older local signature or logo.
-      // The caller should decide how to handle the retrieval failure.
-      rethrow;
+    if (bytes == null || bytes.isEmpty) {
+      return null;
     }
 
-    return null;
+    return Uint8List.fromList(bytes);
   }
-
-  // Backward-compatible local asset loading when no repository is supplied.
-  final asset = await assetManager.loadAsset(
-    isLogo ? AssetType.logo : AssetType.signature,
-  );
-
-  return asset == null ? null : Uint8List.fromList(asset);
-}
 
 String _stringValue(dynamic value) {
   if (value == null) {
@@ -202,143 +188,16 @@ pw.Widget _chiefComplaintWithVitals(
   );
 }
 
-// pw.Widget _chiefComplaintWithVitals(
-//   PrescriptionSnapshotData prescription,
-// ) {
-//   final vitals = <String>[];
 
-//   // Height
-//   if (prescription.heightCm != null) {
-//     final totalInches =
-//         prescription.heightCm! / 2.54;
-
-//     final feet =
-//         totalInches ~/ 12;
-
-//     final inches =
-//         (totalInches - (feet * 12)).round();
-
-//     vitals.add(
-//       "Height: ${feet}'${inches}\"",
-//     );
-//   }
-
-//   // Weight
-//   if (prescription.weightKg != null) {
-//     vitals.add(
-//       "Weight: ${prescription.weightKg!.toStringAsFixed(1)} kg",
-//     );
-//   }
-
-//   // Blood Pressure
-//   if (prescription.systolicBP != null ||
-//       prescription.diastolicBP != null) {
-
-//     final systolic =
-//         prescription.systolicBP?.toString() ?? "-";
-
-//     final diastolic =
-//         prescription.diastolicBP?.toString() ?? "-";
-
-//     vitals.add(
-//       "BP: $systolic/$diastolic mmHg",
-//     );
-//   }
-
-//   return pw.Padding(
-//     padding: const pw.EdgeInsets.only(bottom: 5),
-
-//     child: pw.Row(
-//       crossAxisAlignment:
-//           pw.CrossAxisAlignment.start,
-
-//       children: [
-
-//         // -------------------------------------------------------------
-//         // CHIEF COMPLAINT
-//         // -------------------------------------------------------------
-
-//         pw.Expanded(
-//           flex: 3,
-
-//           child: pw.Row(
-//             crossAxisAlignment:
-//                 pw.CrossAxisAlignment.start,
-
-//             children: [
-
-//               pw.SizedBox(
-//                 width: 90,
-
-//                 child: pw.Text(
-//                   "Chief Complaint",
-//                   style: pw.TextStyle(
-//                     fontSize: 9,
-//                     fontWeight:
-//                         pw.FontWeight.bold,
-//                   ),
-//                 ),
-//               ),
-
-//               pw.Expanded(
-//                 child: pw.Text(
-//                   prescription.chiefComplaint.isEmpty
-//                       ? "-"
-//                       : prescription.chiefComplaint,
-
-//                   style: const pw.TextStyle(
-//                     fontSize: 9,
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-
-//         // -------------------------------------------------------------
-//         // VITALS
-//         // -------------------------------------------------------------
-
-//         if (vitals.isNotEmpty)
-//           pw.SizedBox(width: 15),
-
-//         if (vitals.isNotEmpty)
-//           pw.Expanded(
-//             flex: 2,
-
-//             child: pw.Column(
-//               crossAxisAlignment:
-//                   pw.CrossAxisAlignment.start,
-
-//               children: vitals.map(
-//                 (value) {
-//                   return pw.Padding(
-//                     padding:
-//                         const pw.EdgeInsets.only(
-//                       bottom: 2,
-//                     ),
-
-//                     child: pw.Text(
-//                       value,
-
-//                       style: const pw.TextStyle(
-//                         fontSize: 8,
-//                       ),
-//                     ),
-//                   );
-//                 },
-//               ).toList(),
-//             ),
-//           ),
-//       ],
-//     ),
-//   );
-// } // ends   _chiefComplaintWithVitals -----------
   // ===========================================================================
   // PUBLIC API
   // ===========================================================================
 
+
+  
+
   Future<Uint8List> generatePrescriptionPdf({
+  required String doctorId,
   required PrescriptionSnapshot snapshot,
   required PrescriptionTheme? selectedTheme,
   String? prescriptionQrData,
@@ -348,29 +207,32 @@ pw.Widget _chiefComplaintWithVitals(
 
     final pageFormat = _getPageFormat(layout.pageSize);
 
-//    final logoAsset =
-//     await assetManager.loadAsset(AssetType.logo);
 
-// final signatureAsset =
-//     await assetManager.loadAsset(AssetType.signature);
 
-// final Uint8List? logoBytes =
-//     logoAsset == null
-//         ? null
-//         : Uint8List.fromList(logoAsset);
+// Uint8List? logoBytes;
+// Uint8List? signatureBytes;
 
-// final Uint8List? signatureBytes =
-//     signatureAsset == null
-//         ? null
-//         : Uint8List.fromList(signatureAsset);
 
-final logoBytes = await _loadDoctorImage(
-  isLogo: true,
-);
 
-final signatureBytes = await _loadDoctorImage(
-  isLogo: false,
-);
+
+    //----------------------------------------------------------------------
+    // Load Doctor Logo From Local Cache
+    //----------------------------------------------------------------------
+
+    final logoBytes = await _loadDoctorImage(
+      doctorId: doctorId,
+      assetType: AssetType.logo,
+    );
+
+    //----------------------------------------------------------------------
+    // Load Doctor Signature From Local Cache
+    //----------------------------------------------------------------------
+
+    final signatureBytes = await _loadDoctorImage(
+      doctorId: doctorId,
+      assetType: AssetType.signature,
+    );
+
 
     final document = pw.Document();
 

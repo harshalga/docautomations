@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -14,8 +15,42 @@ class AssetManagerPlatform {
   static const String _storeName =
       "assets";
 
-  static const String _manifestKey =
-      "__manifest__";
+  //-------------------------------------------------------------------------
+  // Validate Doctor ID
+  //-------------------------------------------------------------------------
+
+  String _validateDoctorId(String doctorId) {
+    final id = doctorId.trim();
+
+    if (id.isEmpty) {
+      throw ArgumentError(
+        "Doctor ID cannot be empty.",
+      );
+    }
+
+    return id;
+  }
+
+  //-------------------------------------------------------------------------
+  // Doctor-Specific Keys
+  //-------------------------------------------------------------------------
+
+  String _assetKey(
+    String doctorId,
+    AssetType assetType,
+  ) {
+    final id = _validateDoctorId(doctorId);
+
+    return "${id}_${assetType.fileName}";
+  }
+
+  String _manifestKey(
+    String doctorId,
+  ) {
+    final id = _validateDoctorId(doctorId);
+
+    return "${id}_manifest";
+  }
 
   //-------------------------------------------------------------------------
   // Database
@@ -58,6 +93,7 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<bool> assetExists(
+    String doctorId,
     AssetType assetType,
   ) async {
 
@@ -79,7 +115,10 @@ class AssetManagerPlatform {
 
       final value =
           await store.getObject(
-        assetType.fileName,
+        _assetKey(
+          doctorId,
+          assetType,
+        ),
       );
 
       return value != null;
@@ -96,6 +135,7 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<void> saveAsset(
+    String doctorId,
     AssetType assetType,
     List<int> bytes,
   ) async {
@@ -118,7 +158,10 @@ class AssetManagerPlatform {
 
       await store.put(
         Uint8List.fromList(bytes),
-        assetType.fileName,
+        _assetKey(
+          doctorId,
+          assetType,
+        ),
       );
 
       await transaction.completed;
@@ -135,6 +178,7 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<List<int>?> loadAsset(
+    String doctorId,
     AssetType assetType,
   ) async {
 
@@ -156,7 +200,10 @@ class AssetManagerPlatform {
 
       final value =
           await store.getObject(
-        assetType.fileName,
+        _assetKey(
+          doctorId,
+          assetType,
+        ),
       );
 
       if (value == null) {
@@ -185,6 +232,7 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<void> deleteAsset(
+    String doctorId,
     AssetType assetType,
   ) async {
 
@@ -205,7 +253,10 @@ class AssetManagerPlatform {
           );
 
       await store.delete(
-        assetType.fileName,
+        _assetKey(
+          doctorId,
+          assetType,
+        ),
       );
 
       await transaction.completed;
@@ -217,7 +268,7 @@ class AssetManagerPlatform {
     }
 
     var manifest =
-        await loadManifest();
+        await loadManifest(doctorId);
 
     manifest =
         manifest.remove(
@@ -225,6 +276,7 @@ class AssetManagerPlatform {
         );
 
     await saveManifest(
+      doctorId,
       manifest,
     );
   }
@@ -233,7 +285,9 @@ class AssetManagerPlatform {
   // Manifest
   //-------------------------------------------------------------------------
 
-  Future<AssetManifest> loadManifest() async {
+  Future<AssetManifest> loadManifest(
+    String doctorId,
+  ) async {
 
     final db =
         await _openDatabase();
@@ -253,7 +307,7 @@ class AssetManagerPlatform {
 
       final value =
           await store.getObject(
-        _manifestKey,
+        _manifestKey(doctorId),
       );
 
       if (value == null) {
@@ -266,7 +320,7 @@ class AssetManagerPlatform {
           );
 
       return AssetManifest.fromJson(
-        json,
+        Map<String, dynamic>.from(json),
       );
 
     } finally {
@@ -277,6 +331,7 @@ class AssetManagerPlatform {
   }
 
   Future<void> saveManifest(
+    String doctorId,
     AssetManifest manifest,
   ) async {
 
@@ -300,7 +355,7 @@ class AssetManagerPlatform {
         jsonEncode(
           manifest.toJson(),
         ),
-        _manifestKey,
+        _manifestKey(doctorId),
       );
 
       await transaction.completed;
@@ -317,16 +372,20 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<bool> needsSynchronization(
+    String doctorId,
     AssetType assetType,
     int serverVersion,
   ) async {
 
-    if (!await assetExists(assetType)) {
+    if (!await assetExists(
+      doctorId,
+      assetType,
+    )) {
       return true;
     }
 
     final manifest =
-        await loadManifest();
+        await loadManifest(doctorId);
 
     if (!manifest.contains(assetType)) {
       return true;
@@ -337,7 +396,7 @@ class AssetManagerPlatform {
           assetType,
         );
 
-    return serverVersion > localVersion;
+    return serverVersion != localVersion;
   }
 
   //-------------------------------------------------------------------------
@@ -345,18 +404,20 @@ class AssetManagerPlatform {
   //-------------------------------------------------------------------------
 
   Future<void> updateAsset({
+    required String doctorId,
     required AssetType assetType,
     required List<int> bytes,
     required int serverVersion,
   }) async {
 
     await saveAsset(
+      doctorId,
       assetType,
       bytes,
     );
 
     var manifest =
-        await loadManifest();
+        await loadManifest(doctorId);
 
     manifest =
         manifest.setVersion(
@@ -365,15 +426,18 @@ class AssetManagerPlatform {
         );
 
     await saveManifest(
+      doctorId,
       manifest,
     );
   }
 
   //-------------------------------------------------------------------------
-  // Clear Assets
+  // Clear Assets for One Doctor
   //-------------------------------------------------------------------------
 
-  Future<void> clearAssets() async {
+  Future<void> clearAssets(
+    String doctorId,
+  ) async {
 
     final db =
         await _openDatabase();
@@ -391,7 +455,20 @@ class AssetManagerPlatform {
             _storeName,
           );
 
-      await store.clear();
+      // Delete only this doctor's assets.
+      for (final assetType in AssetType.values) {
+        await store.delete(
+          _assetKey(
+            doctorId,
+            assetType,
+          ),
+        );
+      }
+
+      // Delete only this doctor's manifest.
+      await store.delete(
+        _manifestKey(doctorId),
+      );
 
       await transaction.completed;
 

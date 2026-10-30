@@ -15,9 +15,11 @@ class AssetManager {
   //-------------------------------------------------------------------------
 
   Future<bool> assetExists(
+    String doctorId,
     AssetType assetType,
   ) {
     return _platform.assetExists(
+      doctorId,
       assetType,
     );
   }
@@ -27,10 +29,12 @@ class AssetManager {
   //-------------------------------------------------------------------------
 
   Future<void> saveAsset(
+    String doctorId,
     AssetType assetType,
     List<int> bytes,
   ) {
     return _platform.saveAsset(
+      doctorId,
       assetType,
       bytes,
     );
@@ -41,9 +45,11 @@ class AssetManager {
   //-------------------------------------------------------------------------
 
   Future<List<int>?> loadAsset(
+    String doctorId,
     AssetType assetType,
   ) {
     return _platform.loadAsset(
+      doctorId,
       assetType,
     );
   }
@@ -53,9 +59,11 @@ class AssetManager {
   //-------------------------------------------------------------------------
 
   Future<void> deleteAsset(
+    String doctorId,
     AssetType assetType,
   ) {
     return _platform.deleteAsset(
+      doctorId,
       assetType,
     );
   }
@@ -64,14 +72,20 @@ class AssetManager {
   // Manifest
   //-------------------------------------------------------------------------
 
-  Future<AssetManifest> loadManifest() {
-    return _platform.loadManifest();
+  Future<AssetManifest> loadManifest(
+    String doctorId,
+  ) {
+    return _platform.loadManifest(
+      doctorId,
+    );
   }
 
   Future<void> saveManifest(
+    String doctorId,
     AssetManifest manifest,
   ) {
     return _platform.saveManifest(
+      doctorId,
       manifest,
     );
   }
@@ -81,10 +95,12 @@ class AssetManager {
   //-------------------------------------------------------------------------
 
   Future<bool> needsSynchronization(
+    String doctorId,
     AssetType assetType,
     int serverVersion,
   ) {
     return _platform.needsSynchronization(
+      doctorId,
       assetType,
       serverVersion,
     );
@@ -95,11 +111,13 @@ class AssetManager {
   //-------------------------------------------------------------------------
 
   Future<void> updateAsset({
+    required String doctorId,
     required AssetType assetType,
     required List<int> bytes,
     required int serverVersion,
   }) {
     return _platform.updateAsset(
+      doctorId: doctorId,
       assetType: assetType,
       bytes: bytes,
       serverVersion: serverVersion,
@@ -110,7 +128,11 @@ class AssetManager {
   // Clear All Assets
   //-------------------------------------------------------------------------
 
-  Future<void> clearAssets() {
-    return _platform.clearAssets();
+  Future<void> clearAssets(
+    String doctorId,
+  ) {
+    return _platform.clearAssets(
+      doctorId,
+    );
   }
 }

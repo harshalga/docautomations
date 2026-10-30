@@ -1,9 +1,11 @@
 import 'package:docautomations/commonwidget/ppid_qr_scanner_screen.dart';
+import 'package:docautomations/controllers/application_controller.dart';
 import 'package:docautomations/datamodels/master/patient_search_result.dart';
 import 'package:docautomations/repositories/patient_repository.dart';
 import 'package:docautomations/repositories/prescription_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 
 import 'package:docautomations/controllers/add_prescription_controller.dart';
 import 'package:docautomations/datamodels/master/patient.dart';
@@ -171,28 +173,23 @@ final _diastolicBPController =
 
 
  @override
+@override
 void initState() {
   super.initState();
 
-  final masterData =
-      widget.masterData;
+  controller = AddPrescriptionController(
+    mode: widget.mode,
+    patient: widget.patient,
+    patientDoctor: widget.patientDoctor,
+    existingPrescription: widget.prescription,
+    prescriptionRepository:
+        context.read<PrescriptionRepository>(),
+    masterData: widget.masterData,
+  );
 
- controller = AddPrescriptionController(
-  mode: widget.mode,
-  patient: widget.patient,
-  patientDoctor: widget.patientDoctor,
-  existingPrescription: widget.prescription,
-  prescriptionRepository://prescriptionRepository,
-      context.read<PrescriptionRepository>(),
-  masterData:
-      widget.masterData,
-);
-
-  pdfService =
-      PrescriptionPdfService(
-        assetManager:
-            context.read<AssetManager>(),
-      );
+  pdfService = PrescriptionPdfService(
+    assetManager: context.read<AssetManager>(),
+  );
 }
 
 
@@ -1976,8 +1973,19 @@ final prescriptionQrData =
   // =========================================================================
 
   try {
+
+    final applicationController =
+    context.read<ApplicationController>();
+
+final doctorId = applicationController.currentDoctorId;
+
+if (doctorId == null || doctorId.isEmpty) {
+  throw Exception('Doctor ID is not available.');
+}
+
     final Uint8List pdfBytes =
         await pdfService.generatePrescriptionPdf(
+          doctorId: doctorId,
       snapshot: snapshot,
 
       selectedTheme:
