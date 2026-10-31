@@ -1,4 +1,5 @@
 import 'package:docautomations/datamodels/master/image_asset.dart';
+import 'package:flutter/material.dart';
 
 class PrescriptionTheme {
   //---------------------------------------------------------------------------
@@ -37,6 +38,8 @@ class PrescriptionTheme {
 
   final ImageAsset? footerBackgroundImage;
 
+  final DateTime? updatedAt;
+
   //---------------------------------------------------------------------------
   // Constructor
   //---------------------------------------------------------------------------
@@ -54,10 +57,18 @@ class PrescriptionTheme {
     required this.showBorder,
      this.headerBackgroundImage,
      this.footerBackgroundImage,
+    this.updatedAt,
   });
 
   factory PrescriptionTheme.fromJson(
       Map<String, dynamic> json) {
+
+        debugPrint(
+  "Header image JSON: ${json['headerBackgroundImage']}",
+);
+debugPrint(
+  "Footer image JSON: ${json['footerBackgroundImage']}",
+);
     return PrescriptionTheme(
       id: json["_id"] ?? "",
       name: json["themename"] ?? "",
@@ -75,7 +86,9 @@ class PrescriptionTheme {
       footerBackgroundImage: json["footerBackgroundImage"] == null
           ? null
           : ImageAsset.fromJson(json["footerBackgroundImage"]),
-    );
+      updatedAt: json["updatedAt"] == null     ? null
+            : DateTime.tryParse(json["updatedAt"].toString()),
+        );
   }
 
   Map<String, dynamic> toJson() {
@@ -92,6 +105,7 @@ class PrescriptionTheme {
       "showBorder": showBorder,
       "headerBackgroundImage": headerBackgroundImage?.toJson(),
       "footerBackgroundImage": footerBackgroundImage?.toJson(),
+      "updatedAt": updatedAt?.toIso8601String(),
     };
   }
 }

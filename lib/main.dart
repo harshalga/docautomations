@@ -30,6 +30,7 @@ import 'package:docautomations/repositories/reference_data_repository.dart';
 import 'package:docautomations/repositories/layout_repository.dart';
 import 'package:docautomations/repositories/prescription_repository.dart';
 import 'package:docautomations/repositories/patient_repository.dart';
+import 'package:docautomations/repositories/theme_repository.dart';
 
 //-----------------------------------------------------------------------------
 // API SERVICES
@@ -40,6 +41,8 @@ import 'package:docautomations/services/reference_data_api_service.dart';
 import 'package:docautomations/services/layout_api_service.dart';
 import 'package:docautomations/services/prescription_api_service.dart';
 import 'package:docautomations/services/patient_api_service.dart';
+import 'package:docautomations/services/theme_api_service.dart';
+import 'package:docautomations/services/theme_cache/theme_cache_manager.dart';
 
 //-----------------------------------------------------------------------------
 // APPLICATION SERVICES
@@ -72,6 +75,8 @@ Future<void> main() async {
 
   final assetManager = AssetManager();
 
+  final themeCacheManager = ThemeCacheManager();
+
   //-------------------------------------------------------------------------
   // API SERVICES
   //-------------------------------------------------------------------------
@@ -86,6 +91,8 @@ Future<void> main() async {
   final prescriptionApiService =   PrescriptionApiService();
 
   final patientApiService =     PatientApiService();
+
+  final themeApiService = ThemeApiService();
   //-------------------------------------------------------------------------
   // REPOSITORIES
   //-------------------------------------------------------------------------
@@ -112,6 +119,10 @@ final prescriptionRepository =
 final patientRepository =
     PatientRepository(
   apiService: patientApiService,
+);
+
+final themeRepository = ThemeRepository(
+  apiService: themeApiService,
 );
   //-------------------------------------------------------------------------
   // APPLICATION BOOTSTRAPPER
@@ -165,6 +176,14 @@ final patientRepository =
   value: patientRepository,
 ),
 
+
+Provider<ThemeRepository>.value(
+  value: themeRepository,
+),
+
+Provider<ThemeCacheManager>.value(
+  value: themeCacheManager,
+),
  
 
   Provider<AssetManager>.value(

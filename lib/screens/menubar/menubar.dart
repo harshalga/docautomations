@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:docautomations/datamodels/master/master_data.dart';
 import 'package:docautomations/repositories/doctor_repository.dart';
 import 'package:docautomations/controllers/application_controller.dart';
+import 'package:docautomations/screens/settings/presclayoutsettingsscreen.dart';
 
 
 
@@ -73,6 +74,11 @@ class _MenubarState extends State<Menubar> {
       //   title: 'Profile Settings',
       // ),
 
+      //Ondex 4 : Layout Settings
+      // const PrescLayoutSettingsScreen(
+      //   title: 'Layout Settings',    
+    const PrescLayoutSettingsScreen(),
+// Index 5: Share Logs
       ShareLogsScreen(),
     ];
 
@@ -221,14 +227,14 @@ class _MenubarState extends State<Menubar> {
                   title: 'Clinic Logo & Signature',
                   icon: Icons.draw,
                 ),
-                // _buildMenuItem(
-                //   index: 3,
-                //   title: 'Layout Settings',
-                //   icon: Icons.settings,
-                // ),
-
                 _buildMenuItem(
                   index: 4,
+                  title: 'Layout Settings',
+                  icon: Icons.settings,
+                ),
+
+                _buildMenuItem(
+                  index: 5,
                   title: 'Share Logs',
                   icon: Icons.bug_report,
                 ),

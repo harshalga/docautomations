@@ -134,10 +134,12 @@ Future<OperationResult> getDoctorLayout() async {
     // Parse PrescriptionLayout
     //-------------------------------------------------------------------------
 
-    final layout =
-        PrescriptionLayout.fromJson(
-      layoutJson,
-    );
+    // final layout =
+    //     PrescriptionLayout.fromJson(
+    //   layoutJson,
+    // );
+
+    final layout = _parseLayout(layoutJson);
 
     //-------------------------------------------------------------------------
     // Success
@@ -196,14 +198,17 @@ Future<OperationResult> getDoctorLayout() async {
       }
 
 
-      final layout =
-          PrescriptionLayout.fromJson(
+      // final layout =
+      //     PrescriptionLayout.fromJson(
 
-        Map<String, dynamic>.from(
-          response["data"] as Map,
-        ),
+      //   Map<String, dynamic>.from(
+      //     response["data"] as Map,
+      //   ),
 
-      );
+      // );
+      final layout = _parseLayout(
+  Map<String, dynamic>.from(response["data"] as Map),
+);
 
 
       return OperationResult.success(
@@ -228,6 +233,24 @@ Future<OperationResult> getDoctorLayout() async {
 
   }
 
+PrescriptionLayout _parseLayout(
+  Map<String, dynamic> json,
+) {
+  PrescriptionTheme? selectedTheme;
+
+  final selectedThemeJson = json["selectedThemeId"];
+
+  if (selectedThemeJson is Map) {
+    selectedTheme = PrescriptionTheme.fromJson(
+      Map<String, dynamic>.from(selectedThemeJson),
+    );
+  }
+
+  return PrescriptionLayout.fromJson(
+    json,
+    selectedTheme: selectedTheme,
+  );
+}
 
   //===========================================================================
   // Reset Doctor Layout
@@ -264,14 +287,17 @@ Future<OperationResult> getDoctorLayout() async {
       }
 
 
-      final layout =
-          PrescriptionLayout.fromJson(
+      // final layout =
+      //     PrescriptionLayout.fromJson(
 
-        Map<String, dynamic>.from(
-          response["data"] as Map,
-        ),
+      //   Map<String, dynamic>.from(
+      //     response["data"] as Map,
+      //   ),
 
-      );
+      // );
+      final layout = _parseLayout(
+  Map<String, dynamic>.from(response["data"] as Map),
+);
 
 
       return OperationResult.success(
