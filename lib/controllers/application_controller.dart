@@ -187,11 +187,15 @@ class ApplicationController extends ChangeNotifier {
       assetType,
     );
 
-    final imageBytes =
-        bytes == null || bytes.isEmpty
-            ? null
-            : Uint8List.fromList(bytes);
-
+    // final imageBytes =
+    //     bytes == null || bytes.isEmpty
+    //         ? null
+    //         : Uint8List.fromList(bytes);
+    final imageBytes = bytes == null || bytes.isEmpty
+    ? null
+    : bytes is Uint8List
+        ? bytes
+        : Uint8List.fromList(bytes);
     //----------------------------------------------------------------------
     // Step 5: Update In-Memory Image
     //----------------------------------------------------------------------

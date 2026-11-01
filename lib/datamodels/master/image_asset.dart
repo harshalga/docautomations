@@ -69,6 +69,9 @@
 
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+
+
 
 class ImageAsset {
   final String imageData;
@@ -100,21 +103,59 @@ class ImageAsset {
 
   bool get hasImage => imageData.isNotEmpty;
 
+  // Uint8List? get bytes {
+  //   if (!hasImage) return null;
+
+  //   var data = imageData.trim();
+
+  //   final commaIndex = data.indexOf(",");
+
+  //   if (data.startsWith("data:") && commaIndex != -1) {
+  //     data = data.substring(commaIndex + 1);
+  //   }
+
+  //   try {
+  //     return base64Decode(data);
+  //   } catch (_) {
+  //     return null;
+  //   }
+  // }
+
   Uint8List? get bytes {
-    if (!hasImage) return null;
 
-    var data = imageData.trim();
-
-    final commaIndex = data.indexOf(",");
-
-    if (data.startsWith("data:") && commaIndex != -1) {
-      data = data.substring(commaIndex + 1);
-    }
-
-    try {
-      return base64Decode(data);
-    } catch (_) {
-      return null;
-    }
+  if (!hasImage) {
+    debugPrint("IMAGE ASSET: imageData is empty");
+    return null;
   }
+
+  var data = imageData.trim();
+
+  final commaIndex = data.indexOf(",");
+
+  if (data.startsWith("data:") && commaIndex != -1) {
+    data = data.substring(commaIndex + 1);
+  }
+
+  try {
+
+    final decoded = base64Decode(data);
+
+    debugPrint("IMAGE BASE64 LENGTH: ${data.length}");
+    debugPrint("IMAGE DECODED LENGTH: ${decoded.length}");
+
+    if (decoded.length >= 8) {
+      debugPrint(
+        "IMAGE SIGNATURE: ${decoded.take(8).toList()}",
+      );
+    }
+
+    return decoded;
+
+  } catch (e) {
+
+    debugPrint("IMAGE BASE64 DECODE ERROR: $e");
+
+    return null;
+  }
+}
 }

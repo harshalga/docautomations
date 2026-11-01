@@ -13,6 +13,10 @@ import 'package:docautomations/repositories/theme_repository.dart';
 
 import 'package:docautomations/services/theme_cache/theme_cache_manager.dart';
 
+import 'package:docautomations/services/logger_service.dart';
+
+import 'dart:async';
+
 class PrescLayoutSettingsScreen extends StatefulWidget {
   const PrescLayoutSettingsScreen({super.key});
 
@@ -99,12 +103,30 @@ bool get _selectedThemeIsAvailable {
 
   Future<void> _loadSettings() async {
     try {
+
+
+      //-------------------------------------------------------------------------
+// TEMPORARY: Clear old theme cache
+//-------------------------------------------------------------------------
+// await LoggerService.debug(
+//   "Temporary clearing theme cache...",
+// );
+// await _themeCacheManager.clearCache();
+
+// await LoggerService.debug(
+//   "Temporary clearing after theme cache...",
+// );
+
       //-------------------------------------------------------------------------
       // Load cached themes first
       //-------------------------------------------------------------------------
 
       final cachedThemes =
           await _themeCacheManager.loadCachedThemes();
+
+          await LoggerService.debug(
+  "Refreshing themes from backend...",
+);
 
       if (!mounted) return;
 
@@ -135,9 +157,10 @@ bool get _selectedThemeIsAvailable {
       //-------------------------------------------------------------------------
       // Refresh Themes from Backend
       //-------------------------------------------------------------------------
-
+ LoggerService.debug("Refreshing themes from backend...");
       await _refreshThemes();
-
+      LoggerService.debug(
+"Theme refresh completed. Available themes: ${_themes.length}");
     } catch (error) {
       if (!mounted) return;
 
@@ -183,6 +206,7 @@ bool get _selectedThemeIsAvailable {
 
   Future<void> _refreshThemes() async {
     if (_refreshingThemes) return;
+     
 
     setState(() {
       _refreshingThemes = true;
@@ -202,6 +226,34 @@ bool get _selectedThemeIsAvailable {
           );
         },
       );
+
+
+  
+      unawaited(
+  LoggerService.debug(
+    "THEMES LOADED: ${themes.length}",
+  ),
+);
+
+for (final theme in themes) {
+  unawaited(
+    LoggerService.debug(
+      "THEME: ${theme.name}",
+    ),
+  );
+
+  unawaited(
+    LoggerService.debug(
+      "HEADER LENGTH: ${theme.headerBackgroundImage?.imageData.length}",
+    ),
+  );
+
+  unawaited(
+    LoggerService.debug(
+      "FOOTER LENGTH: ${theme.footerBackgroundImage?.imageData.length}",
+    ),
+  );
+}
 
       if (!mounted) return;
 
@@ -613,63 +665,126 @@ bool get _selectedThemeIsAvailable {
     );
   }
 
-  Widget _buildThemeImage({
-    required String label,
-    required  ImageAsset? asset,
-  }) {
-    final bytes = asset?.bytes;
+  // Widget _buildThemeImage({
+  //   required String label,
+  //   required  ImageAsset? asset,
+  // }) {
+  //   final bytes = asset?.bytes;
 
 
-    LogStorage.write("========== $label IMAGE ==========");
-  LogStorage.write("Asset is null: ${asset == null}");
+  //   debugPrint("========== $label IMAGE ==========");
+  // debugPrint("Asset is null: ${asset == null}");
 
-  if (asset != null) {
-    LogStorage.write("Image MIME: ${asset.mimeType}");
-    LogStorage.write("Image data length: ${asset.imageData.length}");
-    LogStorage.write("Image bytes length: ${asset.bytes?.length}");
-  }
+  // if (asset != null) {
+  //   debugPrint("Image MIME: ${asset.mimeType}");
+  //   debugPrint("Image data length: ${asset.imageData.length}");
+  //   debugPrint("Image bytes length: ${asset.bytes?.length}");
+  // }
 
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.labelMedium,
-        ),
-        const SizedBox(height: 6),
-        Container(
-          height: 95,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Theme.of(context).dividerColor,
-            ),
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Text(
+  //         label,
+  //         style: Theme.of(context).textTheme.labelMedium,
+  //       ),
+  //       const SizedBox(height: 6),
+  //       Container(
+  //         height: 95,
+  //         width: double.infinity,
+  //         decoration: BoxDecoration(
+  //           color: Theme.of(context).colorScheme.surfaceContainerHighest,
+  //           borderRadius: BorderRadius.circular(8),
+  //           border: Border.all(
+  //             color: Theme.of(context).dividerColor,
+  //           ),
+  //         ),
+  //         clipBehavior: Clip.antiAlias,
+  //         child: bytes == null
+  //             ? const Center(
+  //                 child: Text(
+  //                   "No image",
+  //                   style: TextStyle(fontSize: 12),
+  //                 ),
+  //               )
+  //             : Image.memory(
+  //                 bytes,
+  //                 fit: BoxFit.contain,
+  //                 errorBuilder: (_, __, ___) {
+  //                   return const Center(
+  //                     child: Icon(Icons.broken_image_outlined),
+  //                   );
+  //                 },
+  //               ),
+  //       ),
+  //     ],
+  //   );
+  // }
+Widget _buildThemeImage({
+  required String label,
+  required ImageAsset? asset,
+}) {
+  final bytes = asset?.bytes;
+
+  debugPrint("========== $label IMAGE ==========");
+debugPrint("Asset null: ${asset == null}");
+debugPrint("MIME: ${asset?.mimeType}");
+debugPrint("Base64 length: ${asset?.imageData.length}");
+debugPrint("Base64 prefix: ${asset?.imageData.substring(
+  0,
+  (asset.imageData.length).clamp(0, 20),
+)}");
+debugPrint("Decoded bytes: ${bytes?.length}");
+
+if (bytes != null && bytes.length >= 8) {
+  debugPrint("Image signature: ${bytes.take(8).toList()}");
+}
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium,
+      ),
+      const SizedBox(height: 6),
+      Container(
+        height: 95,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Theme.of(context).dividerColor,
           ),
-          clipBehavior: Clip.antiAlias,
-          child: bytes == null
-              ? const Center(
-                  child: Text(
-                    "No image",
-                    style: TextStyle(fontSize: 12),
-                  ),
-                )
-              : Image.memory(
-                  bytes,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) {
-                    return const Center(
-                      child: Icon(Icons.broken_image_outlined),
-                    );
-                  },
-                ),
         ),
-      ],
-    );
-  }
+        clipBehavior: Clip.antiAlias,
+        child: bytes == null || bytes.isEmpty
+            ? const Center(
+                child: Text("No image"),
+              )
+            : Image.memory(
+                bytes,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  unawaited(
+                    LoggerService.error(
+                      "Failed to render $label image",
+                      error: error,
+                      stack: stackTrace,
+                    ),
+                  );
 
+                  return const Center(
+                    child: Icon(Icons.broken_image_outlined),
+                  );
+                },
+              ),
+      ),
+    ],
+  );
+}
   Widget _buildPremiumBadge(bool isPremium) {
     return Container(
       padding: const EdgeInsets.symmetric(

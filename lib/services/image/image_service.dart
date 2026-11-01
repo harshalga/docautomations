@@ -132,8 +132,8 @@ final resized = img.copyResize(
     ///mimeType: _mimeType(extension),
      // _compressImage() always encodes the output as JPEG.
   mimeType: 'image/jpeg',
-    width: image.width,
-    height: image.height,
+    width: resized.width,// image.width,
+    height: resized.height,// image.height,
     originalSizeInBytes: originalSize,
     compressedSizeInBytes: compressed.length,
   );

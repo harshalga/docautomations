@@ -1,11 +1,16 @@
 import 'dart:convert';
 
-import 'theme_cache_io.dart'
-    if (dart.library.js_interop) 'theme_cache_web.dart';
+// import 'theme_cache_io.dart'
+//     if (dart.library.js_interop) 'theme_cache_web.dart';
+
+  import 'theme_cache_web.dart'
+    if (dart.library.io) 'theme_cache_io.dart';
 
 import 'package:docautomations/datamodels/master/prescription_theme.dart';
 
 import 'theme_cache_manifest.dart';
+
+import 'package:flutter/foundation.dart';
 
 class ThemeCacheManager {
   final ThemeCachePlatform _platform = ThemeCachePlatform();
@@ -140,15 +145,68 @@ class ThemeCacheManager {
 
       final serverJson = theme.toJson();
 
+
+      debugPrint("======================================");
+debugPrint("THEME: ${theme.name}");
+debugPrint("THEME ID: ${theme.id}");
+
+debugPrint(
+  "SERVER HEADER LENGTH: "
+  "${serverJson["headerBackgroundImage"]?["imageData"]?.length ?? 0}",
+);
+
+debugPrint(
+  "SERVER FOOTER LENGTH: "
+  "${serverJson["footerBackgroundImage"]?["imageData"]?.length ?? 0}",
+);
+
+debugPrint(
+  "CACHED HEADER LENGTH: "
+  "${cachedJson?["headerBackgroundImage"]?["imageData"]?.length ?? 0}",
+);
+
+debugPrint(
+  "CACHED FOOTER LENGTH: "
+  "${cachedJson?["footerBackgroundImage"]?["imageData"]?.length ?? 0}",
+);
+
+debugPrint("======================================");
+
       final serverUpdatedAt =
           theme.updatedAt?.toUtc().toIso8601String() ?? "";
 
       final cachedUpdatedAt =
           manifest.getUpdatedAt(theme.id);
 
-      final needsUpdate = cachedJson == null ||
+    //   final needsUpdate = cachedJson == null ||
+    // !manifest.contains(theme.id) ||
+    // serverUpdatedAt != cachedUpdatedAt ||
+    // (serverUpdatedAt.isEmpty &&
+    //     jsonEncode(cachedJson) != jsonEncode(serverJson));
+
+    final cachedHeaderImage =
+    cachedJson?["headerBackgroundImage"];
+
+final cachedFooterImage =
+    cachedJson?["footerBackgroundImage"];
+
+final serverHeaderImage =
+    serverJson["headerBackgroundImage"];
+
+final serverFooterImage =
+    serverJson["footerBackgroundImage"];
+
+final imagesChanged =
+    jsonEncode(cachedHeaderImage) !=
+        jsonEncode(serverHeaderImage) ||
+    jsonEncode(cachedFooterImage) !=
+        jsonEncode(serverFooterImage);
+
+final needsUpdate =
+    cachedJson == null ||
     !manifest.contains(theme.id) ||
     serverUpdatedAt != cachedUpdatedAt ||
+    imagesChanged ||
     (serverUpdatedAt.isEmpty &&
         jsonEncode(cachedJson) != jsonEncode(serverJson));
 
