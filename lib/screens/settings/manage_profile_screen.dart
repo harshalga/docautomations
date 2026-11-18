@@ -284,8 +284,21 @@ Widget _field(
 
   @override
   Widget build(BuildContext context) {
-    final masterData =
-        context.watch<ApplicationController>().masterData;
+    // final masterData =
+    //     context.watch<ApplicationController>().masterData;
+
+    final applicationController =
+      context.watch<ApplicationController>();
+
+  if (!applicationController.initialized) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  final masterData = applicationController.masterData;
 
     final List<Country> countries = masterData.countries;
 

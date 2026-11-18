@@ -465,46 +465,90 @@ void _handleNewPatientRequested() {
   //
   //-------------------------------------------------------------------------
 
-  Future<void> _handleLogout() async {
+  //-------------------------------------------------------------------------
+// LOGOUT
+//-------------------------------------------------------------------------
 
-    try {
+Future<void> _handleLogout() async {
+  if (!mounted) return;
 
-      // final authenticationProvider =
-      //     context.read<AuthenticationProvider>();
+  final authenticationProvider =
+      context.read<AuthenticationProvider>();
 
-      // await authenticationProvider.logout();
+  final applicationController =
+      context.read<ApplicationController>();
 
+  // Step 1: Remove the authenticated UI.
+  // Menubar and its drawer header will no longer access masterData.
 
-      // final applicationBootstrapper =
-      //     context.read<ApplicationBootstrapper>();
+  setState(() {
+    _startupState = _AppStartupState.initializing;
+    _errorMessage = null;
+  });
 
-      // await applicationBootstrapper.clearCache();
+  // Step 2: Clear application state and cache.
 
-      final authenticationProvider =
-    context.read<AuthenticationProvider>();
-
-await authenticationProvider.logout();
-
-final applicationController =
-    context.read<ApplicationController>();
-
-await applicationController.clear();
-
-    } catch (error) {
-
-      debugPrint(
-        'Logout cleanup failed: $error',
-      );
-    }
-
-
-    if (!mounted) return;
-
-    setState(() {
-      _startupState = _AppStartupState.unauthenticated;
-      _errorMessage = null;
-    });
+  try {
+    await applicationController.clear();
+  } catch (error, stackTrace) {
+    debugPrint('Application cleanup failed: $error');
+    debugPrintStack(stackTrace: stackTrace);
   }
+
+  // Step 3: Clear authentication.
+
+  await authenticationProvider.logout();
+
+  // Step 4: Display the login screen.
+
+  if (!mounted) return;
+
+  setState(() {
+    _startupState = _AppStartupState.unauthenticated;
+    _errorMessage = null;
+  });
+}
+
+//   Future<void> _handleLogout() async {
+
+//     try {
+
+//       // final authenticationProvider =
+//       //     context.read<AuthenticationProvider>();
+
+//       // await authenticationProvider.logout();
+
+
+//       // final applicationBootstrapper =
+//       //     context.read<ApplicationBootstrapper>();
+
+//       // await applicationBootstrapper.clearCache();
+
+//       final authenticationProvider =
+//     context.read<AuthenticationProvider>();
+
+// await authenticationProvider.logout();
+
+// final applicationController =
+//     context.read<ApplicationController>();
+
+// await applicationController.clear();
+
+//     } catch (error) {
+
+//       debugPrint(
+//         'Logout cleanup failed: $error',
+//       );
+//     }
+
+
+//     if (!mounted) return;
+
+//     setState(() {
+//       _startupState = _AppStartupState.unauthenticated;
+//       _errorMessage = null;
+//     });
+//   }
 
 
   //-------------------------------------------------------------------------

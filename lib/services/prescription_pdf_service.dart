@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:docautomations/datamodels/master/prescription_theme.dart';
 import 'package:docautomations/device_assets/asset_type.dart';
 import 'package:docautomations/device_assets/asset_manager.dart';
+import 'package:flutter/material.dart';
 
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -923,43 +924,112 @@ pw.Widget _consultationSection(
   // ===========================================================================
   // THEME IMAGE
   // ===========================================================================
-
-  pw.MemoryImage? _loadThemeImage(
+pw.MemoryImage? _loadThemeImage(
   PrescriptionTheme? theme, {
   required bool isHeader,
 }) {
-  if (theme == null) {
-    return null;
-  }
+  if (theme == null) return null;
 
-  final asset =
-      isHeader
-          ? theme.headerBackgroundImage
-          : theme.footerBackgroundImage;
+  final asset = isHeader
+      ? theme.headerBackgroundImage
+      : theme.footerBackgroundImage;
 
   if (asset == null || !asset.hasImage) {
     return null;
   }
 
   try {
-    var value = asset.imageData;
+    final dynamic imageData = asset.imageData;
 
-    // Supports:
-    // data:image/png;base64,.....
-    // and plain base64.
-    if (value.contains(",")) {
-      value = value.substring(
-        value.indexOf(",") + 1,
+    Uint8List bytes;
+
+    if (imageData is Uint8List) {
+      bytes = imageData;
+    } else if (imageData is List<int>) {
+      bytes = Uint8List.fromList(imageData);
+    } else if (imageData is Map &&
+        imageData['data'] is List) {
+      bytes = Uint8List.fromList(
+        List<int>.from(imageData['data']),
       );
+    } else if (imageData is String) {
+      var value = imageData.trim();
+
+      // Handle data URI.
+      if (value.startsWith('data:')) {
+        value = value.substring(
+          value.indexOf(',') + 1,
+        );
+      }
+
+      // Handle JSON-serialized Buffer.
+      if (value.startsWith('{"type":"Buffer"')) {
+        final decoded = jsonDecode(value);
+
+        bytes = Uint8List.fromList(
+          List<int>.from(decoded['data']),
+        );
+      } else {
+        // Standard Base64.
+        bytes = base64Decode(value);
+      }
+    } else {
+      debugPrint(
+        'Unsupported image data type: ${imageData.runtimeType}',
+      );
+
+      return null;
     }
 
-    final bytes = base64Decode(value);
+    debugPrint(
+      '${isHeader ? "HEADER" : "FOOTER"} '
+      'decoded bytes: ${bytes.length}',
+    );
 
     return pw.MemoryImage(bytes);
-  } catch (_) {
+  } catch (e, stackTrace) {
+    debugPrint('Theme image decoding failed: $e');
+    debugPrintStack(stackTrace: stackTrace);
+
     return null;
   }
 }
+//   pw.MemoryImage? _loadThemeImage(
+//   PrescriptionTheme? theme, {
+//   required bool isHeader,
+// }) {
+//   if (theme == null) {
+//     return null;
+//   }
+
+//   final asset =
+//       isHeader
+//           ? theme.headerBackgroundImage
+//           : theme.footerBackgroundImage;
+
+//   if (asset == null || !asset.hasImage) {
+//     return null;
+//   }
+
+//   try {
+//     var value = asset.imageData;
+
+//     // Supports:
+//     // data:image/png;base64,.....
+//     // and plain base64.
+//     if (value.contains(",")) {
+//       value = value.substring(
+//         value.indexOf(",") + 1,
+//       );
+//     }
+
+//     final bytes = base64Decode(value);
+
+//     return pw.MemoryImage(bytes);
+//   } catch (_) {
+//     return null;
+//   }
+// }
 
   // ===========================================================================
   // HELPERS

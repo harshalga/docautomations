@@ -123,6 +123,15 @@ class _DoctorWelcomeScreenState extends State<DoctorWelcomeScreen> {
     final applicationController =
         context.watch<ApplicationController>();
 
+         if (!applicationController.initialized) {
+          return const SizedBox.shrink();
+    // return const Scaffold(
+    //   body: Center(
+    //     child: CircularProgressIndicator(),
+    //   ),
+    // );
+  }
+
     final masterData = applicationController.masterData;
 
     // Read logo directly from ApplicationController.

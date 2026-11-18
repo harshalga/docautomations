@@ -263,8 +263,26 @@ class _MenubarState extends State<Menubar> {
 
   
 Widget _buildDrawerHeader() {
-  final masterData =
-      context.watch<ApplicationController>().masterData;
+  // final masterData =
+  //     context.watch<ApplicationController>().masterData;
+
+
+
+       final applicationController =
+      context.watch<ApplicationController>();
+
+  if (!applicationController.initialized) {
+    return const SizedBox(
+      height: 220,
+      child: DrawerHeader(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+    );
+  }
+
+  final masterData = applicationController.masterData;
 
   final name =
       masterData.doctorProfile.doctor.doctorName.trim();

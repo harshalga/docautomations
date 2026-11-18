@@ -354,24 +354,25 @@ class DoctorRepository {
   //===========================================================================
   // Download Doctor Logo
   //===========================================================================
+Future<List<int>> downloadDoctorLogo() =>
+    apiService.downloadDoctorLogo();
+  // Future<List<int>> downloadDoctorLogo() async {
+  //   return await apiService.downloadDoctorLogo();
 
-  Future<List<int>> downloadDoctorLogo() async {
-    return await apiService.downloadDoctorLogo();
+  //   // try {
 
-    // try {
+  //   //   return await apiService.downloadDoctorLogo();
 
-    //   return await apiService.downloadDoctorLogo();
+  //   // }
+  //   // catch (error) {
 
-    // }
-    // catch (error) {
+  //   //   throw Exception(
+  //   //     error.toString(),
+  //   //   );
 
-    //   throw Exception(
-    //     error.toString(),
-    //   );
+  //   // }
 
-    // }
-
-  }
+  // }
 
 
   // //===========================================================================
@@ -532,24 +533,25 @@ Future<OperationResult> replaceDoctorSignature({
   //===========================================================================
   // Download Doctor Signature
   //===========================================================================
+Future<List<int>> downloadDoctorSignature() =>
+    apiService.downloadDoctorSignature();
+  // Future<List<int>> downloadDoctorSignature() async {
+  //    return await apiService.downloadDoctorSignature();
 
-  Future<List<int>> downloadDoctorSignature() async {
-     return await apiService.downloadDoctorSignature();
+  //   // try {
 
-    // try {
+  //   //   return await apiService.downloadDoctorSignature();
 
-    //   return await apiService.downloadDoctorSignature();
+  //   // }
+  //   // catch (error) {
 
-    // }
-    // catch (error) {
+  //   //   throw Exception(
+  //   //     error.toString(),
+  //   //   );
 
-    //   throw Exception(
-    //     error.toString(),
-    //   );
+  //   // }
 
-    // }
-
-  }
+  // }
 
   //===========================================================================
 // Delete Doctor Logo
