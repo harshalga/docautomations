@@ -591,9 +591,15 @@ for (final theme in themes) {
       ),
       child: InkWell(
         onTap: () {
-          setState(() {
-            _selectedThemeId = theme.id;
-          });
+          // setState(() {
+          //   _selectedThemeId = theme.id;
+          // });
+           if (_selectedThemeId != theme.id) {
+                setState(() {
+               _selectedThemeId = theme.id;
+              });
+              }
+
         },
         child: Padding(
           padding: const EdgeInsets.all(12),

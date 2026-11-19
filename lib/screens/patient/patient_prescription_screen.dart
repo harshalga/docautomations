@@ -1979,6 +1979,9 @@ final prescriptionQrData =
 
 final doctorId = applicationController.currentDoctorId;
 
+final doctorProfile =
+    applicationController.masterData.doctorProfile;
+
 if (doctorId == null || doctorId.isEmpty) {
   throw Exception('Doctor ID is not available.');
 }
@@ -1986,6 +1989,7 @@ if (doctorId == null || doctorId.isEmpty) {
     final Uint8List pdfBytes =
         await pdfService.generatePrescriptionPdf(
           doctorId: doctorId,
+          doctorProfile: doctorProfile,
       snapshot: snapshot,
 
       selectedTheme:

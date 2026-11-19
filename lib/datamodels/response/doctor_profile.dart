@@ -2,7 +2,7 @@ import 'package:docautomations/datamodels/master/doctor_master.dart';
 import 'package:docautomations/datamodels/master/prescription_layout.dart';
 import 'package:docautomations/datamodels/master/prescription_theme.dart';
 import 'package:docautomations/datamodels/master/server_assets.dart';
-import 'package:docautomations/device_assets/asset_manifest.dart';
+
 
 class DoctorProfile {
   //---------------------------------------------------------------------------
