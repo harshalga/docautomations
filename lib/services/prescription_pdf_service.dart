@@ -273,16 +273,52 @@ pw.Widget _chiefComplaintWithVitals(
 
     document.addPage(
       pw.MultiPage(
-        pageFormat: pageFormat,
-
-        margin: pw.EdgeInsets.only(
-          // Full-width header/footer; body horizontal margins are applied
-          // separately to the flowing content.
-          left: 0,
-          right: 0,
-          top: topMargin,
-          bottom: footerHeight + bottomMargin,
-        ),
+        // Draw header/footer artwork in the page background layer so it is
+        // not constrained by the MultiPage header/footer content area.
+        // PageTheme owns the page format and margins; do not also pass
+        // pageFormat or margin directly to MultiPage.
+        pageTheme: pw.PageTheme(
+          pageFormat: pageFormat,
+          margin: pw.EdgeInsets.only(
+            left: 0,
+            right: 0,
+            top: topMargin,
+            bottom: bottomMargin,
+          ),
+          buildBackground: (context) => pw.FullPage(
+            ignoreMargins: true,
+            child: pw.Stack(
+              children: [
+                if (!layout.printLetterHead && headerImage != null)
+                  pw.Positioned(
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    child: pw.Container(
+                      height: headerHeight,
+                      child: pw.Image(
+                        headerImage,
+                        fit: pw.BoxFit.fill,
+                      ),
+                    ),
+                  ),
+                if (!layout.printLetterHead && footerImage != null)
+                  pw.Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: pw.Container(
+                      height: footerHeight,
+                      child: pw.Image(
+                        footerImage,
+                        fit: pw.BoxFit.fill,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+      ),
 
         // -------------------------------------------------------------------
         // REPEATING HEADER: THEME IMAGE + DOCTOR INFORMATION + LOGO
@@ -290,13 +326,15 @@ pw.Widget _chiefComplaintWithVitals(
 
         header: (context) {
           if (layout.printLetterHead) {
-            return pw.SizedBox();
+            // Suppress our custom header artwork and doctor details, but
+            // preserve the configured header height for the doctor's
+            // pre-printed letterhead.
+            return pw.SizedBox(height: headerHeight);
           }
 
           return _buildMultiPageHeader(
             doctorProfile: doctorProfile,
             logoBytes: logoBytes,
-            headerImage: headerImage,
             headerHeight: headerHeight,
             leftMargin: leftMargin,
             rightMargin: rightMargin,
@@ -311,8 +349,6 @@ pw.Widget _chiefComplaintWithVitals(
         footer: (context) {
           return _buildMultiPageFooter(
             context: context,
-            printLetterHead: layout.printLetterHead,
-            footerImage: footerImage,
             footerHeight: footerHeight,
             rightMargin: rightMargin,
           );
@@ -347,66 +383,40 @@ pw.Widget _chiefComplaintWithVitals(
   pw.Widget _buildMultiPageHeader({
     required DoctorProfile doctorProfile,
     Uint8List? logoBytes,
-    pw.MemoryImage? headerImage,
     required double headerHeight,
     required double leftMargin,
     required double rightMargin,
   }) {
-    // With MultiPage horizontal margins set to zero, this header spans the
-    // entire physical page width. Doctor information remains inset.
+    // Header artwork is drawn in PageTheme.buildBackground. This callback
+    // contains only doctor details/logo and is inset from the page edges.
     return pw.Container(
       height: headerHeight,
       width: double.infinity,
-      child: pw.Stack(
-        children: [
-          if (headerImage != null)
-            pw.Positioned.fill(
-              child: pw.Image(
-                headerImage,
-                fit: pw.BoxFit.fill,
-              ),
-            ),
-          pw.Positioned(
-            left: leftMargin + 5,
-            right: rightMargin + 5,
-            top: 5,
-            bottom: 5,
-            child: _buildDoctorHeader(doctorProfile, logoBytes),
-          ),
-        ],
+      padding: pw.EdgeInsets.only(
+        left: leftMargin + 5,
+        right: rightMargin + 5,
+        top: 5,
+        bottom: 5,
       ),
+      child: _buildDoctorHeader(doctorProfile, logoBytes),
     );
   }
 
   pw.Widget _buildMultiPageFooter({
     required pw.Context context,
-    required bool printLetterHead,
-    pw.MemoryImage? footerImage,
     required double footerHeight,
     required double rightMargin,
   }) {
-    // Full-width footer background. Page number remains inset from the edge.
+    // Footer artwork is drawn in PageTheme.buildBackground. Keep the page
+    // number inside the configured content margin.
     return pw.Container(
       height: footerHeight,
       width: double.infinity,
-      child: pw.Stack(
-        children: [
-          if (!printLetterHead && footerImage != null)
-            pw.Positioned.fill(
-              child: pw.Image(
-                footerImage,
-                fit: pw.BoxFit.fill,
-              ),
-            ),
-          pw.Positioned(
-            right: rightMargin + 5,
-            bottom: 5,
-            child: pw.Text(
-              "Page ${context.pageNumber}",
-              style: const pw.TextStyle(fontSize: 8),
-            ),
-          ),
-        ],
+      alignment: pw.Alignment.bottomRight,
+      padding: pw.EdgeInsets.only(right: rightMargin + 5, bottom: 5),
+      child: pw.Text(
+        "Page ${context.pageNumber}",
+        style: const pw.TextStyle(fontSize: 8),
       ),
     );
   }
@@ -429,10 +439,24 @@ pw.Widget _chiefComplaintWithVitals(
         );
 
     return [
+      // Add breathing space below the doctor header before the date.
+      pw.SizedBox(height: 12),
       inset(
-        pw.Text(
-          prescriptionDate,
-          style: const pw.TextStyle(fontSize: 10),
+        pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.center,
+          children: [
+            pw.Text(
+              'Prescription Date: ',
+              style: pw.TextStyle(
+                fontSize: 10,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+            pw.Text(
+              prescriptionDate,
+              style: const pw.TextStyle(fontSize: 10),
+            ),
+          ],
         ),
       ),
       pw.SizedBox(height: 8),
