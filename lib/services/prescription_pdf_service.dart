@@ -276,11 +276,10 @@ pw.Widget _chiefComplaintWithVitals(
         pageFormat: pageFormat,
 
         margin: pw.EdgeInsets.only(
-          left: leftMargin,
-          right: rightMargin,
-          // MultiPage positions the header within the top margin and then
-          // places the body after the header. Reserving headerHeight here as
-          // well creates a second header-height gap above the header.
+          // Full-width header/footer; body horizontal margins are applied
+          // separately to the flowing content.
+          left: 0,
+          right: 0,
           top: topMargin,
           bottom: footerHeight + bottomMargin,
         ),
@@ -299,6 +298,8 @@ pw.Widget _chiefComplaintWithVitals(
             logoBytes: logoBytes,
             headerImage: headerImage,
             headerHeight: headerHeight,
+            leftMargin: leftMargin,
+            rightMargin: rightMargin,
           );
         },
 
@@ -313,6 +314,7 @@ pw.Widget _chiefComplaintWithVitals(
             printLetterHead: layout.printLetterHead,
             footerImage: footerImage,
             footerHeight: footerHeight,
+            rightMargin: rightMargin,
           );
         },
 
@@ -328,6 +330,8 @@ pw.Widget _chiefComplaintWithVitals(
             qrCode: qrCode,
             printSignature: layout.printSignature,
             signatureBytes: signatureBytes,
+            leftMargin: leftMargin,
+            rightMargin: rightMargin,
           );
         },
       ),
@@ -345,13 +349,16 @@ pw.Widget _chiefComplaintWithVitals(
     Uint8List? logoBytes,
     pw.MemoryImage? headerImage,
     required double headerHeight,
+    required double leftMargin,
+    required double rightMargin,
   }) {
+    // With MultiPage horizontal margins set to zero, this header spans the
+    // entire physical page width. Doctor information remains inset.
     return pw.Container(
       height: headerHeight,
       width: double.infinity,
       child: pw.Stack(
         children: [
-          // Theme header background.
           if (headerImage != null)
             pw.Positioned.fill(
               child: pw.Image(
@@ -359,39 +366,31 @@ pw.Widget _chiefComplaintWithVitals(
                 fit: pw.BoxFit.fill,
               ),
             ),
-
-          // Doctor details and logo.
           pw.Positioned(
-            left: 5,
-            right: 5,
+            left: leftMargin + 5,
+            right: rightMargin + 5,
             top: 5,
             bottom: 5,
-            child: _buildDoctorHeader(
-              doctorProfile,
-              logoBytes,
-            ),
+            child: _buildDoctorHeader(doctorProfile, logoBytes),
           ),
         ],
       ),
     );
   }
 
-  // ===========================================================================
-  // MULTI-PAGE FOOTER
-  // ===========================================================================
-
   pw.Widget _buildMultiPageFooter({
     required pw.Context context,
     required bool printLetterHead,
     pw.MemoryImage? footerImage,
     required double footerHeight,
+    required double rightMargin,
   }) {
+    // Full-width footer background. Page number remains inset from the edge.
     return pw.Container(
       height: footerHeight,
       width: double.infinity,
       child: pw.Stack(
         children: [
-          // Footer background image on every page.
           if (!printLetterHead && footerImage != null)
             pw.Positioned.fill(
               child: pw.Image(
@@ -399,11 +398,8 @@ pw.Widget _chiefComplaintWithVitals(
                 fit: pw.BoxFit.fill,
               ),
             ),
-
-          // Page number on every page. This pdf package version exposes
-          // pageNumber but does not expose a total-pages getter.
           pw.Positioned(
-            right: 5,
+            right: rightMargin + 5,
             bottom: 5,
             child: pw.Text(
               "Page ${context.pageNumber}",
@@ -415,55 +411,43 @@ pw.Widget _chiefComplaintWithVitals(
     );
   }
 
-  // ===========================================================================
-  // MULTI-PAGE BODY
-  // ===========================================================================
-
   List<pw.Widget> _buildMultiPageBody({
     required PrescriptionSnapshot snapshot,
     required String prescriptionDate,
     required pw.BarcodeWidget? qrCode,
     required bool printSignature,
     Uint8List? signatureBytes,
+    required double leftMargin,
+    required double rightMargin,
   }) {
     final patient = snapshot.patient;
     final prescription = snapshot.prescription;
 
+    pw.Widget inset(pw.Widget child) => pw.Padding(
+          padding: pw.EdgeInsets.only(left: leftMargin, right: rightMargin),
+          child: child,
+        );
+
     return [
-      // Prescription date.
-      pw.Text(
-        prescriptionDate,
-        style: const pw.TextStyle(fontSize: 10),
+      inset(
+        pw.Text(
+          prescriptionDate,
+          style: const pw.TextStyle(fontSize: 10),
+        ),
       ),
-
       pw.SizedBox(height: 8),
-
-      // Patient information with QR code on the right.
-      _buildPatientInformation(
-        patient,
-        qrCode,
-      ),
-
+      inset(_buildPatientInformation(patient, qrCode)),
       pw.SizedBox(height: 10),
-
-      // Consultation information.
-      _buildConsultation(
-        prescription,
-      ),
-
+      inset(_buildConsultation(prescription)),
       pw.SizedBox(height: 10),
-
-      // Medicine table.
-      _buildMedicineTable(
-        prescription.medicines,
-      ),
-
-      // Signature flows after the prescription content and appears once.
+      inset(_buildMedicineTable(prescription.medicines)),
       if (printSignature && signatureBytes != null) ...[
         pw.SizedBox(height: 12),
-        pw.Align(
-          alignment: pw.Alignment.centerRight,
-          child: _buildSignature(signatureBytes),
+        inset(
+          pw.Align(
+            alignment: pw.Alignment.centerRight,
+            child: _buildSignature(signatureBytes),
+          ),
         ),
       ],
     ];
