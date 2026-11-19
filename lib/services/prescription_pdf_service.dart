@@ -278,7 +278,10 @@ pw.Widget _chiefComplaintWithVitals(
         margin: pw.EdgeInsets.only(
           left: leftMargin,
           right: rightMargin,
-          top: headerHeight + topMargin,
+          // MultiPage positions the header within the top margin and then
+          // places the body after the header. Reserving headerHeight here as
+          // well creates a second header-height gap above the header.
+          top: topMargin,
           bottom: footerHeight + bottomMargin,
         ),
 
